@@ -98,7 +98,10 @@ class POLAdvance(Document):
 			if self.docstatus == 2:
 				status = "Cancelled"
 			elif self.docstatus == 1:
-				self.status = "Unpaid"
+				if self.is_opening:
+					self.status = "Paid"
+				else:
+					self.status = "Unpaid"
 		else:
 			self.status = "Draft"
 
