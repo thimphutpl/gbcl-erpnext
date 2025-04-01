@@ -53,7 +53,9 @@ frappe.ui.form.on('POL Receive', {
 		get_previous_km_reading(frm);
 	},
 	supplier: function (frm) {
-		get_pol_advance(frm);
+		if (frm.doc.for_machineries) {
+			get_pol_advance(frm);
+		}
 		get_previous_km_reading(frm);
 	},
 
