@@ -86,7 +86,7 @@
  "icon": "fa fa-code-fork",
  "idx": 1,
  "links": [],
- "modified": "2025-04-01 13:59:32.818304",
+ "modified": "2025-04-01 14:01:45.247287",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Branch",
@@ -132,6 +132,7 @@
    "read": 1,
    "report": 1,
    "role": "Sales User",
+   "select": 1,
    "share": 1,
    "write": 1
   },
@@ -152,6 +153,7 @@
    "read": 1,
    "report": 1,
    "role": "Purchase User",
+   "select": 1,
    "share": 1,
    "write": 1
   },
@@ -172,6 +174,7 @@
    "read": 1,
    "report": 1,
    "role": "Fleet User",
+   "select": 1,
    "share": 1,
    "write": 1
   },
