@@ -93,6 +93,8 @@
   "disable_rounded_total",
   "in_words",
   "advance_paid",
+  "remarks_section",
+  "remarks",
   "discount_section",
   "apply_discount_on",
   "base_discount_amount",
@@ -1301,13 +1303,23 @@
    "label": "Branch",
    "options": "Branch",
    "reqd": 1
+  },
+  {
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Text",
+   "label": "Remarks"
   }
  ],
  "icon": "fa fa-file-text",
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-10 11:27:29.610037",
+ "modified": "2025-04-01 12:23:29.170431",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",
