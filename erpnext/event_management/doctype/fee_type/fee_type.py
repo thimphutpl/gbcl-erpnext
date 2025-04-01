@@ -17,6 +17,7 @@ class FeeType(Document):
 		description: DF.SmallText | None
 		disabled: DF.Check
 		fee_type: DF.Data
+		income_account: DF.Link | None
 		rate: DF.Currency
 	# end: auto-generated types
 	pass
