@@ -269,6 +269,10 @@ class JournalEntry(AccountsController):
 					doc = frappe.get_doc("POL Advance", d.reference_name)
 					doc.db_set('status', "Cancelled")
 					doc.db_set('journal_entry_status', "Cancelled on {0}".format(now_datetime().strftime("%Y-%m-%d %H:%M:%S")))
+
+				elif d.reference_type == "Cash Deposit Entry" and d.reference_name:
+					doc = frappe.get_doc("Cash Deposit Entry", d.reference_name)
+					doc.db_set('journal_entry_status', "Cancelled on {0}".format(now_datetime().strftime("%Y-%m-%d %H:%M:%S")))
 				
 				# removing references
 				d.reference_type = ""

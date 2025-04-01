@@ -1,6 +1,6 @@
 {
  "actions": [],
- "allow_rename": 1,
+ "autoname": "CDE.-.YYYY.-.MM.-.####",
  "creation": "2025-03-24 16:46:14.252637",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -15,8 +15,11 @@
   "to_date",
   "section_break_wsqm",
   "items",
+  "total_amount",
   "more_info_section",
   "journal_entry",
+  "journal_entry_status",
+  "journal_entry_html",
   "column_break_owas",
   "company",
   "cost_center",
@@ -45,6 +48,7 @@
    "fieldname": "location",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Location",
    "options": "Location",
    "reqd": 1
@@ -113,8 +117,30 @@
    "options": "Cash Deposit Entry Item"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "journal_entry",
    "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "journal_entry_status",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Journal Entry Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "journal_entry_html",
+   "fieldtype": "HTML",
    "label": "Journal Entry",
    "read_only": 1
   }
@@ -122,13 +148,15 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-24 18:31:40.277179",
+ "modified": "2025-03-31 16:08:22.673812",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Cash Deposit Entry",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -137,6 +165,54 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
    "share": 1,
    "submit": 1,
    "write": 1
