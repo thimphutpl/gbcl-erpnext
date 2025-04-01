@@ -14,6 +14,7 @@ class NoteRemark(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		name: DF.Int | None
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data

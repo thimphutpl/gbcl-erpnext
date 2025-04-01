@@ -2,8 +2,9 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "ENOTE.YY.MM.####",
- "creation": "2025-03-07 16:15:09.665619",
+ "creation": "2023-09-18 13:28:42.381307",
  "doctype": "DocType",
+ "document_type": "Document",
  "engine": "InnoDB",
  "field_order": [
   "enote_format",
@@ -134,14 +135,14 @@
    "description": "** This eNote type refers to department or division or section or unit if it has different series format. EG. If ITD has BOBL/ITD/01/Year/### and HRD has BOBL/HRD/01/Year/###, then in eNote type, it must include HRD and ITD ***.",
    "fieldname": "enote_type",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "eNote Type",
-   "options": "eNote Type"
+   "options": "eNote Type",
+   "reqd": 1
   },
   {
    "description": "*** It must be ended with /. Based on this series, it will generate your dispatch number after the eNote is approved.***",
    "fieldname": "enote_series",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Dispatch/Reference Series",
    "options": "eNote Series",
    "reqd": 1
@@ -174,10 +175,10 @@
    "options": "\nProcess\nPayment"
   }
  ],
- "index_web_pages_for_search": 1,
+ "icon": "fa fa-file-text",
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-12 12:23:58.707683",
+ "modified": "2024-11-21 16:36:00.965777",
  "modified_by": "Administrator",
  "module": "eNote",
  "name": "eNote",
@@ -188,19 +189,20 @@
    "create": 1,
    "delete": 1,
    "email": 1,
-   "export": 1,
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "System Manager",
+   "role": "All",
    "share": 1,
    "submit": 1,
    "write": 1
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC",
+ "sort_order": "ASC",
  "states": [],
+ "title_field": "title",
  "track_changes": 1,
- "track_seen": 1
+ "track_seen": 1,
+ "track_views": 1
 }

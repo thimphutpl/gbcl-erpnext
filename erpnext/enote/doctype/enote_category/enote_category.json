@@ -2,13 +2,13 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "field:category",
- "creation": "2025-03-07 16:17:28.769002",
+ "creation": "2023-10-25 16:30:01.352927",
  "doctype": "DocType",
+ "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "category",
-  "template",
-  "amended_from"
+  "template"
  ],
  "fields": [
   {
@@ -21,20 +21,11 @@
    "fieldname": "template",
    "fieldtype": "Text Editor",
    "label": " Template"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "eNote Category",
-   "print_hide": 1,
-   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-12 12:19:54.863263",
+ "modified": "2023-10-25 16:32:05.281928",
  "modified_by": "Administrator",
  "module": "eNote",
  "name": "eNote Category",
@@ -54,7 +45,9 @@
    "write": 1
   }
  ],
+ "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }

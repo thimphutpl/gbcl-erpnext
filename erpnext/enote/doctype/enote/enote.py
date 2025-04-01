@@ -24,8 +24,8 @@ class eNote(Document):
 		content: DF.TextEditor | None
 		copied: DF.TableMultiSelect[NoteCopy]
 		enote_format: DF.Data | None
-		enote_series: DF.Data
-		enote_type: DF.Link | None
+		enote_series: DF.Link
+		enote_type: DF.Link
 		forward_to: DF.Link | None
 		note_date: DF.Date | None
 		permitted_user: DF.Link | None
