@@ -83,7 +83,7 @@ class eNote(Document):
 		#Allow only the permitted user to make changes
 		self.permitted_user = frappe.session.user if not self.permitted_user else self.permitted_user
 
-		if self.get_db_value("workflow_state") != "Waiting For Reviewer":
+		if self.get_db_value("workflow_state") != "Waiting for Reviewer":
 			if self.permitted_user != frappe.session.user:
 				frappe.throw(" Only <b>{}</b> is allowed to make changes and perform actions to this Note".format(self.permitted_user))
 		
@@ -145,7 +145,7 @@ class eNote(Document):
 		elif self.workflow_state == "Pending" and frappe.session.user != self.forward_to:
 			self.notify_approval()
 
-		elif self.workflow_state == "Waiting For Reviewer":
+		elif self.workflow_state == "Waiting for Reviewer":
 			self.notify_reviewer()
 
 	def notify_reviewer(self):
@@ -358,7 +358,7 @@ def get_permission_query_conditions(user):
     return """(
         `tabeNote`.owner = '{user}' or
 		IF (
-				(`tabeNote`.reviewer_required = '1' and `tabeNote`.workflow_state != 'Waiting For Reviewer') or `tabeNote`.reviewer_required = '0',  
+				(`tabeNote`.reviewer_required = '1' and `tabeNote`.workflow_state != 'Waiting for Reviewer') or `tabeNote`.reviewer_required = '0',  
 				`tabeNote`.permitted_user = '{user}',
 				exists(select 1
 					from `tabEmployee` e, `tabeNote Reviewer` nr
