@@ -110,15 +110,15 @@ class FeeClosingEntry(Document):
 
 	def post_journal_entry(self):
 		income_account = frappe.db.get_value("Location", self.location, "income_account")
-		bank_account = frappe.db.get_value("Branch", self.branch, "revenue_bank_account")
+		# bank_account = frappe.db.get_value("Branch", self.branch, "revenue_bank_account")
 
-		if not bank_account:
-			frappe.throw(
-				"Default Revenue Bank Account is not set for {}. Please configure it in the branch.".format(
-					frappe.get_desk_link("Branch", self.branch)
-				),
-				title="Missing Account"
-			)
+		# if not bank_account:
+		# 	frappe.throw(
+		# 		"Default Revenue Bank Account is not set for {}. Please configure it in the branch.".format(
+		# 			frappe.get_desk_link("Branch", self.branch)
+		# 		),
+		# 		title="Missing Account"
+		# 	)
 
 		if not income_account:
 			frappe.throw(
@@ -131,9 +131,9 @@ class FeeClosingEntry(Document):
 		# Posting Journal Entry
 		accounts = []
 		for d in self.get("payments"):
-			account = get_bank_cash_account(d.mode_of_payment, self.company)
+			account = get_bank_cash_account(d.mode_of_payment, self.branch)
 			accounts.append({
-				"account": bank_account,
+				"account": account,
 				"debit_in_account_currency": flt(d.amount),
 				"cost_center": self.cost_center,
 				"reference_type": self.doctype,
@@ -170,9 +170,9 @@ class FeeClosingEntry(Document):
 		frappe.msgprint(_('{} posted to accounts').format(frappe.get_desk_link(je.doctype,je.name)))
 
 @frappe.whitelist()
-def get_bank_cash_account(mode_of_payment, company):
+def get_bank_cash_account(mode_of_payment, branch):
 	account = frappe.db.get_value(
-		"Mode of Payment Account", {"parent": mode_of_payment, "company": company}, "default_account"
+		"Mode of Payment Branch Account", {"parent": mode_of_payment, "branch": branch}, "account"
 	)
 	if not account:
 		frappe.throw(
