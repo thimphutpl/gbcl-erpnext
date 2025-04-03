@@ -110,12 +110,12 @@ class FeeClosingEntry(Document):
 
 	def post_journal_entry(self):
 		income_account = frappe.db.get_value("Location", self.location, "income_account")
-		csr_account = frappe.db.get_value("Company", self.company, "csr_account")
+		bank_account = frappe.db.get_value("Branch", self.branch, "revenue_bank_account")
 
-		if not csr_account:
+		if not bank_account:
 			frappe.throw(
-				"CSR Account is not set for {}. Please configure it in the company.".format(
-					frappe.get_desk_link("Company", self.company)
+				"Default Revenue Bank Account is not set for {}. Please configure it in the branch.".format(
+					frappe.get_desk_link("Branch", self.branch)
 				),
 				title="Missing Account"
 			)
@@ -133,7 +133,7 @@ class FeeClosingEntry(Document):
 		for d in self.get("payments"):
 			account = get_bank_cash_account(d.mode_of_payment, self.company)
 			accounts.append({
-				"account": account,
+				"account": bank_account,
 				"debit_in_account_currency": flt(d.amount),
 				"cost_center": self.cost_center,
 				"reference_type": self.doctype,
