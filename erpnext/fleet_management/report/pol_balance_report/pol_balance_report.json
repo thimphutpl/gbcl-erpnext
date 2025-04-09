@@ -1,5 +1,5 @@
 {
- "add_total_row": 0,
+ "add_total_row": 1,
  "columns": [],
  "creation": "2025-03-13 12:10:35.659348",
  "disabled": 0,
@@ -10,7 +10,7 @@
  "is_standard": "Yes",
  "letter_head": "gbcl_default",
  "letterhead": null,
- "modified": "2025-03-13 12:10:35.659348",
+ "modified": "2025-04-01 12:30:34.425128",
  "modified_by": "Administrator",
  "module": "Fleet Management",
  "name": "POL Balance Report",
