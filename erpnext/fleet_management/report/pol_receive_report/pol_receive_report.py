@@ -21,18 +21,6 @@ def get_columns(filters):
                 "width": 120,
             },
             {
-                "label": ("Equipment No."),
-                "fieldname": "equipment_number",
-                "fieldtype": "Data",
-                "width": 120,
-            },
-            {
-                "label": ("Book Type"),
-                "fieldname": "book_type",
-                "fieldtype": "Data",
-                "width": 120,
-            },
-            {
                 "label": ("Fuelbook"),
                 "fieldname": "fuelbook",
                 "fieldtype": "Data",
