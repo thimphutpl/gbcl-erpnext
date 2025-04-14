@@ -164,7 +164,7 @@ def get_columns(filters):
 def get_data(filters):
     query = """
         SELECT 
-            p.equipment, p.equipment_number, p.book_type, p.fuelbook, 
+            p.equipment, p.book_type, p.fuelbook, 
             p.supplier, p.pol_type, p.pol_type, p.item_name, p.posting_date, 
             p.qty, p.rate, IFNULL(p.total_amount, 0) AS amount
         FROM `tabPOL Receive` AS p 
