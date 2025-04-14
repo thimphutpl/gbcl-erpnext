@@ -166,8 +166,8 @@ def get_data(filters):
         SELECT 
             p.equipment, p.fuelbook, 
             p.supplier, p.item_name, p.posting_date,
-            p.qty, p.rate, IFNULL(p.total_amount, 0) AS amount
-        FROM `tabPOL Receive` AS p 
+            pr.qty, pr.rate, IFNULL(pr.total_amount, 0) AS amount
+        FROM `tabPOL Receive` AS p, `tabPOL Receive Item` AS pr
         WHERE p.docstatus = 1
     """
 
