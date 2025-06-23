@@ -77,6 +77,7 @@ class GLEntry(Document):
 			self.to_rename = 0
 
 	def validate(self):
+		# frappe.msgprint(frappe.as_json(self))
 		self.flags.ignore_submit_comment = True
 		self.validate_and_set_fiscal_year()
 		self.pl_must_have_cost_center()
@@ -251,6 +252,8 @@ class GLEntry(Document):
 			)
 
 	def validate_cost_center(self):
+		# frappe.log_error(f"{self.cost_center}")
+		# frappe.msgprint(str(self.cost))
 		if not self.cost_center:
 			return
 

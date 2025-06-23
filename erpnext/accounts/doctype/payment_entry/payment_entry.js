@@ -74,6 +74,14 @@ frappe.ui.form.on("Payment Entry", {
 			};
 		});
 
+		frm.set_query("branch", function () {
+			return {
+				filters: {
+					company: frm.doc.company,
+				},
+			};
+		});
+
 		frm.set_query("party_bank_account", function () {
 			return {
 				filters: {
@@ -109,19 +117,34 @@ frappe.ui.form.on("Payment Entry", {
 			frm.events.validate_company(frm);
 
 			var account_types = ["Receive", "Internal Transfer"].includes(frm.doc.payment_type)
-				? ["Bank", "Cash"]
+				? ["Bank", "Cash", "Receivable", "Payable"]
 				: [frappe.boot.party_account_types[frm.doc.party_type]];
 			if (frm.doc.party_type == "Shareholder") {
 				account_types.push("Equity");
 			}
 			return {
 				filters: {
-					account_type: ["in", account_types],
+					// account_type: ["in", account_types],
 					is_group: 0,
 					company: frm.doc.company,
 				},
 			};
 		});
+
+		// frm.set_query("paid_to", function () {
+		// 	frm.events.validate_company(frm);
+
+		// 	var account_types = ["Receive", "Internal Transfer"].includes(frm.doc.payment_type)
+		// 		? ["Bank", "Cash", "Tax","Receivable"]
+		// 		: [frappe.boot.party_account_types[frm.doc.party_type]];
+		// 	return {
+		// 		filters: {
+		// 			account_type: ["in", account_types],
+		// 			is_group: 0,
+		// 			company: frm.doc.company,
+		// 		},
+		// 	};
+		// });
 
 		frm.set_query("account", "deductions", function () {
 			return {

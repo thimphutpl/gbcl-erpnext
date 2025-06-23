@@ -16,6 +16,7 @@ class PurchaseInvoiceItem(Document):
 
 		allow_zero_valuation_rate: DF.Check
 		amount: DF.Currency
+		amount_discount: DF.Data | None
 		apply_tds: DF.Check
 		asset_category: DF.Link | None
 		asset_location: DF.Link | None
@@ -27,15 +28,17 @@ class PurchaseInvoiceItem(Document):
 		base_rate_with_margin: DF.Currency
 		batch_no: DF.Link | None
 		bom: DF.Link | None
-		brand: DF.Link | None
+		brand: DF.Data | None
+		business_activity: DF.Link | None
 		conversion_factor: DF.Float
 		cost_center: DF.Link | None
 		deferred_expense_account: DF.Link | None
 		description: DF.TextEditor | None
+		discount_account: DF.Link | None
 		discount_amount: DF.Currency
 		discount_percentage: DF.Percent
 		enable_deferred_expense: DF.Check
-		expense_account: DF.Link | None
+		expense_account: DF.Link
 		from_warehouse: DF.Link | None
 		image: DF.Attach | None
 		include_exploded_items: DF.Check
@@ -54,6 +57,7 @@ class PurchaseInvoiceItem(Document):
 		margin_type: DF.Literal["", "Percentage", "Amount"]
 		material_request: DF.Link | None
 		material_request_item: DF.Data | None
+		model: DF.Data | None
 		net_amount: DF.Currency
 		net_rate: DF.Currency
 		page_break: DF.Check
@@ -79,7 +83,6 @@ class PurchaseInvoiceItem(Document):
 		rejected_serial_no: DF.Text | None
 		rejected_warehouse: DF.Link | None
 		rm_supp_cost: DF.Currency
-		sales_incoming_rate: DF.Currency
 		sales_invoice_item: DF.Data | None
 		serial_and_batch_bundle: DF.Link | None
 		serial_no: DF.Text | None
@@ -89,6 +92,8 @@ class PurchaseInvoiceItem(Document):
 		stock_qty: DF.Float
 		stock_uom: DF.Link | None
 		stock_uom_rate: DF.Currency
+		sub_ledger: DF.Link | None
+		task: DF.Link | None
 		total_weight: DF.Float
 		uom: DF.Link
 		use_serial_batch_fields: DF.Check

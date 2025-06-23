@@ -5,8 +5,10 @@ frappe.treeview_settings["Department"] = {
 	filters: [
 		{
 			fieldname: "company",
-			fieldtype: "Link",
-			options: "Company",
+			// fieldtype: "Link",
+			// options: "Company",
+			fieldtype: "Select",
+			options: erpnext.utils.get_tree_options("company"),
 			label: __("Company"),
 			// default: erpnext.utils.get_tree_default("company"),
 		},
@@ -26,13 +28,16 @@ frappe.treeview_settings["Department"] = {
 	onload: function (treeview) {
 		treeview.make_tree();
 	},
-	onrender: function(node){
-		get_identifier(node)
+	onrender: function(node) {
+		get_identifier(node);
 	},
 };
 
 function get_identifier(node){
-	let label = ''
+	// let label = ''
+	// if(node.data.value == 'Chief Executive Officer'){
+	// 	label = 'CEO'
+	// }
 	frappe.call({
 		method: "erpnext.setup.doctype.department.department.get_employee_count",
 		args: {
@@ -44,8 +49,8 @@ function get_identifier(node){
 			let format_string3 = ""
 			let border1 = "3px 0px 0px 3px"
 			let border2 = "3px 3px 3px 3px"
-			if (r.message.approver_designation) {
-				format_string1 = `<span class="badge badge-light" style="font-size:xx-small; margin-left: 5px; border-right: 1px solid grey; border-radius: 3px 0px 0px 3px; background-color: #f68446">${r.message.approver_designation}</span>`;
+			if (r.message.approver_level) {
+				format_string1 = `<span class="badge badge-light" style="font-size:xx-small; margin-left: 5px; border-right: 1px solid grey; border-radius: 3px 0px 0px 3px; background-color: #f68446">${r.message.approver_level}</span>`;
 				border1 = "0px 0px 0px 0px"
 			}
 			if (r.message.approver_name) {

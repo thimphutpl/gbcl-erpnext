@@ -32,17 +32,16 @@ class PurchaseOrderItem(Document):
 		brand: DF.Link | None
 		company_total_stock: DF.Float
 		conversion_factor: DF.Float
-		cost_center: DF.Link | None
+		cost_center: DF.Link
 		delivered_by_supplier: DF.Check
 		description: DF.TextEditor | None
 		discount_amount: DF.Currency
 		discount_percentage: DF.Percent
 		expected_delivery_date: DF.Date | None
-		expense_account: DF.Link | None
+		expense_account: DF.Link
 		fg_item: DF.Link | None
 		fg_item_qty: DF.Float
 		from_warehouse: DF.Link | None
-		image: DF.Attach | None
 		include_exploded_items: DF.Check
 		is_fixed_asset: DF.Check
 		is_free_item: DF.Check
@@ -88,7 +87,7 @@ class PurchaseOrderItem(Document):
 		supplier_quotation_item: DF.Link | None
 		total_weight: DF.Float
 		uom: DF.Link
-		warehouse: DF.Link | None
+		warehouse: DF.Link
 		weight_per_unit: DF.Float
 		weight_uom: DF.Link | None
 		wip_composite_asset: DF.Link | None

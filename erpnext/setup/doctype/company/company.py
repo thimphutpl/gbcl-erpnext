@@ -29,6 +29,7 @@ class Company(NestedSet):
 
 		abbr: DF.Data
 		accumulated_depreciation_account: DF.Link | None
+		advance_account: DF.Link | None
 		allow_account_creation_against_child_company: DF.Check
 		asset_received_but_not_billed: DF.Link | None
 		auto_err_frequency: DF.Literal["Daily", "Weekly", "Monthly"]
@@ -47,6 +48,7 @@ class Company(NestedSet):
 		date_of_commencement: DF.Date | None
 		date_of_establishment: DF.Date | None
 		date_of_incorporation: DF.Date | None
+		deduct_sal_tax_on_percent: DF.Check
 		default_advance_paid_account: DF.Link | None
 		default_advance_received_account: DF.Link | None
 		default_bank_account: DF.Link | None
@@ -75,8 +77,10 @@ class Company(NestedSet):
 		default_warehouse_for_sales_return: DF.Link | None
 		depreciation_cost_center: DF.Link | None
 		depreciation_expense_account: DF.Link | None
+		discount_account: DF.Link | None
 		disposal_account: DF.Link | None
 		domain: DF.Data | None
+		domestic_travel_expense: DF.Link | None
 		email: DF.Data | None
 		emission_expense_account: DF.Link | None
 		employer_contribution_pf_account: DF.Link | None
@@ -92,6 +96,7 @@ class Company(NestedSet):
 		hirecharge_income_account: DF.Link | None
 		insurance_claim_expense_account: DF.Link | None
 		insurance_expense_account: DF.Link | None
+		international_travel_expense: DF.Link | None
 		is_group: DF.Check
 		leave_encashment_expense_account: DF.Link | None
 		leave_encashment_payable_account: DF.Link | None
@@ -113,8 +118,9 @@ class Company(NestedSet):
 		round_off_account: DF.Link | None
 		round_off_cost_center: DF.Link | None
 		round_off_for_opening: DF.Link | None
+		salary_tax_percent: DF.Percent
 		sales_monthly_history: DF.SmallText | None
-		series_for_depreciation_entry: DF.Data | None
+		series_for_depreciation_entry: DF.Link | None
 		stock_adjustment_account: DF.Link | None
 		stock_received_but_not_billed: DF.Link | None
 		submit_err_jv: DF.Check
@@ -591,6 +597,8 @@ class Company(NestedSet):
 			and not frappe.db.get_value("Mode of Payment Account", {"company": self.name, "parent": cash})
 		):
 			mode_of_payment = frappe.get_doc("Mode of Payment", cash, for_update=True)
+			# frappe.throw(str(mode_of_payment))
+			# frappe.throw(frappe.as_json(mode_of_payment))
 			mode_of_payment.append(
 				"accounts", {"company": self.name, "default_account": self.default_cash_account}
 			)

@@ -10,7 +10,7 @@ from frappe.utils.data import nowtime
 
 import erpnext
 from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import get_dimensions
-from erpnext.accounts.doctype.budget.budget import validate_expense_against_budget
+from erpnext.budget.doctype.budget.budget import validate_expense_against_budget
 from erpnext.accounts.party import get_party_details
 from erpnext.buying.utils import update_last_purchase_rate, validate_for_items
 from erpnext.controllers.sales_and_purchase_return import get_rate_for_return
@@ -315,8 +315,12 @@ class BuyingController(SubcontractingController):
 						get_conversion_factor(item.item_code, item.uom).get("conversion_factor") or 1.0
 					)
 
-				net_rate = item.base_net_amount
-				if item.sales_incoming_rate:  # for internal transfer
+				# net_rate = item.base_net_amount
+				net_rate = item.rate
+				
+				# if item.sales_incoming_rate:  # for internal transfer
+				if hasattr(item, "sales_incoming_rate") and item.sales_incoming_rate:
+					# frappe.throw(str(item.sales_incoming_rate))
 					net_rate = item.qty * item.sales_incoming_rate
 
 				qty_in_stock_uom = flt(item.qty * item.conversion_factor)

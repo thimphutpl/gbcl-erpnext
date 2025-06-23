@@ -644,7 +644,6 @@ def get_filtered_dimensions(doctype, txt, searchfield, start, page_len, filters,
 @frappe.validate_and_sanitize_search_inputs
 def get_expense_account(doctype, txt, searchfield, start, page_len, filters):
 	from erpnext.controllers.queries import get_match_cond
-
 	if not filters:
 		filters = {}
 
@@ -663,6 +662,16 @@ def get_expense_account(doctype, txt, searchfield, start, page_len, filters):
 			{condition} {get_match_cond(doctype)}""",
 		{"company": filters.get("company", ""), "txt": "%" + txt + "%"},
 	)
+
+	# return frappe.db.sql(
+	# 	f"""select tabAccount.name from `tabAccount`
+	# 	where (tabAccount.account_type in ("Expense Account", "Fixed Asset"))
+	# 		and tabAccount.is_group=0
+	# 		and tabAccount.docstatus!=2
+	# 		and tabAccount.{searchfield} LIKE %(txt)s
+	# 		{condition} {get_match_cond(doctype)}""",
+	# 	{"company": filters.get("company", ""), "txt": "%" + txt + "%"},
+	# )
 
 
 @frappe.whitelist()

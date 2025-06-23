@@ -125,6 +125,7 @@ class StockController(AccountsController):
 				)
 
 	def make_gl_entries(self, gl_entries=None, from_repost=False, via_landed_cost_voucher=False):
+		
 		if self.docstatus == 2:
 			make_reverse_gl_entries(voucher_type=self.doctype, voucher_no=self.name)
 
@@ -145,12 +146,15 @@ class StockController(AccountsController):
 			warehouse_account = get_warehouse_account_map(self.company)
 			
 			if self.docstatus == 1:
+				# frappe.throw(str(self.doctype))
+				
 				if not gl_entries:
 					gl_entries = (
 						self.get_gl_entries(warehouse_account, via_landed_cost_voucher)
 						if self.doctype == "Purchase Receipt"
 						else self.get_gl_entries(warehouse_account)
 					)
+					
 				make_gl_entries(gl_entries, from_repost=from_repost)
 
 	def validate_serialized_batch(self):
@@ -513,9 +517,10 @@ class StockController(AccountsController):
 				row.use_serial_batch_fields = 1
 
 	def get_gl_entries(self, warehouse_account=None, default_expense_account=None, default_cost_center=None):
+
 		if not warehouse_account:
 			warehouse_account = get_warehouse_account_map(self.company)
-
+		# frappe.throw("hiiouytf")
 		sle_map = self.get_stock_ledger_details()
 		voucher_details = self.get_voucher_details(default_expense_account, default_cost_center, sle_map)
 
@@ -553,6 +558,7 @@ class StockController(AccountsController):
 						# 		# frappe.throw(str(expense_account))
 						else:
 							expense_account = item_row.expense_account
+						
 						if self.doctype == 'Delivery Note':
 							expense_account=frappe.get_value("Company",self.company,'default_expense_account')
 							if not expense_account:
@@ -595,6 +601,7 @@ class StockController(AccountsController):
 								item=item_row,
 							)
 						)
+						
 					elif sle.warehouse not in warehouse_with_no_account:
 						warehouse_with_no_account.append(sle.warehouse)
 
@@ -652,7 +659,7 @@ class StockController(AccountsController):
 							"Warehouse {0} is not linked to any account, please mention the account in the warehouse record or set default inventory account in company {1}."
 						).format(wh, self.company)
 					)
-
+		
 		return process_gl_map(gl_list, precision=precision)
 
 	def get_debit_field_precision(self):

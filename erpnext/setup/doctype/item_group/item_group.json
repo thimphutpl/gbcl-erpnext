@@ -17,6 +17,7 @@
   "image",
   "column_break_5",
   "item_code_base",
+  "company",
   "defaults",
   "item_group_defaults",
   "sec_break_taxes",
@@ -142,6 +143,13 @@
    "fieldname": "is_fixed_asset",
    "fieldtype": "Check",
    "label": "is Fixed Asset"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company"
   }
  ],
  "icon": "fa fa-sitemap",
@@ -150,7 +158,7 @@
  "is_tree": 1,
  "links": [],
  "max_attachments": 3,
- "modified": "2025-03-20 10:25:08.452467",
+ "modified": "2025-06-10 16:17:02.761895",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Item Group",

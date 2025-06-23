@@ -33,7 +33,13 @@
   "bank_branch",
   "column_break_cykx",
   "bank_account_type",
-  "bank_ac_no"
+  "bank_ac_no",
+  "budget_details_tab",
+  "ignore_budget_check",
+  "is_centralized_budget",
+  "cost_center",
+  "column_break_lidp",
+  "budget_type"
  ],
  "fields": [
   {
@@ -222,13 +228,48 @@
    "fieldname": "bank_ac_no",
    "fieldtype": "Data",
    "label": "Bank A/C No."
+  },
+  {
+   "fieldname": "budget_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Budget Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "ignore_budget_check",
+   "fieldtype": "Check",
+   "label": " Ignore Budget Check"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_centralized_budget",
+   "fieldtype": "Check",
+   "label": " Is Centralized Budget"
+  },
+  {
+   "fieldname": "column_break_lidp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.is_centralized_budget",
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "mandatory_depends_on": "eval:doc.is_centralized_budget",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "budget_type",
+   "fieldtype": "Link",
+   "label": "Budget Type",
+   "options": "Budget Type"
   }
  ],
  "icon": "fa fa-money",
  "idx": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2025-02-03 12:04:37.699618",
+ "modified": "2025-05-05 20:20:10.044084",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Account",

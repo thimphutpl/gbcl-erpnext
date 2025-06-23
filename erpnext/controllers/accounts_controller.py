@@ -1360,12 +1360,38 @@ class AccountsController(TransactionBase):
 
 				d.exchange_gain_loss = difference
 
+	# def make_precision_loss_gl_entry(self, gl_entries):
+	# 	(
+	# 		round_off_account,
+	# 		round_off_cost_center,
+	# 		round_off_for_opening,
+	# 	) = get_round_off_account_and_cost_center(
+	# 		self.company, "Purchase Invoice", self.name, self.use_company_roundoff_cost_center
+	# 	)
+
+	# 	precision_loss = self.get("base_net_total") - flt(
+	# 		self.get("net_total") * self.conversion_rate, self.precision("net_total")
+	# 	)
+
+	# 	credit_or_debit = "credit" if self.doctype == "Purchase Invoice" else "debit"
+	# 	against = self.supplier if self.doctype == "Purchase Invoice" else self.customer
+
+	# 	if precision_loss:
+	# 		gl_entries.append(
+	# 			self.get_gl_dict(
+	# 				{
+	# 					"account": round_off_account,
+	# 					"against": against,
+	# 					credit_or_debit: precision_loss,
+	# 					"cost_center": round_off_cost_center
+	# 					if self.use_company_roundoff_cost_center
+	# 					else self.cost_center or round_off_cost_center,
+	# 					"remarks": _("Net total calculation precision loss"),
+	# 				}
+	# 			)
+	# 		)
 	def make_precision_loss_gl_entry(self, gl_entries):
-		(
-			round_off_account,
-			round_off_cost_center,
-			round_off_for_opening,
-		) = get_round_off_account_and_cost_center(
+		round_off_account, round_off_cost_center = get_round_off_account_and_cost_center(
 			self.company, "Purchase Invoice", self.name, self.use_company_roundoff_cost_center
 		)
 
@@ -1747,8 +1773,10 @@ class AccountsController(TransactionBase):
 		return tax_map
 
 	def get_amount_and_base_amount(self, item, enable_discount_accounting):
-		amount = item.net_amount
-		base_amount = item.base_net_amount
+		# amount = item.net_amount
+		#comment by tshering wangchuk
+		amount = item.base_amount
+		base_amount = item.base_amount
 
 		if (
 			enable_discount_accounting
@@ -2047,7 +2075,6 @@ class AccountsController(TransactionBase):
 				)
 
 			self.db_set("advance_paid", advance_paid)
-
 		self.set_advance_payment_status()
 
 	def set_advance_payment_status(self):
@@ -2078,6 +2105,7 @@ class AccountsController(TransactionBase):
 		self.db_set("advance_payment_status", new_status, update_modified=False)
 		self.set_status(update=True)
 		self.notify_update()
+
 
 	@property
 	def company_abbr(self):
@@ -3030,7 +3058,6 @@ def get_advance_payment_entries(
 		q = q.where(payment_ref.reference_doctype == order_doctype)
 		if order_list:
 			q = q.where(payment_ref.reference_name.isin(order_list))
-
 		allocated = list(q.run(as_dict=True))
 		payment_entries += allocated
 	if include_unallocated:

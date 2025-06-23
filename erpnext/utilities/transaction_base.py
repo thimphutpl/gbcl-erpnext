@@ -101,6 +101,8 @@ class TransactionBase(StatusUpdater):
 			reference_names = [d.get(ref_link_field) for d in self.get("items") if d.get(ref_link_field)]
 			reference_details = self.get_reference_details(reference_names, ref_dt + " Item")
 			for d in self.get("items"):
+				if d.discount_amount > 0:
+					return
 				if d.get(ref_link_field):
 					ref_rate = reference_details.get(d.get(ref_link_field))
 

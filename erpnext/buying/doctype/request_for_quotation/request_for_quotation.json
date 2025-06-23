@@ -38,6 +38,10 @@
   "printing_settings",
   "select_print_heading",
   "letter_head",
+  "column_break_jfqx",
+  "quotation_header_and_footer_section",
+  "header_text",
+  "footer_text",
   "more_info",
   "opportunity"
  ],
@@ -50,7 +54,7 @@
    "no_copy": 1,
    "oldfieldname": "naming_series",
    "oldfieldtype": "Select",
-   "options": "PUR-RFQ-.YYYY.-",
+   "options": "\nConsumables\nFixed Asset\nSales Product\nSpareparts\nServices Miscellaneous\nServices Works\nLabour Contract\nPUR-RFQ-.YYYY.-",
    "print_hide": 1,
    "reqd": 1,
    "set_only_once": 1
@@ -106,8 +110,7 @@
    "fieldtype": "Table",
    "label": "Suppliers",
    "options": "Request for Quotation Supplier",
-   "print_hide": 1,
-   "reqd": 1
+   "print_hide": 1
   },
   {
    "fieldname": "items_section",
@@ -127,7 +130,6 @@
   {
    "fieldname": "supplier_response_section",
    "fieldtype": "Section Break",
-   "hidden": 1,
    "label": "Email Details"
   },
   {
@@ -264,6 +266,7 @@
   {
    "fieldname": "incoterm",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Incoterm",
    "options": "Incoterm"
   },
@@ -271,6 +274,7 @@
    "depends_on": "incoterm",
    "fieldname": "named_place",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Named Place"
   },
   {
@@ -307,13 +311,32 @@
    "fieldtype": "Small Text",
    "label": "Billing Address Details",
    "read_only": 1
+  },
+  {
+   "fieldname": "quotation_header_and_footer_section",
+   "fieldtype": "Section Break",
+   "label": "Quotation Header and Footer"
+  },
+  {
+   "fieldname": "column_break_jfqx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "header_text",
+   "fieldtype": "Text Editor",
+   "label": "Header"
+  },
+  {
+   "fieldname": "footer_text",
+   "fieldtype": "Text Editor",
+   "label": "Footer"
   }
  ],
  "icon": "fa fa-shopping-cart",
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-02-24 10:52:50.596596",
+ "modified": "2025-04-02 15:08:15.418934",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Request for Quotation",

@@ -2,7 +2,6 @@
 // License: GNU General Public License v3. See license.txt
 
 frappe.provide("erpnext.company");
-
 frappe.ui.form.on("Company", {
 	onload: function (frm) {
 		if (frm.doc.__islocal && frm.doc.parent_company) {
@@ -30,6 +29,17 @@ frappe.ui.form.on("Company", {
 		frm.set_query("default_operating_cost_account", function (doc) {
 			return {
 				filters: { company: doc.name, root_type: "Expense" },
+			};
+		});
+
+		frm.set_query("travel_advance_account", function (doc) {
+			return {
+				filters: { company: doc.name,},
+			};
+		});
+		frm.set_query("write_off_account", function (doc) {
+			return {
+				filters: { company: doc.name,},
 			};
 		});
 
@@ -251,9 +261,11 @@ erpnext.company.setup_queries = function (frm) {
 			["default_payable_account", { root_type: "Liability", account_type: "Payable" }],
 			["default_expense_account", { root_type: "Expense" }],
 			["default_income_account", { root_type: "Income" }],
+			["advance_account", ],
+			["discount_account", ],
 			["round_off_account", { root_type: "Expense" }],
 			["round_off_for_opening", { root_type: "Liability", account_type: "Round Off for Opening" }],
-			["write_off_account", { root_type: "Expense" }],
+			// ["write_off_account", { root_type: "Expense" }],
 			["default_deferred_expense_account", {}],
 			["default_deferred_revenue_account", {}],
 			["default_discount_account", {}],

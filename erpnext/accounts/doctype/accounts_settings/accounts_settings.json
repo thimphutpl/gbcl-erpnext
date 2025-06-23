@@ -80,8 +80,12 @@
   "ignore_is_opening_check_for_reporting",
   "column_break_lvjk",
   "receivable_payable_remarks_length",
+  "intra_company_account",
   "payment_request_settings",
-  "create_pr_in_draft_status"
+  "create_pr_in_draft_status",
+  "accounts_tab",
+  "advance_to_supplier",
+  "column_break_pazj"
  ],
  "fields": [
   {
@@ -495,43 +499,64 @@
    "fieldname": "create_pr_in_draft_status",
    "fieldtype": "Check",
    "label": "Create in Draft Status"
-},
-{
- "fieldname": "column_break_yuug",
- "fieldtype": "Column Break"
-},
-{
- "fieldname": "column_break_resa",
- "fieldtype": "Column Break"
-},
-{
- "default": "15",
- "description": "Interval should be between 1 to 59 MInutes",
- "fieldname": "auto_reconciliation_job_trigger",
- "fieldtype": "Int",
- "label": "Auto Reconciliation Job Trigger"
-},
-{
- "default": "5",
- "description": "Documents Processed on each trigger. Queue Size should be between 5 and 100",
- "fieldname": "reconciliation_queue_size",
- "fieldtype": "Int",
- "label": "Reconciliation Queue Size"
-},
-{
- "default": "0",
- "description": "Ignores legacy Is Opening field in GL Entry that allows adding opening balance post the system is in use while generating reports",
- "fieldname": "ignore_is_opening_check_for_reporting",
- "fieldtype": "Check",
- "label": "Ignore Is Opening check for reporting"
-},
-{
- "default": "Payment",
- "description": "Only applies for Normal Payments",
- "fieldname": "exchange_gain_loss_posting_date",
- "fieldtype": "Select",
- "label": "Posting Date Inheritance for Exchange Gain / Loss",
- "options": "Invoice\nPayment\nReconciliation Date"
+  },
+  {
+   "fieldname": "column_break_yuug",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_resa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "15",
+   "description": "Interval should be between 1 to 59 MInutes",
+   "fieldname": "auto_reconciliation_job_trigger",
+   "fieldtype": "Int",
+   "label": "Auto Reconciliation Job Trigger"
+  },
+  {
+   "default": "5",
+   "description": "Documents Processed on each trigger. Queue Size should be between 5 and 100",
+   "fieldname": "reconciliation_queue_size",
+   "fieldtype": "Int",
+   "label": "Reconciliation Queue Size"
+  },
+  {
+   "default": "0",
+   "description": "Ignores legacy Is Opening field in GL Entry that allows adding opening balance post the system is in use while generating reports",
+   "fieldname": "ignore_is_opening_check_for_reporting",
+   "fieldtype": "Check",
+   "label": "Ignore Is Opening check for reporting"
+  },
+  {
+   "default": "Payment",
+   "description": "Only applies for Normal Payments",
+   "fieldname": "exchange_gain_loss_posting_date",
+   "fieldtype": "Select",
+   "label": "Posting Date Inheritance for Exchange Gain / Loss",
+   "options": "Invoice\nPayment\nReconciliation Date"
+  },
+  {
+   "fieldname": "intra_company_account",
+   "fieldtype": "Link",
+   "label": "Intra Company Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "accounts_tab",
+   "fieldtype": "Tab Break",
+   "label": "Accounts"
+  },
+  {
+   "fieldname": "advance_to_supplier",
+   "fieldtype": "Link",
+   "label": "Advance to Supplier",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_pazj",
+   "fieldtype": "Column Break"
   }
  ],
  "icon": "icon-cog",
@@ -539,7 +564,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-07-26 06:48:52.714630",
+ "modified": "2025-05-23 12:07:55.834270",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounts Settings",

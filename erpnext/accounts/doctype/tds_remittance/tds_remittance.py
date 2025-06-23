@@ -60,6 +60,7 @@ class TDSRemittance(AccountsController):
 	def make_gl_entries(self):
 		gl_entries   = []
 		tds_account  = get_tds_account(self.tax_withholding_category)
+		# frappe.throw(str(tds_account))
 
 		if flt(self.total_tds) > 0:
 			for item in self.items:
@@ -115,15 +116,26 @@ def get_tds_invoices(tax_withholding_category, from_date, to_date, name, filter_
 	# Fetching accounts for the given tax withholding category
 	accounts = [i.account for i in frappe.db.get_all("Tax Withholding Account", 
 		{"parent": tax_withholding_category}, "account")]
-
-	if not len(accounts):
-		return entries
-	elif len(accounts) == 1:
-		accounts_cond = 'and t1.account_head = %(account)s'
-		params = {"account": accounts[0], "from_date": from_date, "to_date": to_date, "name": name}
-	else:
-		accounts_cond = 'and t1.account_head in %(accounts)s'
-		params = {"accounts": tuple(accounts), "from_date": from_date, "to_date": to_date, "name": name}
+	# frappe.throw(str(tax_withholding_category))
+	
+	# frappe.throw(str(accounts))
+	# if not len(accounts):
+	# 	return entries
+	# elif len(accounts) == 1:
+	if tax_withholding_category=="TDS - 2%":
+		rate = 2
+	if tax_withholding_category=="TDS - 3%":
+		rate = 3
+	if tax_withholding_category=="TDS - 5%":
+		rate = 4
+	if tax_withholding_category=="TDS - 10%":
+		rate = 5
+	if tax_withholding_category:
+		accounts_cond = 'and t1.rate = %(rate)s'
+		params = {"rate": rate, "from_date": from_date, "to_date": to_date, "name": name}
+	# else:
+	# 	accounts_cond = 'and t1.account_head in %(accounts)s'
+	# 	params = {"accounts": tuple(accounts), "from_date": from_date, "to_date": to_date, "name": name}
 	
 	if filter_existing:
 		existing_cond = _get_existing_cond()
@@ -144,7 +156,8 @@ def get_tds_invoices(tax_withholding_category, from_date, to_date, name, filter_
 				inner join `tabPurchase Taxes and Charges` t1 on t.name = t1.parent
 				left join `tabSupplier` s on s.name = t.supplier
 				left join `tabTDS Receipt Entry` tre on tre.invoice_no = t.name 
-			where t.posting_date between %(from_date)s and %(to_date)s
+		
+			where t.posting_date between %(from_date)s and %(to_date)s 
 			{accounts_cond}
 			and t.docstatus = 1 
 			{existing_cond}
@@ -183,16 +196,17 @@ def get_tds_invoices(tax_withholding_category, from_date, to_date, name, filter_
 		""".format(accounts_cond=accounts_cond, cond=cond, existing_cond=existing_cond, party_cond=party_cond),
 		params, as_dict=True)
 
-	'''
+	
 	# Journal Entry
-	if len(accounts) == 1:
-		accounts_cond = """and (t1.account = "{0}" or 
-			(t1.tax_account = "{0}" and ifnull(t1.apply_tds, 0) = 1))""".format(accounts[0])
-	else:
-		accounts_cond = """and (t1.account in ({0}) or 
-			(t1.tax_account in ({0}) and ifnull(t1.apply_tds, 0) = 1))""".format(
-			'"' + '","'.join(accounts) + '"'
-		)
+	# if len(accounts) == 1:
+	# 	accounts_cond = """and (t1.account = "{0}" or 
+	# 		(t1.tax_account = "{0}" and ifnull(t1.apply_tds, 0) = 1))""".format(accounts[0])
+	# else:
+	# 	accounts_cond = """and (t1.account in ({0}) or 
+	# 		(t1.tax_account in ({0}) and ifnull(t1.apply_tds, 0) = 1))""".format(
+	# 		'"' + '","'.join(accounts) + '"'
+	# 	)
+	accounts_cond = """and t1.apply_tds=1 and t.tax_withholding_category = "{0}" """.format(tax_withholding_category)
 	
 	if party_type:
 		party_cond = "and t1.party_type = '{}'".format(party_type)
@@ -221,6 +235,7 @@ def get_tds_invoices(tax_withholding_category, from_date, to_date, name, filter_
 			left join `tabCustomer` c on t1.party_type = 'Customer' and c.name = t1.party
 			left join `tabSupplier` s on t1.party_type = 'Supplier' and s.name = t1.party
 			left join `tabTDS Receipt Entry` tre on tre.invoice_no = t.name 
+			
 		where t.posting_date between '{from_date}' and '{to_date}'
 			{accounts_cond}
 			and t.docstatus = 1 and t.apply_tds = 1 
@@ -229,7 +244,7 @@ def get_tds_invoices(tax_withholding_category, from_date, to_date, name, filter_
 			{cond}
 	""".format(accounts_cond = accounts_cond, cond = cond, existing_cond = existing_cond,\
 			party_cond = party_cond, from_date=from_date, to_date=to_date), as_dict=True)
-	'''
+	
 
 	entries = pi_entries + pe_entries + je_entries
 	entries = sorted(entries, key=lambda d: (d['posting_date'], d['invoice_no']))

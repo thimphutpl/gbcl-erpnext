@@ -199,7 +199,8 @@ erpnext.TransactionController = class TransactionController extends erpnext.taxe
 				return {
 					filters: {
 						"company": doc.company,
-						"report_type": "Profit and Loss",
+						"root_type": ["in", ["Expense", "Asset"]],
+						// "report_type": "Profit and Loss",
 						"is_group": 0
 					}
 				};
@@ -2063,6 +2064,7 @@ erpnext.TransactionController = class TransactionController extends erpnext.taxe
 			if (item.item_code) {
 				// Use combination of name and item code in case same item is added multiple times
 				item_codes.push([item.item_code, item.name]);
+				frappe.throw(str(item.base_net_rate))
 				item_rates[item.name] = item.base_net_rate;
 				item_tax_templates[item.name] = item.item_tax_template;
 			}
@@ -2393,7 +2395,7 @@ erpnext.TransactionController = class TransactionController extends erpnext.taxe
 				method= "erpnext.accounts.doctype.journal_entry.journal_entry.get_payment_entry_against_order";
 			}
 		}
-
+		
 		return method
 	}
 

@@ -90,6 +90,10 @@
   "column_break_fwcf",
   "default_advance_received_account",
   "default_advance_paid_account",
+  "buying_section",
+  "discount_account",
+  "column_break_vlyw",
+  "advance_account",
   "exchange_rate_revaluation_settings_section",
   "auto_exchange_rate_revaluation",
   "auto_err_frequency",
@@ -128,6 +132,13 @@
   "column_break_fbah",
   "default_payroll_payable_account",
   "employer_contribution_pf_account",
+  "salary_structure_section",
+  "deduct_sal_tax_on_percent",
+  "salary_tax_percent",
+  "travel_section",
+  "domestic_travel_expense",
+  "international_travel_expense",
+  "column_break_wezs",
   "travel_advance_account",
   "stock_tab",
   "auto_accounting_for_stock_settings",
@@ -357,6 +368,7 @@
   {
    "fieldname": "round_off_account",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Round Off Account",
    "options": "Account"
   },
@@ -530,8 +542,9 @@
   },
   {
    "fieldname": "series_for_depreciation_entry",
-   "fieldtype": "Data",
-   "label": "Series for Asset Depreciation Entry (Journal Entry)"
+   "fieldtype": "Link",
+   "label": "Series for Asset Depreciation Entry (Journal Entry)",
+   "options": "Journal Entry Series"
   },
   {
    "fieldname": "expenses_included_in_asset_valuation",
@@ -931,6 +944,7 @@
    "options": "Account"
   },
   {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "pol_expense_account",
    "fieldtype": "Link",
    "label": "POL Expense Account",
@@ -955,24 +969,28 @@
    "options": "Account"
   },
   {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "hirecharge_income_account",
    "fieldtype": "Link",
    "label": "Hirecharge Income Account",
    "options": "Account"
   },
   {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "insurance_expense_account",
    "fieldtype": "Link",
    "label": "Insurance Expense Account",
    "options": "Account"
   },
   {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "registration_expense_account",
    "fieldtype": "Link",
    "label": "Registration Expense Account",
    "options": "Account"
   },
   {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "offence_expense_account",
    "fieldtype": "Link",
    "label": "Offence Expense Account",
@@ -988,24 +1006,28 @@
    "fieldtype": "Column Break"
   },
   {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "registration_certificate_expense_account",
    "fieldtype": "Link",
    "label": "Registration Certificate Expense Account",
    "options": "Account"
   },
   {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "fitness_expense_account",
    "fieldtype": "Link",
    "label": "Fitness Expense Account",
    "options": "Account"
   },
   {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "emission_expense_account",
    "fieldtype": "Link",
    "label": "Emission Expense Account",
    "options": "Account"
   },
   {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "insurance_claim_expense_account",
    "fieldtype": "Link",
    "label": "Insurance Claim Expense Account",
@@ -1021,6 +1043,66 @@
    "fieldtype": "Link",
    "label": "POL Advance Account",
    "options": "Account"
+  },
+  {
+   "fieldname": "buying_section",
+   "fieldtype": "Section Break",
+   "label": "Buying"
+  },
+  {
+   "fieldname": "discount_account",
+   "fieldtype": "Link",
+   "label": "Discount Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_vlyw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "advance_account",
+   "fieldtype": "Link",
+   "label": "Advance Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "travel_section",
+   "fieldtype": "Section Break",
+   "label": "Travel "
+  },
+  {
+   "fieldname": "domestic_travel_expense",
+   "fieldtype": "Link",
+   "label": "Domestic Travel Expense ",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_wezs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "international_travel_expense",
+   "fieldtype": "Link",
+   "label": "International Travel Expense ",
+   "options": "Account"
+  },
+  {
+   "fieldname": "salary_structure_section",
+   "fieldtype": "Section Break",
+   "label": "Salary Structure"
+  },
+  {
+   "default": "0",
+   "fieldname": "deduct_sal_tax_on_percent",
+   "fieldtype": "Check",
+   "label": "Deduct Salary Tax Based on Percent"
+  },
+  {
+   "depends_on": "eval: doc.deduct_sal_tax_on_percent==1",
+   "fieldname": "salary_tax_percent",
+   "fieldtype": "Percent",
+   "label": "Salary Tax Percent",
+   "mandatory_depends_on": "eval: doc.deduct_sal_tax_on_percent==1"
   }
  ],
  "icon": "fa fa-building",
@@ -1028,7 +1110,7 @@
  "image_field": "company_logo",
  "is_tree": 1,
  "links": [],
- "modified": "2025-03-12 15:03:50.434225",
+ "modified": "2025-06-04 16:32:54.407561",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Company",

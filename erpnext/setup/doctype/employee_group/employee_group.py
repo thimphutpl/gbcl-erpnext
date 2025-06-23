@@ -21,6 +21,7 @@ class EmployeeGroup(Document):
 		employer_pf: DF.Percent
 		health_contribution: DF.Currency
 		minimum_months: DF.Float
+		salary_advance_type: DF.Data | None
 	# end: auto-generated types
 
 	pass

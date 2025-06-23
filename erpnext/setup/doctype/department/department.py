@@ -20,6 +20,7 @@ class Department(NestedSet):
 
 		approver: DF.Link | None
 		approver_designation: DF.Link | None
+		approver_hod: DF.Link | None
 		approver_name: DF.Data | None
 		company: DF.Link
 		department_name: DF.Data
@@ -103,27 +104,90 @@ def add_node():
 
 	frappe.get_doc(args).insert()
 
+# @frappe.whitelist()
+# def get_employee_count(department):
+# 	dep = frappe.get_doc("Department", department)	
+# 	cond = ''
+# 	# cond = ' and department ="{}"'.format(dep.name)
+# 	if cint(dep.is_department):
+# 		cond = ' and department ="{}"'.format(dep.name)
+# 	if cint(dep.is_division):	
+# 		cond = ' and division ="{}"'.format(dep.department_name)
+# 	# if cint(dep.is_unit): 
+# 	# 	cond = ' and unit ="{}"'.format(dep.department_name)
+# 	if cint(dep.is_section): 
+# 		cond = ' and section ="{}"'.format(dep.department_name)
+# 	data = {}
+# 	res = frappe.db.sql("""
+# 					select count(*) employee_count 
+# 					from `tabEmployee`
+# 					where status = "Active" {} 
+# 				""".format(cond))
+# 	data['count'] = res[0][0] if res[0][0] else 0
+# 	data['approver_name'] = dep.approver_name
+# 	data['approver_designation'] = dep.approver_designation
+
+# 	return data
+
+
+# @frappe.whitelist()
+# def get_employee_count(department, company=None):
+#     dep = frappe.get_doc("Department", department)
+#     cond = ''
+    
+#     # Department/Division/Section condition
+#     if cint(dep.is_department):
+#         cond = ' and department = "{}"'.format(dep.name)
+#     if cint(dep.is_division):    
+#         cond = ' and division = "{}"'.format(dep.department_name)
+#     if cint(dep.is_section): 
+#         cond = ' and section = "{}"'.format(dep.department_name)
+    
+#     # Add company filter if provided
+#     if company:
+#         cond += ' and company = "{}"'.format(company)
+    
+#     data = {}
+#     res = frappe.db.sql("""
+#         select count(*) employee_count 
+#         from `tabEmployee`
+#         where status = "Active" {}
+#     """.format(cond))
+    
+#     data['count'] = res[0][0] if res[0][0] else 0
+#     data['approver_name'] = dep.approver_name
+#     data['approver_designation'] = dep.approver_designation
+
+#     return data
+@frappe.whitelist()
+def add_node():
+	from frappe.desk.treeview import make_tree_args
+
+	args = frappe.form_dict
+	args = make_tree_args(**args)
+
+	if args.parent_department == args.company:
+		args.parent_department = None
+
+	frappe.get_doc(args).insert()
 @frappe.whitelist()
 def get_employee_count(department):
-	dep = frappe.get_doc("Department", department)	
+	dep = frappe.get_doc("Department", department)
 	cond = ''
-	# cond = ' and department ="{}"'.format(dep.name)
-	if cint(dep.is_department):
-		cond = ' and department ="{}"'.format(dep.name)
-	if cint(dep.is_division):	
-		cond = ' and division ="{}"'.format(dep.department_name)
+	cond = ' and department ="{}"'.format(dep.name)
+
+	# if cint(dep.is_department):	
+	# 	cond = ' and department ="{}"'.format(dep.name)
+	# if cint(dep.is_division):	
+	# 	cond = ' and division ="{}"'.format(dep.department_name)
 	# if cint(dep.is_unit): 
 	# 	cond = ' and unit ="{}"'.format(dep.department_name)
-	if cint(dep.is_section): 
-		cond = ' and section ="{}"'.format(dep.department_name)
+	# if cint(dep.is_section): 
+	# 	cond = ' and section ="{}"'.format(dep.department_name)
 	data = {}
-	res = frappe.db.sql("""
-					select count(*) employee_count 
-					from `tabEmployee`
-					where status = "Active" {} 
-				""".format(cond))
+	res = frappe.db.sql("""select count(*) employee_count from `tabEmployee`
+					where status = "Active" {} """.format(cond))
 	data['count'] = res[0][0] if res[0][0] else 0
 	data['approver_name'] = dep.approver_name
-	data['approver_designation'] = dep.approver_designation
-
+	data['approver_level'] = dep.approver_designation
 	return data

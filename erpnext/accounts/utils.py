@@ -1167,6 +1167,7 @@ def get_outstanding_invoices(
 	common_filter.append(ple.party == party)
 
 	ple_query = QueryPaymentLedger()
+	
 	invoice_list = ple_query.get_voucher_outstandings(
 		vouchers=vouchers,
 		common_filter=common_filter,
@@ -1178,7 +1179,7 @@ def get_outstanding_invoices(
 		limit=limit,
 		voucher_no=voucher_no,
 	)
-
+	
 	for d in invoice_list:
 		payment_amount = d.invoice_amount_in_account_currency - d.outstanding_in_account_currency
 		outstanding_amount = d.outstanding_in_account_currency
@@ -1206,8 +1207,9 @@ def get_outstanding_invoices(
 						}
 					)
 				)
-
+	
 	outstanding_invoices = sorted(outstanding_invoices, key=lambda k: k["due_date"] or getdate(nowdate()))
+
 	return outstanding_invoices
 
 
@@ -1679,8 +1681,8 @@ def get_stock_and_account_balance(account=None, posting_date=None, company=None)
 			for wh, wh_details in warehouse_account.items()
 			if wh_details.account == account and not wh_details.is_group
 		]
-
-	total_stock_value = get_stock_value_on(related_warehouses, posting_date, company=company)
+	# frappe.throw(str(company))
+	total_stock_value = get_stock_value_on(related_warehouses, posting_date)
 
 	precision = frappe.get_precision("Journal Entry Account", "debit_in_account_currency")
 	return flt(account_balance, precision), flt(total_stock_value, precision), related_warehouses
@@ -1996,6 +1998,7 @@ class QueryPaymentLedger:
 				)
 
 		if self.limit and self.get_invoices:
+			
 			outstanding_vouchers = (
 				qb.from_(ple)
 				.select(
@@ -2013,6 +2016,7 @@ class QueryPaymentLedger:
 				.limit(self.limit)
 				.run()
 			)
+			
 			if outstanding_vouchers:
 				filter_on_voucher_no.append(ple.voucher_no.isin([x[0] for x in outstanding_vouchers]))
 				filter_on_against_voucher_no.append(
@@ -2020,6 +2024,7 @@ class QueryPaymentLedger:
 				)
 
 		# build query for voucher amount
+		
 		query_voucher_amount = (
 			qb.from_(ple)
 			.select(
@@ -2043,7 +2048,7 @@ class QueryPaymentLedger:
 			.where(Criterion.all(self.voucher_posting_date))
 			.groupby(ple.voucher_type, ple.voucher_no, ple.party_type, ple.party)
 		)
-
+		
 		# build query for voucher outstanding
 		query_voucher_outstanding = (
 			qb.from_(ple)
@@ -2064,7 +2069,7 @@ class QueryPaymentLedger:
 			.where(Criterion.all(self.common_filter))
 			.groupby(ple.against_voucher_type, ple.against_voucher_no, ple.party_type, ple.party)
 		)
-
+	
 		# build CTE for combining voucher amount and outstanding
 		self.cte_query_voucher_amount_and_outstanding = (
 			qb.with_(query_voucher_amount, "vouchers")
@@ -2124,8 +2129,9 @@ class QueryPaymentLedger:
 			)
 
 		# execute SQL
+		# frappe.throw(str(self.cte_query_voucher_amount_and_outstanding))
 		self.voucher_outstandings = self.cte_query_voucher_amount_and_outstanding.run(as_dict=True)
-
+		# frappe.throw(str(self.voucher_outstandings))
 	def get_voucher_outstandings(
 		self,
 		vouchers=None,
@@ -2161,8 +2167,9 @@ class QueryPaymentLedger:
 		self.get_invoices = get_invoices
 		self.limit = limit
 		self.voucher_no = voucher_no
+		
 		self.query_for_outstanding()
-
+		
 		return self.voucher_outstandings
 
 
@@ -2323,7 +2330,122 @@ def sync_auto_reconcile_config(auto_reconciliation_job_trigger: int = 15):
 		).save()
 
 @frappe.whitelist()
+def get_tds_account(percent,company):
+	if not percent:
+		frappe.throw("TDS Percent is mandatory")
+	return frappe.db.get_value("TDS Account Item",{"parent":company,"tds_percent":percent}, "account")
+
+@frappe.whitelist()
+def get_account_type(account,company):
+	return frappe.db.get_value("Account",{"name":account,"company":company},"account_type")
+
+@frappe.whitelist()
+def check_clearance_date(dt, dn):
+	doc = frappe.get_doc(dt, dn)
+	if doc.clearance_date:
+		frappe.msgprint("Cannot cancel this document as <b>Bank Reconciliation</b> has already done on {}".format(doc.clearance_date), raise_exception= True)		
+
+@frappe.whitelist()
 def check_clearance_date(dt, dn):
 	doc = frappe.get_doc(dt, dn)
 	if doc.clearance_date:
 		frappe.msgprint("Cannot cancel this document as <b>Bank Reconciliation</b> has already done on {}".format(doc.clearance_date), raise_exception= True)
+
+def make_asset_transfer_gl(self, asset, date, from_cc, to_cc, cancel, not_legacy_data=True):
+	if from_cc == to_cc:
+		frappe.throw("From Cost Center and To Cost Center cannot be the same")
+	if getdate(date) > getdate(nowdate()):
+		frappe.throw("The transaction date cannot be future date")
+
+	dep_schedules = frappe.db.sql("select d.name from tabAsset a, `tabDepreciation Schedule` d where d.parent = a.name and a.name = %s and a.docstatus = 1 and d.schedule_date >= %s and d.journal_entry is not null", (asset, date), as_dict=True)
+	if dep_schedules:
+		frappe.throw("The asset has been depreciated beyond the transfer date. Please change the transfer date and try again")	
+
+	asset = frappe.get_doc("Asset", asset)
+	
+	accumulated_dep = flt(asset.gross_purchase_amount) - flt(asset.value_after_depreciation)
+	
+	# accumulated_dep_account = frappe.db.sql("select accumulated_depreciation_account from `tabAsset Category Account` where parent = %s and company= %s", asset.asset_category,asset.company, as_dict=True)[0].accumulated_depreciation_account
+	accumulated_dep_account = frappe.db.sql(
+    """
+    SELECT accumulated_depreciation_account 
+    FROM `tabAsset Category Account` 
+    WHERE parent = %s AND company_name = %s
+    """,
+    (asset.asset_category, self.company),
+    as_dict=True)[0].accumulated_depreciation_account
+
+	# frappe.throw(str(accumulated_dep_account))
+	ic_account = frappe.db.get_single_value("Accounts Settings", "intra_company_account")
+	if not ic_account:
+		frappe.throw("Setup Intra Company Accounts under Accounts Settings")
+
+	from erpnext.accounts.general_ledger import make_gl_entries
+	from erpnext.custom_utils import prepare_gl
+
+	gl_entries = []
+	gl_entries.append(
+		prepare_gl(self, {
+		       "account":  asset.asset_account,
+		       "credit": asset.gross_purchase_amount,
+		       "credit_in_account_currency": asset.gross_purchase_amount,
+		       "against_voucher": asset.name,
+		       "against_voucher_type": "Asset",
+		       "cost_center": from_cc,
+		})
+	)
+	gl_entries.append(
+		prepare_gl(self, {
+		       "account":  asset.asset_account,
+		       "debit": asset.gross_purchase_amount,
+		       "debit_in_account_currency": asset.gross_purchase_amount,
+		       "against_voucher": asset.name,
+		       "against_voucher_type": "Asset",
+		       "cost_center": to_cc,
+		})
+	)
+	if flt(accumulated_dep) > 0:
+		gl_entries.append(
+			prepare_gl(self, {
+			       "account": accumulated_dep_account,
+			       "debit": accumulated_dep,
+			       "debit_in_account_currency": accumulated_dep,
+			       "against_voucher": asset.name,
+			       "against_voucher_type": "Asset",
+			       "cost_center": from_cc,
+			})
+		)
+		gl_entries.append(
+			prepare_gl(self, {
+			       "account": accumulated_dep_account,
+			       "credit": accumulated_dep,
+			       "credit_in_account_currency": accumulated_dep,
+			       "against_voucher": asset.name,
+			       "against_voucher_type": "Asset",
+			       "cost_center": to_cc,
+			})
+		)
+
+	if flt(asset.value_after_depreciation) > 0:
+		gl_entries.append(
+			prepare_gl(self, {
+			       "account": ic_account,
+			       "debit": asset.value_after_depreciation,
+			       "debit_in_account_currency": asset.value_after_depreciation,
+			       "against_voucher": asset.name,
+			       "against_voucher_type": "Asset",
+			       "cost_center": from_cc,
+			})
+		)
+		gl_entries.append(
+			prepare_gl(self, {
+			       "account": ic_account,
+			       "credit": asset.value_after_depreciation,
+			       "credit_in_account_currency": asset.value_after_depreciation,
+			       "against_voucher": asset.name,
+			       "against_voucher_type": "Asset",
+			       "cost_center": to_cc,
+			})
+		)
+
+	make_gl_entries(gl_entries, cancel=cancel, update_outstanding="No", merge_entries=False)

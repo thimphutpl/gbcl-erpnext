@@ -17,6 +17,7 @@
   "cost_center",
   "dimension_col_break",
   "project",
+  "business_activity",
   "currency_section",
   "account_currency",
   "column_break_10",
@@ -27,12 +28,12 @@
   "col_break2",
   "credit_in_account_currency",
   "credit",
-  "taxes_section",
+  "sb_taxes",
   "apply_tds",
   "add_deduct_tax",
   "tax_account",
   "rate",
-  "column_break_eyxg",
+  "col_break_taxes",
   "taxable_amount_in_account_currency",
   "taxable_amount",
   "tax_amount_in_account_currency",
@@ -42,6 +43,8 @@
   "reference_name",
   "reference_due_date",
   "reference_detail_no",
+  "bill_no",
+  "bill_date",
   "col_break3",
   "is_advance",
   "user_remark",
@@ -72,17 +75,18 @@
    "print_hide": 1
   },
   {
-   "allow_on_submit": 1,
    "default": ":Company",
    "description": "If Income or Expense",
    "fieldname": "cost_center",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Cost Center",
    "oldfieldname": "cost_center",
    "oldfieldtype": "Link",
    "options": "Cost Center",
    "print_hide": 1,
    "print_width": "180px",
+   "reqd": 1,
    "width": "180px"
   },
   {
@@ -91,10 +95,9 @@
   },
   {
    "fieldname": "party_type",
-   "fieldtype": "Link",
-   "in_list_view": 1,
+   "fieldtype": "Select",
    "label": "Party Type",
-   "options": "DocType",
+   "options": "\nCustomer\nSupplier\nEmployee",
    "search_index": 1
   },
   {
@@ -193,7 +196,7 @@
    "fieldtype": "Select",
    "label": "Reference Type",
    "no_copy": 1,
-   "options": "\nSales Invoice\nPurchase Invoice\nJournal Entry\nSales Order\nPurchase Order\nExpense Claim\nAsset\nLoan\nPayroll Entry\nEmployee Advance\nExchange Rate Revaluation\nInvoice Discounting\nFees\nFull and Final Statement\nPayment Entry\nTravel Advance\nTravel Claim\nMuster Roll Payment Entry\nLeave Encashment\nVisitor Pass Registry\nInsurance and Registration\nPOL Advance\nFee Closing Entry\nCash Deposit Entry",
+   "options": "\nBonus\nPBVA\nSales Invoice\nSWS Application\nPurchase Invoice\nJournal Entry\nSales Order\nPurchase Order\nExpense Claim\nAsset\nLoan\nPayroll Entry\nEmployee Advance\nExchange Rate Revaluation\nInvoice Discounting\nFees\nFull and Final Statement\nPayment Entry\nAbstract Bill\nImprest Advance\nImprest Recoup\nPOL Advance\nProcess MR Payment\nTravel Claim\nTravel Authorization\nFund Requisition\nLeave Encashment\nBulk Leave Encashment\nLeave Travel Concession\nEquipment Hiring Form\nJob Cards\nEmployee Benefits\nHire Charge Invoice\nHire Invoice\nFabrication And Bailey Bridge\nTransporter Invoice\nTravel Advance\nAsset Value Adjustment",
    "search_index": 1
   },
   {
@@ -216,7 +219,6 @@
    "allow_on_submit": 1,
    "fieldname": "project",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Project",
    "options": "Project"
   },
@@ -275,7 +277,24 @@
    "search_index": 1
   },
   {
-   "fieldname": "taxes_section",
+   "fieldname": "bill_no",
+   "fieldtype": "Data",
+   "label": "Ref. No/Bill No."
+  },
+  {
+   "fieldname": "bill_date",
+   "fieldtype": "Date",
+   "label": "Bill Date"
+  },
+  {
+   "fieldname": "business_activity",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Business Activity",
+   "options": "Business Activity"
+  },
+  {
+   "fieldname": "sb_taxes",
    "fieldtype": "Section Break",
    "label": "Taxes"
   },
@@ -286,29 +305,33 @@
    "label": "Apply TDS"
   },
   {
+   "depends_on": "eval:doc.apply_tds",
    "fieldname": "add_deduct_tax",
    "fieldtype": "Select",
    "label": "Add Or Deduct",
+   "mandatory_depends_on": "eval:doc.apply_tds",
    "options": "\nAdd\nDeduct",
-   "read_only": 1
+   "print_hide": 1
   },
   {
-   "depends_on": "eval:doc.apply_tds",
    "fieldname": "tax_account",
    "fieldtype": "Link",
    "label": "Tax Account",
+   "mandatory_depends_on": "add_deduct_tax",
    "options": "Account",
-   "read_only": 1
+   "print_hide": 1
   },
   {
    "depends_on": "eval:doc.apply_tds",
    "fieldname": "rate",
    "fieldtype": "Float",
    "label": "Rate",
+   "precision": "2",
+   "print_hide": 1,
    "read_only": 1
   },
   {
-   "fieldname": "column_break_eyxg",
+   "fieldname": "col_break_taxes",
    "fieldtype": "Column Break"
   },
   {
@@ -316,13 +339,14 @@
    "fieldname": "taxable_amount_in_account_currency",
    "fieldtype": "Currency",
    "label": "Taxable Amount in Account Currency",
-   "read_only": 1
+   "print_hide": 1
   },
   {
    "depends_on": "eval:doc.apply_tds",
    "fieldname": "taxable_amount",
    "fieldtype": "Currency",
    "label": "Taxable Amount in Company Currency",
+   "print_hide": 1,
    "read_only": 1
   },
   {
@@ -330,6 +354,7 @@
    "fieldname": "tax_amount_in_account_currency",
    "fieldtype": "Currency",
    "label": "Tax Amount in Account Currency",
+   "print_hide": 1,
    "read_only": 1
   },
   {
@@ -343,7 +368,7 @@
  "idx": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-03-31 12:36:56.106057",
+ "modified": "2025-06-02 11:28:20.146285",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Journal Entry Account",

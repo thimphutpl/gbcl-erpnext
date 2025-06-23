@@ -1,0 +1,242 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-15 20:55:27.918324",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_qzps",
+  "company",
+  "transaction_type",
+  "column_break_smlo",
+  "remarks",
+  "paid_from_ac_detail_section",
+  "bank_account_no",
+  "payer_name",
+  "inquiry_id",
+  "acc_status_details",
+  "column_break_rilu",
+  "bank_balance",
+  "bank_balance_usd",
+  "amended_from",
+  "transaction_details_section",
+  "transaction",
+  "section_break_imeh",
+  "transaction_id",
+  "response_details",
+  "column_break_rxnq",
+  "transaction_status_request_id",
+  "transaction_status_info_section",
+  "in_queue",
+  "posting_status_code",
+  "txn_drn",
+  "txn_status_description",
+  "column_break_ujsk",
+  "is_txn_processed",
+  "txn_authcode",
+  "txn_status_code"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_qzps",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "column_break_smlo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_type",
+   "fieldtype": "Select",
+   "label": "Transaction Type",
+   "options": "Journal Entry\nSalary"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "paid_from_ac_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Paid From A/C Detail"
+  },
+  {
+   "fieldname": "bank_account_no",
+   "fieldtype": "Data",
+   "label": "Bank Account No"
+  },
+  {
+   "fieldname": "column_break_rilu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bank_balance",
+   "fieldtype": "Currency",
+   "label": "Bank Balance (Nu)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "inquiry_id",
+   "fieldtype": "Data",
+   "label": "Inquiry ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "DK Bank Payment",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "bank_balance_usd",
+   "fieldtype": "Currency",
+   "label": "Bank Balance (USD)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "acc_status_details",
+   "fieldtype": "Data",
+   "label": "Account Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transaction_details_section",
+   "fieldtype": "Section Break",
+   "label": "Transaction Details"
+  },
+  {
+   "fieldname": "transaction",
+   "fieldtype": "Table",
+   "label": "Transaction",
+   "options": "DK Bank Payment Items"
+  },
+  {
+   "fieldname": "payer_name",
+   "fieldtype": "Data",
+   "label": "Payer Name"
+  },
+  {
+   "fieldname": "section_break_imeh",
+   "fieldtype": "Section Break",
+   "label": "Response Details"
+  },
+  {
+   "fieldname": "transaction_id",
+   "fieldtype": "Data",
+   "label": "Transaction ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_rxnq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_status_request_id",
+   "fieldtype": "Data",
+   "label": "Transaction Status Request ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "response_details",
+   "fieldtype": "Data",
+   "label": "Response Details",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transaction_status_info_section",
+   "fieldtype": "Section Break",
+   "label": "Transaction Status Info",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "in_queue",
+   "fieldtype": "Data",
+   "label": "In Queue",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ujsk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "is_txn_processed",
+   "fieldtype": "Data",
+   "label": "Is Transaction Processed",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "posting_status_code",
+   "fieldtype": "Data",
+   "label": "Posting Status Code",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "txn_authcode",
+   "fieldtype": "Data",
+   "label": "Transaction Authcode",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "txn_drn",
+   "fieldtype": "Data",
+   "label": "txn drn",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "txn_status_code",
+   "fieldtype": "Data",
+   "label": "Transaction Status Code",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "txn_status_description",
+   "fieldtype": "Data",
+   "label": "Transaction Status Description",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-17 16:46:37.117519",
+ "modified_by": "Administrator",
+ "module": "DK Bank Payment",
+ "name": "DK Bank Payment",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

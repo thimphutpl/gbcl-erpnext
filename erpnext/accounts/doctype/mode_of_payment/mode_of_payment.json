@@ -13,7 +13,7 @@
   "type",
   "accounts",
   "section_break_wfhs",
-  "banch_accounts"
+  "branch_accounts"
  ],
  "fields": [
   {
@@ -50,7 +50,7 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "banch_accounts",
+   "fieldname": "branch_accounts",
    "fieldtype": "Table",
    "options": "Mode of Payment Branch Account"
   }
@@ -59,7 +59,7 @@
  "idx": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-03 17:48:47.334138",
+ "modified": "2025-04-18 09:47:00.882937",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Mode of Payment",

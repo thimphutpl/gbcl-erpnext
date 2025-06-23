@@ -21,6 +21,7 @@
   "gender",
   "date_of_birth",
   "salutation",
+  "nationality",
   "column_break1",
   "date_of_joining",
   "image",
@@ -33,12 +34,15 @@
   "company_details_section",
   "employee_number",
   "employment_type",
+  "pms_group",
   "column_break_25",
   "designation",
   "employment_status",
   "employee_group",
   "column_break_18",
   "grade",
+  "region",
+  "unit",
   "section_break_hxij",
   "reports_to",
   "column_break_tpvx",
@@ -122,6 +126,8 @@
   "place_of_issue",
   "profile_tab",
   "bio",
+  "pms_records_section",
+  "employee_pms",
   "educational_qualification",
   "education",
   "previous_work_experience",
@@ -265,8 +271,7 @@
    "fieldtype": "Date",
    "label": "Date of Birth",
    "oldfieldname": "date_of_birth",
-   "oldfieldtype": "Date",
-   "reqd": 1
+   "oldfieldtype": "Date"
   },
   {
    "fieldname": "date_of_joining",
@@ -380,8 +385,7 @@
    "label": "Department",
    "oldfieldname": "department",
    "oldfieldtype": "Link",
-   "options": "Department",
-   "reqd": 1
+   "options": "Department"
   },
   {
    "fieldname": "designation",
@@ -410,8 +414,7 @@
    "label": "Branch",
    "oldfieldname": "branch",
    "oldfieldtype": "Link",
-   "options": "Branch",
-   "reqd": 1
+   "options": "Branch"
   },
   {
    "description": "Applicable Holiday List",
@@ -860,8 +863,7 @@
    "fieldname": "employee_group",
    "fieldtype": "Link",
    "label": "Employee Group",
-   "options": "Employee Group",
-   "reqd": 1
+   "options": "Employee Group"
   },
   {
    "depends_on": "eval:doc.salary_mode == 'Bank'",
@@ -908,6 +910,7 @@
   {
    "fieldname": "yelp_section",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "YELP Employee"
   },
   {
@@ -993,6 +996,42 @@
    "fieldtype": "Link",
    "label": "Section",
    "options": "Department"
+  },
+  {
+   "fieldname": "pms_group",
+   "fieldtype": "Link",
+   "label": "PMS Group",
+   "options": "PMS Group"
+  },
+  {
+   "fieldname": "region",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Region"
+  },
+  {
+   "fieldname": "unit",
+   "fieldtype": "Link",
+   "label": "Unit",
+   "options": "Department"
+  },
+  {
+   "fieldname": "nationality",
+   "fieldtype": "Select",
+   "label": "Nationality",
+   "options": "\nBhutanese\nNon Bhutanese",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "pms_records_section",
+   "fieldtype": "Section Break",
+   "label": "PMS Records"
+  },
+  {
+   "fieldname": "employee_pms",
+   "fieldtype": "Table",
+   "options": "Employee PMS Rating"
   }
  ],
  "icon": "fa fa-user",
@@ -1000,7 +1039,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-03-31 07:39:51.677677",
+ "modified": "2025-05-19 23:07:03.264455",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Employee",

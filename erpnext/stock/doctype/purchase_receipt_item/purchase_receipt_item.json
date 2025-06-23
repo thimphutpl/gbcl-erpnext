@@ -7,17 +7,17 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "barcode",
-  "has_item_scanned",
   "section_break_2",
   "item_code",
   "product_bundle",
   "supplier_part_no",
   "column_break_2",
   "item_name",
+  "transporation_cost",
+  "brand",
+  "model",
   "section_break_4",
   "description",
-  "brand",
   "image_column",
   "item_group",
   "image",
@@ -67,7 +67,6 @@
   "base_net_rate",
   "base_net_amount",
   "valuation_rate",
-  "sales_incoming_rate",
   "item_tax_amount",
   "rm_supp_cost",
   "landed_cost_voucher_amount",
@@ -126,6 +125,7 @@
   "provisional_expense_account",
   "accounting_dimensions_section",
   "project",
+  "task",
   "dimension_col_break",
   "cost_center",
   "section_break_80",
@@ -136,17 +136,12 @@
  ],
  "fields": [
   {
-   "fieldname": "barcode",
-   "fieldtype": "Data",
-   "label": "Barcode"
-  },
-  {
    "fieldname": "section_break_2",
    "fieldtype": "Section Break"
   },
   {
    "bold": 1,
-   "columns": 3,
+   "columns": 2,
    "fieldname": "item_code",
    "fieldtype": "Link",
    "in_global_search": 1,
@@ -231,7 +226,7 @@
    "width": "100px"
   },
   {
-   "columns": 2,
+   "columns": 1,
    "fieldname": "qty",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -242,10 +237,8 @@
    "width": "100px"
   },
   {
-   "columns": 1,
    "fieldname": "rejected_qty",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Rejected Quantity",
    "oldfieldname": "rejected_qty",
    "oldfieldtype": "Currency",
@@ -362,10 +355,12 @@
    "oldfieldname": "import_rate",
    "oldfieldtype": "Currency",
    "options": "currency",
+   "precision": "4",
    "print_width": "100px",
    "width": "100px"
   },
   {
+   "columns": 2,
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -433,10 +428,8 @@
    "read_only": 1
   },
   {
-   "columns": 2,
    "fieldname": "net_amount",
    "fieldtype": "Currency",
-   "in_list_view": 1,
    "label": "Net Amount",
    "options": "currency",
    "print_hide": 1,
@@ -466,6 +459,7 @@
    "collapsible": 1,
    "fieldname": "item_weight_details",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Item Weight Details"
   },
   {
@@ -498,8 +492,7 @@
    "bold": 1,
    "fieldname": "warehouse",
    "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Accepted Warehouse",
+   "label": "Warehouse",
    "oldfieldname": "warehouse",
    "oldfieldtype": "Link",
    "options": "Warehouse",
@@ -510,6 +503,7 @@
   {
    "fieldname": "rejected_warehouse",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Rejected Warehouse",
    "no_copy": 1,
    "oldfieldname": "rejected_warehouse",
@@ -558,9 +552,11 @@
    "width": "150px"
   },
   {
+   "columns": 1,
    "fieldname": "schedule_date",
    "fieldtype": "Date",
-   "label": "Required By",
+   "in_list_view": 1,
+   "label": "Delivery Date",
    "oldfieldname": "schedule_date",
    "oldfieldtype": "Date",
    "print_hide": 1,
@@ -582,11 +578,13 @@
   {
    "fieldname": "section_break_45",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Serial and Batch No"
   },
   {
    "fieldname": "item_tax_template",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Item Tax Template",
    "options": "Item Tax Template",
    "print_hide": 1
@@ -629,6 +627,7 @@
    "default": "0",
    "fieldname": "allow_zero_valuation_rate",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Allow Zero Valuation Rate",
    "no_copy": 1,
    "print_hide": 1
@@ -656,6 +655,7 @@
   {
    "fieldname": "billed_amt",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Billed Amt",
    "no_copy": 1,
    "options": "currency",
@@ -666,6 +666,7 @@
    "allow_on_submit": 1,
    "fieldname": "landed_cost_voucher_amount",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Landed Cost Voucher Amount",
    "no_copy": 1,
    "options": "Company:company:default_currency",
@@ -675,12 +676,11 @@
   {
    "fetch_from": "item_code.brand",
    "fieldname": "brand",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "hidden": 1,
    "label": "Brand",
    "oldfieldname": "brand",
    "oldfieldtype": "Link",
-   "options": "Brand",
    "print_hide": 1,
    "read_only": 1
   },
@@ -756,6 +756,7 @@
    "default": "0",
    "fieldname": "page_break",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Page Break",
    "oldfieldname": "page_break",
    "oldfieldtype": "Check",
@@ -798,6 +799,7 @@
    "collapsible": 1,
    "fieldname": "manufacture_details",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Manufacture"
   },
   {
@@ -978,6 +980,7 @@
   {
    "fieldname": "provisional_expense_account",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Provisional Expense Account",
    "options": "Account"
   },
@@ -991,16 +994,9 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "0",
-   "depends_on": "barcode",
-   "fieldname": "has_item_scanned",
-   "fieldtype": "Check",
-   "label": "Has Item Scanned",
-   "read_only": 1
-  },
-  {
    "fieldname": "rate_difference_with_purchase_invoice",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Rate Difference with Purchase Invoice",
    "no_copy": 1,
    "print_hide": 1,
@@ -1020,6 +1016,7 @@
    "depends_on": "eval:parent.is_old_subcontracting_flow",
    "fieldname": "subcontract_bom_section",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Subcontract BOM"
   },
   {
@@ -1056,7 +1053,8 @@
   {
    "depends_on": "eval:doc.use_serial_batch_fields === 1",
    "fieldname": "section_break_3vxt",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "hidden": 1
   },
   {
    "fieldname": "column_break_tolu",
@@ -1071,6 +1069,7 @@
   {
    "fieldname": "wip_composite_asset",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "WIP Composite Asset",
    "options": "Asset"
   },
@@ -1123,24 +1122,34 @@
    "default": "0",
    "fieldname": "return_qty_from_rejected_warehouse",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Return Qty from Rejected Warehouse",
    "read_only": 1
   },
   {
-   "description": "Valuation rate for the item as per Sales Invoice (Only for Internal Transfers)",
-   "fieldname": "sales_incoming_rate",
+   "fieldname": "transporation_cost",
    "fieldtype": "Currency",
    "hidden": 1,
-   "label": "Sales Incoming Rate",
-   "no_copy": 1,
-   "options": "Company:company:default_currency",
-   "print_hide": 1
+   "label": "Transporation Cost ",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "task",
+   "fieldtype": "Link",
+   "label": "Task",
+   "options": "Task",
+   "read_only": 1
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model"
   }
  ],
  "idx": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-07-19 12:14:21.521466",
+ "modified": "2025-05-19 11:15:05.969795",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Purchase Receipt Item",

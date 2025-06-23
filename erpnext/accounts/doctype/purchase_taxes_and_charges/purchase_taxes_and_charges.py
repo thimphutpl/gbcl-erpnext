@@ -16,19 +16,12 @@ class PurchaseTaxesandCharges(Document):
 
 		account_currency: DF.Link | None
 		account_head: DF.Link
-		add_deduct_tax: DF.Literal["Add", "Deduct"]
+		add_deduct_tax: DF.Literal["Deduct", "Add"]
 		base_tax_amount: DF.Currency
 		base_tax_amount_after_discount_amount: DF.Currency
 		base_total: DF.Currency
 		category: DF.Literal["Valuation and Total", "Valuation", "Total"]
-		charge_type: DF.Literal[
-			"",
-			"Actual",
-			"On Net Total",
-			"On Previous Row Amount",
-			"On Previous Row Total",
-			"On Item Quantity",
-		]
+		charge_type: DF.Literal["", "Actual", "On Net Total", "On Previous Row Amount", "On Previous Row Total", "On Item Quantity"]
 		cost_center: DF.Link | None
 		description: DF.SmallText
 		included_in_paid_amount: DF.Check

@@ -25,6 +25,7 @@ class AccountsSettings(Document):
 
 		acc_frozen_upto: DF.Date | None
 		add_taxes_from_item_tax_template: DF.Check
+		advance_to_supplier: DF.Link | None
 		allow_multi_currency_invoices_against_single_party_account: DF.Check
 		allow_stale: DF.Check
 		auto_reconcile_payments: DF.Check
@@ -50,6 +51,7 @@ class AccountsSettings(Document):
 		general_ledger_remarks_length: DF.Int
 		ignore_account_closing_balance: DF.Check
 		ignore_is_opening_check_for_reporting: DF.Check
+		intra_company_account: DF.Link | None
 		make_payment_via_journal_entry: DF.Check
 		merge_similar_account_heads: DF.Check
 		over_billing_allowance: DF.Currency
@@ -122,16 +124,16 @@ class AccountsSettings(Document):
 		if self.acc_frozen_upto:
 			check_pending_reposting(self.acc_frozen_upto)
 
-def validate_and_sync_auto_reconcile_config(self):
-		if self.has_value_changed("auto_reconciliation_job_trigger"):
-			if (
-				cint(self.auto_reconciliation_job_trigger) > 0
-				and cint(self.auto_reconciliation_job_trigger) < 60
-			):
-				sync_auto_reconcile_config(self.auto_reconciliation_job_trigger)
-			else:
-				frappe.throw(_("Cron Interval should be between 1 and 59 Min"))
+	def validate_and_sync_auto_reconcile_config(self):
+			if self.has_value_changed("auto_reconciliation_job_trigger"):
+				if (
+					cint(self.auto_reconciliation_job_trigger) > 0
+					and cint(self.auto_reconciliation_job_trigger) < 60
+				):
+					sync_auto_reconcile_config(self.auto_reconciliation_job_trigger)
+				else:
+					frappe.throw(_("Cron Interval should be between 1 and 59 Min"))
 
-		if self.has_value_changed("reconciliation_queue_size"):
-			if cint(self.reconciliation_queue_size) < 5 or cint(self.reconciliation_queue_size) > 100:
-				frappe.throw(_("Queue Size should be between 5 and 100"))
+			if self.has_value_changed("reconciliation_queue_size"):
+				if cint(self.reconciliation_queue_size) < 5 or cint(self.reconciliation_queue_size) > 100:
+					frappe.throw(_("Queue Size should be between 5 and 100"))

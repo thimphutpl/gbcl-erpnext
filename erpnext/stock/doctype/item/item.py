@@ -73,6 +73,7 @@ class Item(Document):
 		allow_negative_stock: DF.Check
 		asset_category: DF.Link | None
 		asset_naming_series: DF.Literal[None]
+		asset_sub_category: DF.Link | None
 		attributes: DF.Table[ItemVariantAttribute]
 		auto_create_assets: DF.Check
 		barcodes: DF.Table[ItemBarcode]
@@ -116,6 +117,7 @@ class Item(Document):
 		item_defaults: DF.Table[ItemDefault]
 		item_group: DF.Link
 		item_name: DF.Data
+		item_sub_group: DF.Link
 		last_purchase_rate: DF.Float
 		lead_time_days: DF.Int
 		max_discount: DF.Float
@@ -153,6 +155,7 @@ class Item(Document):
 	def onload(self):
 		self.set_onload("stock_exists", self.stock_ledger_created())
 		self.set_onload("asset_naming_series", get_asset_naming_series())
+
 
 	def autoname(self):
 		base = frappe.db.get_value("Item Group", self.item_group, "item_code_base")
@@ -1191,6 +1194,7 @@ def get_last_purchase_details(item_code, doc_name=None, conversion_rate=1.0):
 			return frappe._dict()
 
 	conversion_factor = flt(last_purchase.conversion_factor)
+	
 	out = frappe._dict(
 		{
 			"base_price_list_rate": flt(last_purchase.base_price_list_rate) / conversion_factor,
@@ -1202,6 +1206,7 @@ def get_last_purchase_details(item_code, doc_name=None, conversion_rate=1.0):
 	)
 
 	conversion_rate = flt(conversion_rate) or 1.0
+
 	out.update(
 		{
 			"price_list_rate": out.base_price_list_rate / conversion_rate,

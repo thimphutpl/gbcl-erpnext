@@ -17,6 +17,7 @@ def get_data(filters):
 	data = []
 	entries = get_tds_invoices(filters.tax_withholding_category, filters.from_date, filters.to_date,
 		name = None, filter_existing = False, party_type = filters.party_type)
+	# frappe.throw(frappe.as_json(entries))
 	for d in entries:
 		d.update({"tds_rate":filters.tax_withholding_category})
 		data.append(d)

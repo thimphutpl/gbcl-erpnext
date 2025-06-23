@@ -12,10 +12,8 @@ from erpnext.stock.doctype.item.item import get_last_purchase_details, validate_
 
 
 def update_last_purchase_rate(doc, is_submit) -> None:
+	
 	"""updates last_purchase_rate in item table for each item"""
-
-	if doc.get("is_internal_supplier"):
-		return
 
 	this_purchase_date = getdate(doc.get("posting_date") or doc.get("transaction_date"))
 
@@ -32,8 +30,10 @@ def update_last_purchase_rate(doc, is_submit) -> None:
 		elif is_submit == 1:
 			# even if this transaction is the latest one, it should be submitted
 			# for it to be considered for latest purchase rate
+			
 			if flt(d.conversion_factor):
 				last_purchase_rate = flt(d.base_net_rate) / flt(d.conversion_factor)
+				# frappe.throw(str(d.base_net_rate))
 			# Check if item code is present
 			# Conversion factor should not be mandatory for non itemized items
 			elif d.item_code:

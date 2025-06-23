@@ -399,6 +399,7 @@ def prepare_data(accounts, filters, parent_children_map, company_currency):
 		has_value = False
 		row = {
 			"account": d.name,
+			"account_number": d.account_number,
 			"parent_account": d.parent_account,
 			"indent": d.indent,
 			"from_date": filters.from_date,
@@ -433,6 +434,13 @@ def get_columns():
 			"fieldtype": "Link",
 			"options": "Account",
 			"width": 300,
+		},
+		{
+			"fieldname": "account_number",
+			"label": _("Account Code"),
+			"fieldtype": "Data",
+			"width": 80,
+			"align":"left",
 		},
 		{
 			"fieldname": "currency",

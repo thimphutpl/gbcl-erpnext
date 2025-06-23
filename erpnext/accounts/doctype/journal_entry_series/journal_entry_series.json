@@ -2,60 +2,61 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "field:journal_entry_series",
- "creation": "2024-12-25 21:12:57.971812",
+ "creation": "2024-08-09 11:08:55.328279",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "journal_entry_series",
   "prefix",
   "entry_type",
-  "column_break_qogn",
-  "disabled",
+  "column_break_vrgw",
+  "enabled",
   "description"
  ],
  "fields": [
   {
-   "fieldname": "journal_entry_series",
+   "fieldname": "description",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Journal Entry Series",
-   "reqd": 1,
-   "unique": 1
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_vrgw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "entry_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Entry Type",
+   "options": "Journal Entry\nInter Company Journal Entry\nBank Entry\nCash Entry\nCredit Card Entry\nDebit Note\nCredit Note\nContra Entry\nExcise Entry\nWrite Off Entry\nOpening Entry\nDepreciation Entry\nExchange Rate Revaluation\nExchange Gain Or Loss\nDeferred Revenue\nDeferred Expense",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
   },
   {
    "fieldname": "prefix",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Prefix",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
-   "fieldname": "entry_type",
-   "fieldtype": "Select",
-   "label": "Entry Type",
-   "options": "Journal Entry\nInter Company Journal Entry\nBank Entry\nCash Entry\nCredit Card Entry\nDebit Note\nCredit Note\nContra Entry\nExcise Entry\nWrite Off Entry\nOpening Entry\nDepreciation Entry\nExchange Rate Revaluation\nExchange Gain Or Loss\nDeferred Revenue\nDeferred Expense",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_qogn",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "disabled",
-   "fieldtype": "Check",
-   "label": "Disabled"
-  },
-  {
-   "fieldname": "description",
-   "fieldtype": "Small Text",
-   "label": "Description"
+   "fieldname": "journal_entry_series",
+   "fieldtype": "Data",
+   "label": "Journal Entry Series",
+   "reqd": 1,
+   "unique": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-12-25 21:21:53.256807",
+ "modified": "2024-11-19 17:27:48.022333",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Journal Entry Series",
@@ -75,6 +76,7 @@
    "write": 1
   }
  ],
+ "search_fields": "description",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

@@ -197,4 +197,18 @@ frappe.query_reports["Supplier Quotation Comparison"] = {
 		});
 		dialog.show();
 	},
+	// formatter(value, row, column, data) {
+    //     if (data && data.highlight_color === 'green') {
+    //         return `<span style="background-color: lightgreen">${value}</span>`;
+    //     }
+    //     return value;
+    // }
+	
+	formatter(value, row, column, data) {
+		if (column.fieldname === "price_per_unit" && data && data.highlight_price === "green") {
+			return `<span style="background-color: lightgreen">${value}</span>`;
+		}
+		return value;
+	}
+	
 };
