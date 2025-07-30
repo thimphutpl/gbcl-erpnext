@@ -71,7 +71,8 @@ class POLReceive(StockController):
 		# 	self.update_pol_advance()
 		# else:
 		# 	self.status = "Paid"
-
+		
+	#Cancel
 	def on_cancel(self):
 		self.update_pol_advance(cancel=True)
 

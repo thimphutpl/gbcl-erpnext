@@ -747,6 +747,7 @@ class StockController(AccountsController):
 
 		return items, warehouses
 
+	# get gl entries
 	def get_gl_entries(self, warehouse_account=None, default_expense_account=None,
 			default_cost_center=None, default_business_activity=None):
 
