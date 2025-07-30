@@ -1,0 +1,64 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-01 10:05:46.740527",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+    "financial_institution",
+    "short_form",
+    "branch_name",
+    "financial_system_code"
+   ],
+   "fields": [
+    {
+     "fieldname": "short_form",
+     "fieldtype": "Data",
+     "label": "Short Form"
+    },
+    {
+     "fieldname": "branch_name",
+     "fieldtype": "Data",
+     "in_list_view": 1,
+     "label": "Branch Name",
+     "reqd": 1
+    },
+    {
+     "fieldname": "financial_system_code",
+     "fieldtype": "Data",
+     "label": "Financial System Code"
+    },
+    {
+     "fieldname": "financial_institution",
+     "fieldtype": "Link",
+     "in_list_view": 1,
+     "label": "Financial Institution",
+     "options": "Financial Institution",
+     "reqd": 1
+    }
+   ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-05-01 10:05:46.740527",
+ "modified_by": "Administrator",
+ "module": "ePayment",
+ "name": "Financial Institution Branch",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

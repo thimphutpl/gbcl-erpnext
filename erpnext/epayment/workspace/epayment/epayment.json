@@ -1,0 +1,277 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"5PUJQvXetp\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">ePayment</span>\",\"col\":12}},{\"id\":\"y6lZ4e9lWM\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Quick Access</b>\",\"col\":12}},{\"id\":\"XzRZ2nhIKw\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Bank Payment\",\"col\":3}},{\"id\":\"40yR-tWeud\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Utility Bill\",\"col\":3}},{\"id\":\"eijguHYby_\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Bank\",\"col\":3}},{\"id\":\"pMwjLs7yUc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Bank Branch\",\"col\":3}},{\"id\":\"qlHm-Bv16i\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"6JAP_JOzYl\",\"type\":\"card\",\"data\":{\"card_name\":\"Utility Bill Payment Settings\",\"col\":4}},{\"id\":\"trP85zAmeC\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"_3ChdiUPnR\",\"type\":\"card\",\"data\":{\"card_name\":\"Bank Payment Settings\",\"col\":4}},{\"id\":\"zytEkLo1QP\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"H03wvMuxAS\",\"type\":\"card\",\"data\":{\"card_name\":\"Bank Statements\",\"col\":4}},{\"id\":\"XWia6wGjR3\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}}]",
+ "creation": "2024-12-25 17:35:56.187591",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "money-coins-1",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "ePayment",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Utility Bill Payment Settings",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "API Detail",
+   "link_count": 0,
+   "link_to": "API Detail",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Utility Service Type",
+   "link_count": 0,
+   "link_to": "Utility Service Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Utility Services",
+   "link_count": 0,
+   "link_to": "Utility Services",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Transactions",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bank Payment",
+   "link_count": 0,
+   "link_to": "Bank Payment",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Utility Bill",
+   "link_count": 0,
+   "link_to": "Utility Bill",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bank Payment Settings",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bank Payment Settings",
+   "link_count": 0,
+   "link_to": "Bank Payment Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Masters",
+   "link_count": 6,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Supplier",
+   "link_count": 0,
+   "link_to": "Supplier",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer",
+   "link_count": 0,
+   "link_to": "Customer",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Employee",
+   "link_count": 0,
+   "link_to": "Employee",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bank",
+   "link_count": 0,
+   "link_to": "Bank",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bank Branch",
+   "link_count": 0,
+   "link_to": "Bank Branch",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bank Account Type",
+   "link_count": 0,
+   "link_to": "Bank Account Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bank Statements",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bank Statement Files",
+   "link_count": 0,
+   "link_to": "Bank Statement Files",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "BRS Entries",
+   "link_count": 0,
+   "link_to": "BRS Entries",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reports",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Bank Payment Register",
+   "link_count": 0,
+   "link_to": "Bank Payment Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Utility Bill Payment Register",
+   "link_count": 0,
+   "link_to": "Utility Bill Payment Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2025-04-18 15:22:42.353633",
+ "modified_by": "Administrator",
+ "module": "ePayment",
+ "name": "ePayment",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 6.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Bank Payment",
+   "link_to": "Bank Payment",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Utility Bill",
+   "link_to": "Utility Bill",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Bank",
+   "link_to": "Bank",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Bank Branch",
+   "link_to": "Bank Branch",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "ePayment"
+}

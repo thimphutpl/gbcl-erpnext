@@ -1,0 +1,96 @@
+{
+ "actions": [],
+ "autoname": "field:employee_group_name",
+ "creation": "2018-11-19 12:33:31.351364",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee_group_name",
+  "employee_pf",
+  "employer_pf",
+  "column_break_kxht",
+  "health_contribution",
+  "section_break_00",
+  "employee_list",
+  "annual_increment_settings_section",
+  "minimum_months"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee_group_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_00",
+   "fieldtype": "Section Break",
+   "label": "Employee"
+  },
+  {
+   "fieldname": "employee_list",
+   "fieldtype": "Table",
+   "label": "Employee",
+   "options": "Employee Group Table"
+  },
+  {
+   "fieldname": "column_break_kxht",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "health_contribution",
+   "fieldtype": "Currency",
+   "label": "Health Contribution (%)"
+  },
+  {
+   "fieldname": "employee_pf",
+   "fieldtype": "Percent",
+   "label": "Employee PF Contribution (%)"
+  },
+  {
+   "fieldname": "employer_pf",
+   "fieldtype": "Percent",
+   "label": "Employer PF Contribution (%)"
+  },
+  {
+   "fieldname": "annual_increment_settings_section",
+   "fieldtype": "Section Break",
+   "label": "ANNUAL INCREMENT SETTINGS"
+  },
+  {
+   "fieldname": "minimum_months",
+   "fieldtype": "Float",
+   "label": "Minimum No. of Months in Service Required For Full Increment",
+   "precision": "2"
+  }
+ ],
+ "links": [],
+ "modified": "2025-02-03 20:01:11.730529",
+ "modified_by": "Administrator",
+ "module": "Setup",
+ "name": "Employee Group",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

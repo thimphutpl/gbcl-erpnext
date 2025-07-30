@@ -1,0 +1,76 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-03-29 15:44:14.480927",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "schedule_start_date",
+  "total_noof_days",
+  "schedule_date",
+  "depreciation_income_tax",
+  "accumulated_depreciation_income_tax",
+  "column_break_rnxk"
+ ],
+ "fields": [
+  {
+   "allow_on_submit": 1,
+   "fieldname": "schedule_start_date",
+   "fieldtype": "Date",
+   "label": "Schedule Start Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_rnxk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "schedule_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Schedule Date",
+   "no_copy": 1,
+   "reqd": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "total_noof_days",
+   "fieldtype": "Int",
+   "label": "Total No.of Days",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "columns": 2,
+   "fieldname": "depreciation_income_tax",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Income Depreciation Amount",
+   "reqd": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "columns": 2,
+   "fieldname": "accumulated_depreciation_income_tax",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Income Accumulated Depreciation",
+   "read_only": 1,
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-03-29 16:18:43.515725",
+ "modified_by": "Administrator",
+ "module": "Assets",
+ "name": "Income Depreciation Schedule",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
