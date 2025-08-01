@@ -59,6 +59,7 @@ class POLReceive(StockController):
 		uom: DF.Link | None
 	# end: auto-generated types
 
+	#validate
 	def validate(self):
 		check_future_date(self.posting_date)
 		self.set_allocated_amount()
