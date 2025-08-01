@@ -334,13 +334,13 @@ class eNote(Document):
 
    
 	def send_mail(self, recipients, message, subject):
-		attachments = self.get_attachment()
+		# attachments = self.get_attachment()
 		try:
 			frappe.sendmail(
 					recipients=recipients,
 					subject=_(subject),
 					message= _(message),
-					attachments=attachments,
+					# attachments=attachments,
 				)
 		except:
 			pass	

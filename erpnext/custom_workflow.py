@@ -678,14 +678,11 @@ class CustomWorkflow:
 		elif self.new_state.lower() == ("Waiting GM Approval".lower()):
 			if frappe.session.user != self.doc.general_manager:
 				frappe.throw("Only {} can apply this Request".format(self.doc.owner))
-			self.set_approver("General Manager")		
+			self.set_approver("Procurement Approval")		
 
-		elif self.new_state.lower() == ("Waiting for CEO Approval".lower()):
-			if frappe.session.user != self.doc.approver:
-				frappe.throw("Only {} can apply this Request".format(self.doc.owner))
-			self.set_approver("CEO")
-			# if self.doc.material_request_type =="Purchase":
-			# 	frappe.throw("Contact Admin with this regards")
+		elif self.new_state.lower() == ("Waiting For Approval".lower()):
+			if self.doc.material_request_type =="Purchase":
+				frappe.throw("Contact Admin with this regards")
 		elif self.new_state.lower() == ("Approved".lower()):
 			# if self.doc.material_request_type =="Purchase" and frappe.session.user != self.doc.approver:
 			# 	frappe.throw(f"Only {self.doc.approver} can Approved this Material Request")

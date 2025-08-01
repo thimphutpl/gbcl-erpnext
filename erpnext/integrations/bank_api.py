@@ -524,7 +524,7 @@ def fetch_balance(account_no):
         elif a.param == "password":
             password = a.defined_value
     '''
-
+    
     #url = "http://10.30.30.195:8088/EnquireShort/EnquireShortInterfaceHttpService"
     payload="""<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://BaNCS.TCS.com/webservice/EnquireShortInterface/v1" xmlns:ban="http://TCS.BANCS.Adapter/BANCSSchema">
                 <soapenv:Header/>
@@ -634,6 +634,8 @@ def fetch_balance(account_no):
             avail_bal = name.text
 
         balance_amt = avail_bal.replace(" CR","")
+        
         return {'status':'0','account_holder':account_holder, "balance_amount":balance_amt, "message": "Success"}
     except requests.exceptions.RequestException as err:
+       
         return {'status':'1', 'message':'Respomnse time out', 'error': err}

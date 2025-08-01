@@ -29,7 +29,10 @@ def validate_filters(filters):
 def get_data(filters):
     vpr = frappe.qb.DocType("Visitor Pass Registry")
     item = frappe.qb.DocType("Visitor Pass Registry Item")
-    
+ 
+
+    # if filters.get("cashier"):
+    #     condition.append
     query = (
         frappe.qb.from_(vpr)
         .inner_join(item)
@@ -48,6 +51,7 @@ def get_data(filters):
             & (vpr.location == filters.get("location"))
             & (Date(vpr.posting_date) >= filters.get("from_date"))
             & (Date(vpr.posting_date) <= filters.get("to_date"))
+            
         )
     )
     if filters.get("ticket_type"):

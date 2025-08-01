@@ -279,9 +279,14 @@ class UtilityBill(Document):
 		if self.item:
 			count_child = 0
 			for a in self.item:
+				debit_account = frappe.db.get_value("Utility Service Type",a.utility_service_type,"expense_account")
+				if not debit_account:
+					frappe.throw("No expense account for ")
+				if a.utility_service_type == "RRCO Tax Payment":
+					frappe.throw("Cannot create journal entry for RRCO")
 				if a.invoice_amount > 0 and a.payment_status == "Success":
 					doc.append("accounts", {
-								"account": a.debit_account,
+								"account": debit_account,
 								"debit_in_account_currency": a.net_amount,
 								"reference_type": "",
 								"reference_no": self.name,

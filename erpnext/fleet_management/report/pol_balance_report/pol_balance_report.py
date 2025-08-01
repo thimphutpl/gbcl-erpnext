@@ -36,6 +36,7 @@ def get_data(filters=None):
 					received = get_pol_tills("Receive", eq.name, filters.to_date, item.item_code)
 					issued = get_pol_consumed_till(eq.name, filters.to_date)
 			else:
+				frappe.throw("jjjjj")
 				received = get_pol_tills("Stock", eq.name, filters.to_date, item.item_code)
 				issued = get_pol_tills("Issue", eq.name, filters.to_date, item.item_code)
 
