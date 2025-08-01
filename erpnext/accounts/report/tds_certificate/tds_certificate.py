@@ -92,7 +92,7 @@ def get_columns():
 		},
 		{
 			"fieldname":"cheque_date",
-			"label":("Cheque Date"),
+			"label":("Cheque/Reference Date"),
 			"fieldtype":"Date",
 			"width":120
 		},
