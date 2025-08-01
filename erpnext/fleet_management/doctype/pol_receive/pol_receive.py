@@ -62,7 +62,7 @@ class POLReceive(StockController):
 	def validate(self):
 		check_future_date(self.posting_date)
 		self.set_allocated_amount()
-
+	#submit
 	def on_submit(self):
 		self.update_pol_advance()
 		self.make_gl_entries()
