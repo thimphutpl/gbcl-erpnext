@@ -133,14 +133,6 @@ class POLReceive(StockController):
 		# expense_account = self.get_expense_account()
 		expense_account = frappe.db.get_value("Equipment Category", self.equipment_category, "pol_advance_account")
 
-		# if self.hiring_cost_center:
-		#     cost_center = self.hiring_cost_center
-		# else:
-		# cost_center = get_branch_cc(self.vehicle_branch)
-
-		# ba = get_equipment_ba(self.vehicle)
-		# default_ba = get_default_ba()
-
 		gl_entries.append(
 			prepare_gl(self, {"account": expense_account,
 				"debit": flt(self.total_amount),
@@ -163,7 +155,56 @@ class POLReceive(StockController):
 				})
 		)
 
-		return gl_entries				
+		return gl_entries	
+
+	@staticmethod
+	def create_missing_gl_entries():
+		# Get all submitted POL Receive documents without GL entries
+		pol_receives = frappe.get_all("POL Receive",
+			filters={
+				"docstatus": 1,
+				"name": ("not in", frappe.db.sql_list("""
+					SELECT DISTINCT voucher_no 
+					FROM `tabGL Entry` 
+					WHERE voucher_type = 'POL Receive'
+				"""))
+			},
+			pluck="name"
+		)
+
+		total = len(pol_receives)
+		if not total:
+			frappe.msgprint("No POL Receive documents found without GL entries")
+			return
+
+		frappe.msgprint(f"Found {total} POL Receive documents without GL entries")
+
+		for i, pol_name in enumerate(pol_receives, 1):
+			try:
+				doc = frappe.get_doc("POL Receive", pol_name)
+				
+				# Get warehouse account - modify as needed
+				warehouse_account = None
+				
+				# Get GL entries
+				gl_entries = doc.get_gl_entries(warehouse_account)
+				
+				if gl_entries:
+					make_gl_entries(gl_entries)
+					frappe.db.commit()
+					
+					frappe.publish_progress(i/total * 100, 
+						title=f"Processing {i} of {total}...")
+					
+			except Exception as e:
+				frappe.log_error(frappe.get_traceback(), 
+					f"Failed to create GL entries for POL Receive {pol_name}")
+				frappe.db.rollback()
+
+		frappe.msgprint(f"Processed {i} POL Receive documents")
+
+	# Call the function
+	create_missing_gl_entries()				
 
 	@frappe.whitelist()
 	def get_previous_km_reading(self):
