@@ -66,7 +66,7 @@ class POLReceive(StockController):
 	#submit
 	def on_submit(self):
 		self.update_pol_advance()
-		self.make_gl_entries()
+		# self.make_gl_entries()
 		# if not self.is_opening:
 		# 	self.post_journal_entry()
 		# 	self.update_pol_advance()
@@ -124,14 +124,19 @@ class POLReceive(StockController):
 	# Ver 2.0.190509, Following method created by SHIV on 2019/05/24
 	def get_gl_entries(self, warehouse_account):
 		gl_entries = []
-
 		# creditor_account = frappe.db.get_single_value("Maintenance Accounts Settings", "default_pol_advance_account")
 		creditor_account = frappe.db.get_value("Company", self.company, "pol_advance_account")
 		if not creditor_account:
 			frappe.throw("Set Default Payable Account in Company")
 
 		# expense_account = self.get_expense_account()
-		expense_account = frappe.db.get_value("Equipment Category", self.equipment_category, "pol_advance_account")
+		if not self.equipment_category:
+			equipment_category = frappe.db.get_value("Equipment", self.equipment, "equipment_category")
+			if not equipment_category:
+				frappe.throw("Missing Equipment Category for equipment {}".format(self.equipment))
+		else:
+			equipment_category = self.equipment_category
+		expense_account = frappe.db.get_value("Equipment Category", equipment_category, "pol_advance_account")
 
 		gl_entries.append(
 			prepare_gl(self, {"account": expense_account,
@@ -155,10 +160,11 @@ class POLReceive(StockController):
 				})
 		)
 
-		return gl_entries	
+		return gl_entries, 1	
 
-	@staticmethod
-	def create_missing_gl_entries():
+	@frappe.whitelist()
+	def create_missing_gl_entries(self):
+		from erpnext.accounts.general_ledger import make_gl_entries
 		# Get all submitted POL Receive documents without GL entries
 		pol_receives = frappe.get_all("POL Receive",
 			filters={
@@ -171,30 +177,22 @@ class POLReceive(StockController):
 			},
 			pluck="name"
 		)
-
 		total = len(pol_receives)
 		if not total:
 			frappe.msgprint("No POL Receive documents found without GL entries")
 			return
-
 		frappe.msgprint(f"Found {total} POL Receive documents without GL entries")
-
 		for i, pol_name in enumerate(pol_receives, 1):
 			try:
 				doc = frappe.get_doc("POL Receive", pol_name)
-				
 				# Get warehouse account - modify as needed
 				warehouse_account = None
-				
 				# Get GL entries
-				gl_entries = doc.get_gl_entries(warehouse_account)
-				
-				if gl_entries:
-					make_gl_entries(gl_entries)
-					frappe.db.commit()
-					
-					frappe.publish_progress(i/total * 100, 
-						title=f"Processing {i} of {total}...")
+				gl_entries, post = doc.get_gl_entries(warehouse_account)
+				make_gl_entries(gl_entries)
+				frappe.db.commit()
+				frappe.publish_progress(i/total * 100, 
+					title=f"Processing {i} of {total}...")
 					
 			except Exception as e:
 				frappe.log_error(frappe.get_traceback(), 
@@ -203,8 +201,8 @@ class POLReceive(StockController):
 
 		frappe.msgprint(f"Processed {i} POL Receive documents")
 
-	# Call the function
-	create_missing_gl_entries()				
+	# # Call the function
+	# create_missing_gl_entries()				
 
 	@frappe.whitelist()
 	def get_previous_km_reading(self):
