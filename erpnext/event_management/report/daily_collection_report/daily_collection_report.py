@@ -40,7 +40,7 @@ def get_data(filters):
         .select(
             vpr.posting_date.as_("date"),
             vpr.location,
-            vpr.total_amount,
+            item.amount,
             item.ticket_type,
             item.ticket_price,
         	vpr.cashier,
