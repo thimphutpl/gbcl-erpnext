@@ -42,6 +42,7 @@ def get_data(filters):
             vpr.location,
             item.amount,
             item.ticket_type,
+            item.qty,
             item.ticket_price,
         	vpr.cashier,
             item.mode_of_payment
@@ -96,6 +97,12 @@ def get_columns():
             "fieldname": "ticket_type",
             "options": "Ticket Type",
             "width": 150,
+        },
+        {
+            "fieldtype": "Data",
+            "label": _("Quantity"),
+            "fieldname": "qty",
+            "width": 100,
         },
         {
             "fieldtype": "Currency",
