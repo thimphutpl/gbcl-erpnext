@@ -210,34 +210,67 @@ frappe.ui.form.on("Item", {
 	is_customer_provided_item: function (frm) {
 		frm.toggle_reqd("customer", frm.doc.is_customer_provided_item ? 1 : 0);
 	},
-	item_group: function (frm) {
-		frappe.call({
-			method: "erpnext.stock.doctype.item.item.get_is_fixed_asset",
-			args: {
-				item_group: frm.doc.item_group,
-			},
-			callback: function (r) {
-				frm.set_value("is_fixed_asset", r.message ? 1 : 0);
-				frm.set_value("is_stock_item", frm.doc.is_fixed_asset ? 0 : 1);
-			},
-		});
-	},
-	is_fixed_asset: function (frm) {
-		// set serial no to false & toggles its visibility
-		frm.set_value("has_serial_no", 0);
-		frm.set_value("has_batch_no", 0);
-		frm.toggle_enable(["has_serial_no", "serial_no_series"], !frm.doc.is_fixed_asset);
+	// item_group: function (frm) {
+	// 	if (frm.doc.item_group === 'Fixed Asset'){
+	// 		frm.set_value("is_fixed_asset", 1);
+	// 		frm.set_value("is_service_item", 0);
+	// 	}
 
-		frappe.call({
-			method: "erpnext.stock.doctype.item.item.get_asset_naming_series",
-			callback: function (r) {
-				frm.set_value("is_stock_item", frm.doc.is_fixed_asset ? 0 : 1);
-				frm.events.set_asset_naming_series(frm, r.message);
-			},
-		});
+	// 	if (frm.doc.item_group === 'Service'){
+	// 		frm.set_value("is_service_item", 1);
+	// 		frm.set_value("is_fixed_asset", 0);
+	// 	} 
+		
+		
+	
+	// },
 
-		frm.trigger("auto_create_assets");
-	},
+
+	item_group: function(frm) {
+        if (frm.doc.item_group === 'Fixed Asset') {
+            frm.set_value("is_fixed_asset", 1);
+            frm.set_value("is_stock_item", 0);
+            frm.set_value("is_service_item", 0);
+        } else if (frm.doc.item_group === 'Service') {
+            frm.set_value("is_service_item", 1);
+            frm.set_value("is_fixed_asset", 0);
+        }
+    },
+	// is_fixed_asset: function (frm) {
+	// 	// set serial no to false & toggles its visibility
+	// 	frm.set_value("has_serial_no", 0);
+	// 	frm.set_value("has_batch_no", 0);
+	// 	frm.toggle_enable(["has_serial_no", "serial_no_series"], !frm.doc.is_fixed_asset);
+
+	// 	frappe.call({
+	// 		method: "erpnext.stock.doctype.item.item.get_asset_naming_series",
+	// 		callback: function (r) {
+	// 			frm.set_value("is_stock_item", frm.doc.is_fixed_asset ? 0 : 1);
+	// 			frm.events.set_asset_naming_series(frm, r.message);
+	// 		},
+	// 	});
+
+	// 	frm.trigger("auto_create_assets");
+	// },
+
+	is_fixed_asset: function(frm) {
+        if (frm.doc.is_fixed_asset) {
+            frm.set_value("is_stock_item", 0);
+            // set serial no to false & toggles its visibility
+            frm.set_value("has_serial_no", 0);
+            frm.set_value("has_batch_no", 0);
+            frm.toggle_enable(["has_serial_no", "serial_no_series"], !frm.doc.is_fixed_asset);
+
+            frappe.call({
+                method: "erpnext.stock.doctype.item.item.get_asset_naming_series",
+                callback: function(r) {
+                    frm.events.set_asset_naming_series(frm, r.message);
+                },
+            });
+
+            frm.trigger("auto_create_assets");
+        }
+    },
 
 	set_asset_naming_series: function (frm, asset_naming_series) {
 		if ((frm.doc.__onload && frm.doc.__onload.asset_naming_series) || asset_naming_series) {
@@ -258,14 +291,24 @@ frappe.ui.form.on("Item", {
 		if (!frm.doc.item_name) frm.set_value("item_name", frm.doc.item_code);
 	},
 
-	is_stock_item: function (frm) {
-		if (!frm.doc.is_stock_item) {
-			frm.set_value("has_batch_no", 0);
-			frm.set_value("create_new_batch", 0);
-			frm.set_value("has_serial_no", 0);
-		}
-	},
+	// is_stock_item: function (frm) {
+	// 	if (!frm.doc.is_stock_item) {
+	// 		frm.set_value("has_batch_no", 0);
+	// 		frm.set_value("create_new_batch", 0);
+	// 		frm.set_value("has_serial_no", 0);
+	// 	}
+	// },
 
+	is_stock_item: function(frm) {
+        if (frm.doc.is_stock_item) {
+            frm.set_value("is_fixed_asset", 0);
+        }
+        if (!frm.doc.is_stock_item) {
+            frm.set_value("has_batch_no", 0);
+            frm.set_value("create_new_batch", 0);
+            frm.set_value("has_serial_no", 0);
+        }
+    },
 	has_variants: function (frm) {
 		erpnext.item.toggle_attributes(frm);
 	},

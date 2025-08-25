@@ -162,6 +162,7 @@
    "options": "fa fa-table"
   },
   {
+   "allow_bulk_edit": 1,
    "fieldname": "accounts",
    "fieldtype": "Table",
    "label": "Accounting Entries",
@@ -668,7 +669,7 @@
    "table_fieldname": "payment_entries"
   }
  ],
- "modified": "2025-03-06 22:44:57.637944",
+ "modified": "2025-07-23 13:15:48.951921",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Journal Entry",

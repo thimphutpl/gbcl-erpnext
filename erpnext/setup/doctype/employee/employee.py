@@ -80,7 +80,6 @@ class Employee(NestedSet):
 	def validate_user_details(self):
 		if self.user_id:
 			data = frappe.db.get_value("User", self.user_id, ["enabled", "user_image"], as_dict=1)
-
 			if not data:
 				self.user_id = None
 				return
@@ -95,11 +94,28 @@ class Employee(NestedSet):
 
 	def on_update(self):
 		self.update_nsm_model()
+
+		if (not self.user_id and self.status == "Active" and (self.company_email or self.personal_email)):
+			email=self.prefered_email
+			create_user(self.name,email=email)
+			# self.user_id = frappe.db.get_value("Employee", self.name, "user_id")
+			self.reload()
+		elif self.user_id and self.status != "Active":
+			self.sync_user_status()	
+
 		if self.user_id:
 			self.update_user()
 			self.update_user_permissions()
 		self.reset_employee_emails_cache()
-
+	def sync_user_status(self):
+		if self.user_id and frappe.db.exists("User", self.user_id):
+			if self.status == "Inactive":
+				frappe.db.set_value("User", self.user_id, "enabled", 0)
+				frappe.msgprint(_("User {0} is disabled").format(self.user_id))
+			elif self.status == "Left":
+				frappe.db.set_value("User", self.user_id, "enabled", 0)
+				frappe.msgprint(_("User {0} is disabled").format(self.user_id))
+				remove_user_permission("Employee", self.name, self.user_id)
 	def update_user_permissions(self):
 		if not self.create_user_permission:
 			return
@@ -205,11 +221,12 @@ class Employee(NestedSet):
 	def validate_for_enabled_user_id(self, enabled):
 		if not self.status == "Active":
 			return
-
 		if enabled is None:
 			frappe.throw(_("User {0} does not exist").format(self.user_id))
 		if enabled == 0:
-			frappe.throw(_("User {0} is disabled").format(self.user_id), EmployeeUserDisabledError)
+			frappe.db.set_value("User", self.user_id, "enabled", 1)
+			frappe.msgprint(_("User {0} is enabled").format(self.user_id))
+			# frappe.throw(_("User {0} is disabled").format(self.user_id), EmployeeUserDisabledError)
 
 	def validate_duplicate_user_id(self):
 		Employee = frappe.qb.DocType("Employee")
@@ -339,7 +356,6 @@ def deactivate_sales_person(status=None, employee=None):
 @frappe.whitelist()
 def create_user(employee, user=None, email=None):
 	emp = frappe.get_doc("Employee", employee)
-
 	employee_name = emp.employee_name.split(" ")
 	middle_name = last_name = ""
 

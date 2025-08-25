@@ -320,7 +320,7 @@ class PurchaseInvoice(BuyingController):
 		self.reset_default_field_value("rejected_warehouse", "items", "rejected_warehouse")
 		self.reset_default_field_value("set_from_warehouse", "items", "from_warehouse")
 		self.set_percentage_received()
-		self.check_purchase_receipt()
+		# self.check_purchase_receipt()
 		# self.warehouse_from_branch()
 		self.cal_oustanding_amount()
 		self.cal_total_discount_for_each_item()

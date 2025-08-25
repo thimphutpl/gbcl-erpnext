@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "format:DKBP-{YY}-{MM}-{DD}-{###}",
  "creation": "2025-05-15 20:55:27.918324",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -8,18 +9,20 @@
   "section_break_qzps",
   "company",
   "transaction_type",
+  "transaction_no",
   "column_break_smlo",
+  "transaction_code",
   "remarks",
   "paid_from_ac_detail_section",
-  "bank_account_no",
+  "paid_from",
   "payer_name",
   "inquiry_id",
-  "acc_status_details",
   "column_break_rilu",
+  "bank_account_no",
   "bank_balance",
-  "bank_balance_usd",
-  "amended_from",
+  "acc_status_details",
   "transaction_details_section",
+  "get_transactions",
   "transaction",
   "section_break_imeh",
   "transaction_id",
@@ -34,7 +37,8 @@
   "column_break_ujsk",
   "is_txn_processed",
   "txn_authcode",
-  "txn_status_code"
+  "txn_status_code",
+  "amended_from"
  ],
  "fields": [
   {
@@ -55,7 +59,7 @@
    "fieldname": "transaction_type",
    "fieldtype": "Select",
    "label": "Transaction Type",
-   "options": "Journal Entry\nSalary"
+   "options": "Journal Entry\nPayment Entry\nSalary"
   },
   {
    "fieldname": "remarks",
@@ -70,7 +74,8 @@
   {
    "fieldname": "bank_account_no",
    "fieldtype": "Data",
-   "label": "Bank Account No"
+   "label": "Bank Account No",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_rilu",
@@ -86,22 +91,7 @@
    "fieldname": "inquiry_id",
    "fieldtype": "Data",
    "label": "Inquiry ID",
-   "read_only": 1
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
    "no_copy": 1,
-   "options": "DK Bank Payment",
-   "print_hide": 1,
-   "read_only": 1,
-   "search_index": 1
-  },
-  {
-   "fieldname": "bank_balance_usd",
-   "fieldtype": "Currency",
-   "label": "Bank Balance (USD)",
    "read_only": 1
   },
   {
@@ -124,7 +114,8 @@
   {
    "fieldname": "payer_name",
    "fieldtype": "Data",
-   "label": "Payer Name"
+   "label": "Payer Name",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_imeh",
@@ -135,6 +126,7 @@
    "fieldname": "transaction_id",
    "fieldtype": "Data",
    "label": "Transaction ID",
+   "no_copy": 1,
    "read_only": 1
   },
   {
@@ -145,18 +137,21 @@
    "fieldname": "transaction_status_request_id",
    "fieldtype": "Data",
    "label": "Transaction Status Request ID",
+   "no_copy": 1,
    "read_only": 1
   },
   {
    "fieldname": "response_details",
    "fieldtype": "Data",
    "label": "Response Details",
+   "no_copy": 1,
    "read_only": 1
   },
   {
    "fieldname": "transaction_status_info_section",
    "fieldtype": "Section Break",
    "label": "Transaction Status Info",
+   "no_copy": 1,
    "read_only": 1
   },
   {
@@ -211,15 +206,51 @@
    "fieldtype": "Data",
    "label": "Transaction Status Description",
    "read_only": 1
+  },
+  {
+   "fieldname": "transaction_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Transaction Code",
+   "options": "Transaction Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "transaction_no",
+   "fieldtype": "Dynamic Link",
+   "label": "Transaction No",
+   "options": "transaction_type"
+  },
+  {
+   "fieldname": "paid_from",
+   "fieldtype": "Link",
+   "label": "Paid From Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "get_transactions",
+   "fieldtype": "Button",
+   "label": "Get Transactions"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "DK Bank Payment",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-05-17 16:46:37.117519",
+ "modified": "2025-07-27 13:00:07.597693",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "DK Bank Payment",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

@@ -15,6 +15,7 @@
   "supplier_tpn_no",
   "country",
   "attention_person",
+  "national_id",
   "column_break0",
   "supplier_group",
   "supplier_type",
@@ -55,6 +56,7 @@
   "bank_name",
   "bank_account_type",
   "account_number",
+  "account_holder_name",
   "column_break_ilcg",
   "bank_branch",
   "inr_bank_code",
@@ -62,8 +64,10 @@
   "international_bank_details_section",
   "bank",
   "swift_code",
+  "acc_no_swift",
   "column_break_ldue",
   "bank_address",
+  "swift_account_holder_name",
   "dashboard_tab",
   "contact_and_address_tab",
   "address_contacts",
@@ -201,7 +205,7 @@
    "fieldname": "supplier_type",
    "fieldtype": "Select",
    "label": "Supplier Type",
-   "options": "Domestic Vendor\nIndian Vendor\nInternational Vendor",
+   "options": "Domestic Vendor\nInternational Vendor",
    "reqd": 1
   },
   {
@@ -525,7 +529,7 @@
    "fieldname": "bank_name",
    "fieldtype": "Link",
    "label": "Bank Name",
-   "options": "Financial Institution"
+   "options": "Bank"
   },
   {
    "fieldname": "column_break_ilcg",
@@ -546,8 +550,7 @@
   {
    "fieldname": "international_bank_details_section",
    "fieldtype": "Section Break",
-   "hidden": 1,
-   "label": "International Bank Details"
+   "label": "SWIFT Details"
   },
   {
    "fieldname": "bank",
@@ -645,6 +648,26 @@
    "fieldname": "email_address",
    "fieldtype": "Data",
    "label": "Email Address"
+  },
+  {
+   "fieldname": "account_holder_name",
+   "fieldtype": "Data",
+   "label": "Account Holder Name"
+  },
+  {
+   "fieldname": "national_id",
+   "fieldtype": "Data",
+   "label": "National ID"
+  },
+  {
+   "fieldname": "swift_account_holder_name",
+   "fieldtype": "Data",
+   "label": "Swift Account Holder Name"
+  },
+  {
+   "fieldname": "acc_no_swift",
+   "fieldtype": "Data",
+   "label": "Account Number"
   }
  ],
  "icon": "fa fa-user",
@@ -657,7 +680,7 @@
    "link_fieldname": "party"
   }
  ],
- "modified": "2025-05-14 12:51:36.432663",
+ "modified": "2025-07-30 16:37:01.286502",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Supplier",

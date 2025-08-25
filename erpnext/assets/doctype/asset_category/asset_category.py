@@ -22,7 +22,7 @@ class AssetCategory(Document):
 		abbr: DF.Data | None
 		accounts: DF.Table[AssetCategoryAccount]
 		asset_category_name: DF.Data
-		company: DF.Link
+		company: DF.Link | None
 		enable_cwip_accounting: DF.Check
 		finance_books: DF.Table[AssetFinanceBook]
 	# end: auto-generated types

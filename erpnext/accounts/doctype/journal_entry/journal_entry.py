@@ -114,47 +114,47 @@ class JournalEntry(AccountsController):
 			))
 		self.name = make_autoname(str(prefix) + ".YYYY.MM.####")
 
-	    # Ver 1.0 by SSK on 09/08/2016, autoname() method is added
+		# Ver 1.0 by SSK on 09/08/2016, autoname() method is added
 	# def autoname(self):
-    #             series_seq = ""
-    #             if self.voucher_type == 'Journal Entry':
-    #                     series_seq = 'JEJV'
-    #             elif self.voucher_type == 'Bank Entry':
-    #                     if self.naming_series == 'Bank Payment Voucher':
-    #                             series_seq = 'JEBP'
-    #                     elif self.naming_series == 'Bank Receipt Voucher':
-    #                             series_seq = 'JEBR'
-    #                     else:
-    #                             series_seq = 'JEBE'
-    #             elif self.voucher_type == 'Cash Entry':
-    #                     if self.naming_series == 'Cash Payment Voucher':
-    #                             series_seq = 'JECP'
-    #                     elif self.naming_series == 'Cash Receipt Voucher':
-    #                             series_seq = 'JECR'
-    #                     else:
-    #                             series_seq = 'JECA'
-    #             elif self.voucher_type == 'Debit Note':
-    #                     series_seq = 'JEDN'
-    #             elif self.voucher_type == 'Credit Note':
-    #                     series_seq = 'JECN'
-    #             elif self.voucher_type == 'Contra Entry':
-    #                     series_seq = 'JECE'
-    #             elif self.voucher_type == 'Excise Entry':
-    #                     series_seq = 'JEEE'
-    #             elif self.voucher_type == 'Write Off Entry':
-    #                     series_seq = 'JEWE'
-    #             elif self.voucher_type == 'Opening Entry':
-    #                     series_seq = 'JEOP'
-    #             elif self.voucher_type == 'Depreciation Entry':
-    #                     series_seq = 'JEDE'
-    #             elif self.voucher_type == 'Maintenance Invoice':
-    #                     series_seq = 'JEMA'
-    #             elif self.voucher_type == 'Hire Invoice':
-    #                     series_seq = 'JEHI'
+	#             series_seq = ""
+	#             if self.voucher_type == 'Journal Entry':
+	#                     series_seq = 'JEJV'
+	#             elif self.voucher_type == 'Bank Entry':
+	#                     if self.naming_series == 'Bank Payment Voucher':
+	#                             series_seq = 'JEBP'
+	#                     elif self.naming_series == 'Bank Receipt Voucher':
+	#                             series_seq = 'JEBR'
+	#                     else:
+	#                             series_seq = 'JEBE'
+	#             elif self.voucher_type == 'Cash Entry':
+	#                     if self.naming_series == 'Cash Payment Voucher':
+	#                             series_seq = 'JECP'
+	#                     elif self.naming_series == 'Cash Receipt Voucher':
+	#                             series_seq = 'JECR'
+	#                     else:
+	#                             series_seq = 'JECA'
+	#             elif self.voucher_type == 'Debit Note':
+	#                     series_seq = 'JEDN'
+	#             elif self.voucher_type == 'Credit Note':
+	#                     series_seq = 'JECN'
+	#             elif self.voucher_type == 'Contra Entry':
+	#                     series_seq = 'JECE'
+	#             elif self.voucher_type == 'Excise Entry':
+	#                     series_seq = 'JEEE'
+	#             elif self.voucher_type == 'Write Off Entry':
+	#                     series_seq = 'JEWE'
+	#             elif self.voucher_type == 'Opening Entry':
+	#                     series_seq = 'JEOP'
+	#             elif self.voucher_type == 'Depreciation Entry':
+	#                     series_seq = 'JEDE'
+	#             elif self.voucher_type == 'Maintenance Invoice':
+	#                     series_seq = 'JEMA'
+	#             elif self.voucher_type == 'Hire Invoice':
+	#                     series_seq = 'JEHI'
 	# 			else:
 	# 				series_seq = 'JEJE'
 
-    #             self.name = make_autoname(str(series_seq) + '.YY.MM.#####')	
+	#             self.name = make_autoname(str(series_seq) + '.YY.MM.#####')	
 
 	def validate(self):
 		if self.voucher_type == "Opening Entry":
@@ -1970,11 +1970,40 @@ def make_bank_payment(source_name, target_doc=None):
 
 	doc = get_mapped_doc("Journal Entry", source_name, {
 			"Journal Entry": {
-				"doctype": "Bank Payment",
+				"doctype": "DK Bank Payment",
 				"field_map": {
 					"name": "transaction_no",
 				},
-				"postprocess": set_missing_values,
+				# "postprocess": set_missing_values,
+			},
+	}, target_doc, ignore_permissions=True)
+	return doc
+# ePayment Ends
+
+
+
+
+
+# ePayment Begins
+@frappe.whitelist()
+def make_swift_transfer_instruction(source_name, target_doc=None):
+	# def set_missing_values(obj, target, source_parent):
+		# target.payment_type = "One-One Payment"
+		# target.transaction_type = "Journal Entry"
+		# target.posting_date = get_datetime()
+		# target.from_date = None
+		# target.to_date = None
+		# target.paid_from = frappe.db.get_value("Branch", target.branch,"expense_bank_account")
+		# target.get_entries()
+
+	doc = get_mapped_doc("Journal Entry", source_name, {
+			"Journal Entry": {
+				"doctype": "SWIFT Payment Instruction",
+				"field_map": {
+					"doctype":"transaction_type",
+					"name": "transaction_id",
+				},
+				# "postprocess": set_missing_values,
 			},
 	}, target_doc, ignore_permissions=True)
 	return doc

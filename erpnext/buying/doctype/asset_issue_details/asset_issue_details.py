@@ -93,7 +93,7 @@ class AssetIssueDetails(Document):
 
         if item_doc.asset_category:
             asset_category = frappe.db.get_value("Asset Category", item_doc.asset_category, "name")
-            fixed_asset_account, credit_account=frappe.db.get_value("Asset Category Account", {'parent':asset_category}, ['fixed_asset_account','credit_account'])
+            fixed_asset_account, credit_account=frappe.db.get_value("Asset Category Account", {'parent':asset_category,'company_name':self.company}, ['fixed_asset_account','credit_account'])
             if item_doc.asset_sub_category:
                 for a in frappe.db.sql("""select total_number_of_depreciations, income_depreciation_percent 
                                         from `tabAsset Finance Book` where parent = '{0}' 
@@ -110,6 +110,8 @@ class AssetIssueDetails(Document):
             "Item", self.item_code, ["asset_naming_series", "asset_category","asset_sub_category"], as_dict=1
         )
         asset_abbr = frappe.db.get_value('Asset Category',item_data.get("asset_category"),'abbr')
+        pr_date = frappe.db.get_value('Purchase Receipt',self.purchase_receipt,'actual_receipt_date')
+        
         if not self.create_single_asset:
             asset = frappe.get_doc(
                 {
@@ -122,7 +124,7 @@ class AssetIssueDetails(Document):
                     "abbr": asset_abbr,
                     "cost_center": frappe.db.get_value("Branch", self.branch, "cost_center"),
                     "company": self.company,
-                    "purchase_date": self.entry_date,
+                    "purchase_date": pr_date,
                     "calculate_depreciation": 0,
                     "asset_rate": self.asset_rate,
                     "purchase_amount": self.asset_rate,
@@ -138,7 +140,9 @@ class AssetIssueDetails(Document):
                     "credit_account": credit_account,
                     "asset_issue_details":self.name,
                     "serial_number":self.reg_number,
-                    "next_depreciation_date":get_last_day(self.issued_date)
+                    "next_depreciation_date":get_last_day(self.issued_date),
+                     "asset_issue_details":self.name,
+                    
                 }
             )
         else:

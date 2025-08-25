@@ -209,6 +209,19 @@ class Budget(Document):
 												where s.parent = 'Budget Settings'
 												and s.account_type = a.account_type)
 							{condition}
+
+							
+							 
+							 ORDER BY 
+								CASE root_type
+									WHEN 'Income' THEN 1
+									WHEN 'Expense' THEN 2
+									WHEN 'Asset' THEN 3
+									WHEN 'Liability' THEN 4
+									WHEN 'Equity' THEN 5
+									ELSE 6
+								END;
+							
 						""".format(fiscal_year =self.fiscal_year, cost_center=self.cost_center, name=self.name, condition = condition,company=self.company), as_dict=True)
 		self.set('accounts', [])
 		p_account = ""

@@ -30,7 +30,7 @@ frappe.ui.form.on("Employee", {
 				},
 			};
 		});
-		frm.set_query("branch", function() {
+		frm.set_query("branch", function () {
 			return {
 				filters: {
 					company: frm.doc.company,
@@ -38,7 +38,7 @@ frappe.ui.form.on("Employee", {
 			};
 		});
 
-		frm.set_query("division", function(){
+		frm.set_query("division", function () {
 			return {
 				filters: {
 					is_division: 1,
@@ -47,7 +47,7 @@ frappe.ui.form.on("Employee", {
 			}
 		});
 
-		frm.set_query("section", function(){
+		frm.set_query("section", function () {
 			return {
 				filters: {
 					is_section: 1,

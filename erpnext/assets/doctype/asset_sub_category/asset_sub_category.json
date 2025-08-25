@@ -6,7 +6,6 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "company",
   "asset_category",
   "asset_sub_category"
  ],
@@ -26,18 +25,11 @@
    "label": "Asset Sub Category",
    "reqd": 1,
    "unique": 1
-  },
-  {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "label": "Company",
-   "options": "Company",
-   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-12 12:06:39.484250",
+ "modified": "2025-06-30 16:41:34.277960",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Asset Sub Category",

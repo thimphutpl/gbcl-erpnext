@@ -12,9 +12,11 @@
   "bank_details_section",
   "bank_name",
   "abbr",
+  "intra_bank",
   "column_break_1",
   "swift_number",
   "disabled",
+  "bank_code",
   "address_and_contact",
   "address_html",
   "column_break_13",
@@ -107,10 +109,21 @@
    "fieldname": "disabled",
    "fieldtype": "Check",
    "label": "Disabled"
+  },
+  {
+   "fieldname": "bank_code",
+   "fieldtype": "Data",
+   "label": "Bank Code"
+  },
+  {
+   "default": "0",
+   "fieldname": "intra_bank",
+   "fieldtype": "Check",
+   "label": "Intra Bank"
   }
  ],
  "links": [],
- "modified": "2025-01-08 18:10:18.668842",
+ "modified": "2025-07-16 12:48:34.945293",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Bank",

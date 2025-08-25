@@ -368,7 +368,6 @@
   {
    "fieldname": "round_off_account",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Round Off Account",
    "options": "Account"
   },
@@ -1110,7 +1109,7 @@
  "image_field": "company_logo",
  "is_tree": 1,
  "links": [],
- "modified": "2025-06-04 16:32:54.407561",
+ "modified": "2025-08-14 12:18:13.307182",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Company",

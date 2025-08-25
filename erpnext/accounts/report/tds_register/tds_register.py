@@ -15,9 +15,9 @@ def execute(filters=None):
 def get_data(filters):
 	validate_filters(filters)
 	data = []
-	entries = get_tds_invoices(filters.tax_withholding_category, filters.from_date, filters.to_date,
+	entries = get_tds_invoices(filters.tax_withholding_category,filters.company, filters.from_date, filters.to_date,
 		name = None, filter_existing = False, party_type = filters.party_type)
-	# frappe.throw(frappe.as_json(entries))
+	
 	for d in entries:
 		d.update({"tds_rate":filters.tax_withholding_category})
 		data.append(d)
@@ -48,7 +48,7 @@ def get_columns(filters):
 			"fieldname": "posting_date","label": "Invoice Date","fieldtype": "Date","width": 80
 		},
 		{
-			"fieldname": "bill_no","label": "Bill Date","fieldtype": "Data","options":"invoice_type","width": 100
+			"fieldname": "bill_no","label": "Bill No","fieldtype": "Data","options":"invoice_type","width": 100
 		},
 		{
 			"fieldname": "bill_date","label": "Bill Date","fieldtype": "Date","width": 80

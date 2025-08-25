@@ -405,6 +405,16 @@ def get_data_with_opening_closing(filters, account_details, accounting_dimension
 	data.append(totals.total)
 
 	# closing
+	balance = 0
+	if totals.closing['debit'] > totals.closing['credit']:
+		balance = totals.closing['debit'] - totals.closing['credit']
+		totals.closing['debit'] = balance
+		totals.closing['credit'] = 0
+	else:
+		balance = totals.closing['credit'] - totals.closing['debit']
+		totals.closing['credit'] = balance
+		totals.closing['debit'] = 0
+
 	data.append(totals.closing)
 
 	return data

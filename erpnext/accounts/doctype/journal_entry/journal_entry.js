@@ -43,6 +43,7 @@ frappe.ui.form.on("Journal Entry", {
 		// draw_tds_table(frm);
 		render_tds_table(frm);
 		create_custom_buttons(frm);
+		create_custom_buttons2(frm);
 	},
 	refresh: function (frm) {
 		erpnext.toggle_naming_series();
@@ -129,6 +130,7 @@ frappe.ui.form.on("Journal Entry", {
 		// draw_tds_table(frm);
 		render_tds_table(frm);
 		create_custom_buttons(frm);
+		create_custom_buttons2(frm);
 	},
 
 	// toggle_cheque_log: (frm) => {
@@ -987,6 +989,21 @@ var create_custom_buttons = function(frm){
 				});
 			});
 		}
+	}
+}
+/* ePayment Ends */
+
+/* ePayment Begins */
+var create_custom_buttons2 = function(frm){
+	if(frm.doc.docstatus == 1 && (frm.doc.mode_of_payment == "Swift")){
+		
+			frm.page.set_primary_action(__('Process Swift Transfer Instruction'), () => {
+				frappe.model.open_mapped_doc({
+					method: "erpnext.accounts.doctype.journal_entry.journal_entry.make_swift_transfer_instruction",
+					frm: cur_frm
+				});
+			});
+		
 	}
 }
 /* ePayment Ends */

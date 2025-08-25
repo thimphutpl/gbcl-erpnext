@@ -65,13 +65,13 @@ frappe.ui.form.on("Supplier", {
 			};
 		});
 
-		frm.set_query("bank_name", function (doc) {
-			return {
-				filters: {
-					'enabled': 1,
-				},
-			};
-		});
+		// frm.set_query("bank_name", function (doc) {
+		// 	return {
+		// 		filters: {
+		// 			'enabled': 1,
+		// 		},
+		// 	};
+		// });
 		frm.set_query("bank_branch", function (doc) {
 			return {
 				filters: {

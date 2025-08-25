@@ -1,0 +1,291 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:STPI{YY}{MM}{####}",
+ "creation": "2025-07-30 09:57:54.756753",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "posting_date",
+  "whom_to_mail",
+  "get_details",
+  "column_break_lave",
+  "transaction_type",
+  "transaction_id",
+  "section_break_ulrb",
+  "name1",
+  "permanent_address",
+  "email",
+  "column_break_jzxw",
+  "phone_number",
+  "present_address",
+  "national_id",
+  "section_break_pbde",
+  "account_number",
+  "beneficiary_bank_name",
+  "beneficiary_bank_swift_code",
+  "beneficiary_address",
+  "amount_in_usd",
+  "intermediary_bank_name",
+  "intermediary_bank_swift_code",
+  "charges_currency",
+  "btfn_application_reference_number",
+  "customer_declaration_number",
+  "commission_debit_account_number",
+  "company",
+  "workflow_state",
+  "column_break_shzz",
+  "account_source",
+  "beneficiary_bank_address",
+  "beneficiary_name",
+  "beneficiary_account_no",
+  "amount_in_word",
+  "intermediary_bank_address",
+  "charges_to_debited_from",
+  "reason",
+  "type_of_payment",
+  "bank_application_remittance_reference_number",
+  "amended_from",
+  "form_data"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_pbde",
+   "fieldtype": "Section Break",
+   "label": "Bank Details"
+  },
+  {
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "phone_number",
+   "fieldtype": "Data",
+   "label": "Phone Number"
+  },
+  {
+   "fieldname": "column_break_shzz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "permanent_address",
+   "fieldtype": "Data",
+   "label": "Permanent Address "
+  },
+  {
+   "fieldname": "present_address",
+   "fieldtype": "Data",
+   "label": "Present Address "
+  },
+  {
+   "fieldname": "account_number",
+   "fieldtype": "Data",
+   "label": "Account Number"
+  },
+  {
+   "fieldname": "national_id",
+   "fieldtype": "Data",
+   "label": "National ID"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email"
+  },
+  {
+   "fieldname": "account_source",
+   "fieldtype": "Data",
+   "label": "Account Source "
+  },
+  {
+   "fieldname": "beneficiary_bank_name",
+   "fieldtype": "Data",
+   "label": "Beneficiary Bank Name "
+  },
+  {
+   "fieldname": "beneficiary_bank_address",
+   "fieldtype": "Data",
+   "label": "Beneficiary Bank Address "
+  },
+  {
+   "fieldname": "beneficiary_bank_swift_code",
+   "fieldtype": "Data",
+   "label": "Beneficiary Bank Swift Code"
+  },
+  {
+   "fieldname": "beneficiary_name",
+   "fieldtype": "Data",
+   "label": "Beneficiary Name "
+  },
+  {
+   "fieldname": "beneficiary_address",
+   "fieldtype": "Data",
+   "label": "Beneficiary Address "
+  },
+  {
+   "fieldname": "beneficiary_account_no",
+   "fieldtype": "Data",
+   "label": "Beneficiary Account No "
+  },
+  {
+   "fieldname": "amount_in_usd",
+   "fieldtype": "Data",
+   "label": "Amount in USD "
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "SWIFT Payment Instruction",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "amount_in_word",
+   "fieldtype": "Data",
+   "label": "Amount in word "
+  },
+  {
+   "fieldname": "intermediary_bank_name",
+   "fieldtype": "Data",
+   "label": "Intermediary Bank Name "
+  },
+  {
+   "fieldname": "intermediary_bank_address",
+   "fieldtype": "Data",
+   "label": "Intermediary Bank Address "
+  },
+  {
+   "fieldname": "intermediary_bank_swift_code",
+   "fieldtype": "Data",
+   "label": "Intermediary Bank Swift Code"
+  },
+  {
+   "fieldname": "charges_to_debited_from",
+   "fieldtype": "Select",
+   "label": "Charges to debited from ",
+   "options": "Our\nBeneficiary\nShare"
+  },
+  {
+   "fieldname": "charges_currency",
+   "fieldtype": "Select",
+   "label": "Charges Currency ",
+   "options": "USD\nBTN"
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Data",
+   "label": "Reason"
+  },
+  {
+   "fieldname": "btfn_application_reference_number",
+   "fieldtype": "Data",
+   "label": "BTFN Application Reference Number"
+  },
+  {
+   "fieldname": "type_of_payment",
+   "fieldtype": "Select",
+   "label": "Type of Payment ",
+   "options": "Advance Payment\nPartial Payment\nFinal Payment"
+  },
+  {
+   "fieldname": "customer_declaration_number",
+   "fieldtype": "Data",
+   "label": "Customer Declaration Number"
+  },
+  {
+   "fieldname": "bank_application_remittance_reference_number",
+   "fieldtype": "Data",
+   "label": "Bank Application Remittance Reference Number"
+  },
+  {
+   "fieldname": "commission_debit_account_number",
+   "fieldtype": "Data",
+   "label": "Commission Debit Account Number"
+  },
+  {
+   "fieldname": "form_data",
+   "fieldtype": "Data",
+   "label": "Form Data "
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Company"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "column_break_lave",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_type",
+   "fieldtype": "Select",
+   "label": "Transaction Type",
+   "options": "\nJournal Entry\nPayment Entry"
+  },
+  {
+   "fieldname": "transaction_id",
+   "fieldtype": "Dynamic Link",
+   "label": "Transaction ID",
+   "options": "transaction_type"
+  },
+  {
+   "fieldname": "get_details",
+   "fieldtype": "Button",
+   "label": "Get Details"
+  },
+  {
+   "fieldname": "whom_to_mail",
+   "fieldtype": "Data",
+   "label": "Whom to mail"
+  },
+  {
+   "fieldname": "section_break_ulrb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_jzxw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Data",
+   "label": "workflow_tate"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-07-30 22:50:02.946137",
+ "modified_by": "Administrator",
+ "module": "DK Bank Payment",
+ "name": "SWIFT Payment Instruction",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

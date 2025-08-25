@@ -79,6 +79,7 @@ class Item(Document):
 		barcodes: DF.Table[ItemBarcode]
 		batch_number_series: DF.Data | None
 		brand: DF.Link | None
+		company: DF.Link
 		country_of_origin: DF.Link | None
 		create_new_batch: DF.Check
 		customer: DF.Link | None
@@ -235,6 +236,9 @@ class Item(Document):
 		self.validate_auto_reorder_enabled_in_stock_settings()
 		self.cant_change()
 		self.validate_item_tax_net_rate_range()
+  
+		if self.is_stock_item and self.is_fixed_asset:
+			frappe.throw(_("An item cannot be both a stock item and a fixed asset. Please uncheck one of them."))
 
 		if not self.is_new():
 			self.old_item_group = frappe.db.get_value(self.doctype, self.name, "item_group")
@@ -316,9 +320,9 @@ class Item(Document):
 
 	def validate_fixed_asset(self):
 		if self.is_fixed_asset:
-			if self.is_stock_item:
-				frappe.throw(_("Fixed Asset Item must be a non-stock item."))
-
+			# if self.is_stock_item:
+			# 	frappe.throw(_("Fixed Asset Item must be a non-stock item."))
+			self.is_stock_item = 0
 			if not self.asset_category:
 				frappe.throw(_("Asset Category is mandatory for Fixed Asset item"))
 

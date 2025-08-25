@@ -1,0 +1,69 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"5CGbNVIKN6\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>DK Payment</b></span>\",\"col\":12}},{\"id\":\"IwQN1bpEeF\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}}]",
+ "creation": "2025-05-15 20:52:30.212312",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "expenses",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "DK Payment",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Transactions",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DK Bank Payment",
+   "link_count": 0,
+   "link_to": "DK Bank Payment",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "SWIFT Payment Instruction",
+   "link_count": 0,
+   "link_to": "SWIFT Payment Instruction",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Utility Bill Payment",
+   "link_count": 0,
+   "link_to": "Utility Bill",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2025-07-30 23:30:45.108141",
+ "modified_by": "Administrator",
+ "module": "ePayment",
+ "name": "DK Payment",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "ePayment",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 21.0,
+ "shortcuts": [],
+ "title": "DK Payment"
+}

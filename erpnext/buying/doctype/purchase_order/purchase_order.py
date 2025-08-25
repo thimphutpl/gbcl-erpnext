@@ -217,10 +217,10 @@ class PurchaseOrder(BuyingController):
 	def warehouse_from_branch(doc):
 		branchname=doc.branch
 		query = """
-        SELECT parent 
-        FROM `tabWarehouse Branch` 
-        WHERE branch=%s
-        """
+		SELECT parent 
+		FROM `tabWarehouse Branch` 
+		WHERE branch=%s
+		"""
 
 		warehouse = frappe.db.sql(query, (branchname,), as_dict=True)
 		if warehouse:
@@ -996,36 +996,36 @@ def is_subcontracting_order_created(po_name) -> bool:
 
 @frappe.whitelist()
 def create_purchase_order(source_name, target_doc=None):
-    from frappe.model.mapper import get_mapped_doc
+	from frappe.model.mapper import get_mapped_doc
 
-    def set_missing_values(source, target):
-        # Assuming the first supplier from the child table is mapped to the supplier field
-        if source.suppliers:  
-            target.supplier = source.suppliers[0].supplier  # Maps the first supplier in the list
-        target.run_method("set_missing_values")
-        target.run_method("calculate_taxes_and_totals")
+	def set_missing_values(source, target):
+		# Assuming the first supplier from the child table is mapped to the supplier field
+		if source.suppliers:  
+			target.supplier = source.suppliers[0].supplier  # Maps the first supplier in the list
+		target.run_method("set_missing_values")
+		target.run_method("calculate_taxes_and_totals")
 
-    doc = get_mapped_doc(
-        "Request for Quotation",  # Source Doctype
-        source_name,
-        {
-            "Request for Quotation": {  
-                "doctype": "Purchase Order", 
-                "field_map": {
-                    "field_in_source": "field_in_target",  
-                },
-            },
-            "Request for Quotation Item": {  
-                "doctype": "Purchase Order Item",
-                "field_map": {
-                    "child_field_in_source": "child_field_in_target",
-                },
-            },
-        },
-        target_doc,
-        set_missing_values,
-    )
-    return doc
+	doc = get_mapped_doc(
+		"Request for Quotation",  # Source Doctype
+		source_name,
+		{
+			"Request for Quotation": {  
+				"doctype": "Purchase Order", 
+				"field_map": {
+					"field_in_source": "field_in_target",  
+				},
+			},
+			"Request for Quotation Item": {  
+				"doctype": "Purchase Order Item",
+				"field_map": {
+					"child_field_in_source": "child_field_in_target",
+				},
+			},
+		},
+		target_doc,
+		set_missing_values,
+	)
+	return doc
 
 def get_permission_query_conditions(user):
 	if not user: user = frappe.session.user
@@ -1049,3 +1049,35 @@ def get_permission_query_conditions(user):
 			and bi.parent = ab.name
 			and bi.branch = `tabPurchase Order`.branch)
 	)""".format(user=user)
+
+
+@frappe.whitelist()
+def fetch_item_gl(cdn):
+	frappe.throw(str(cdn))
+
+@frappe.whitelist()
+def fetch_expense_account(item_code):
+    item = frappe.get_doc("Item", item_code)
+    if not item:
+        frappe.throw(f"Item {item_code} not found")
+
+    if item.item_group == "Fixed Asset":
+        if not item.asset_category:
+            frappe.throw(f"Item Asset Category not set for {item_code}")
+        # Get fixed asset account from the child table
+        fixed_asset_account = frappe.db.get_value(
+            "Asset Category Account",
+            {
+                "parent": item.asset_category,
+                "parenttype": "Asset Category", 
+            },
+            "fixed_asset_account"
+        )
+        
+        if not fixed_asset_account:
+            frappe.throw(f"No Fixed Asset Account found for Asset Category '{item.asset_category}'")
+        
+        return fixed_asset_account
+    else:
+        return None
+    frappe.throw(f"Item {item_code} is not a Fixed Asset")

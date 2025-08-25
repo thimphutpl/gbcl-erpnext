@@ -1104,6 +1104,7 @@
    "fetch_from": "branch.cost_center",
    "fieldname": "cost_center",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Cost Center",
    "options": "Cost Center"
   },
@@ -1337,7 +1338,7 @@
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-06-10 16:40:55.509183",
+ "modified": "2025-07-09 14:48:46.975968",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

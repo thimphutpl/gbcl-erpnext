@@ -2,15 +2,15 @@
 // For license information, please see license.txt
 {% include "erpnext/public/js/controllers/cheque_details.js" %};
 frappe.ui.form.on('TDS Remittance', {
-	onload_post_render: function(frm){
-		if (frm.doc.docstatus === 1){
-			$(".grid-footer").attr('style','');
+	onload_post_render: function (frm) {
+		if (frm.doc.docstatus === 1) {
+			$(".grid-footer").attr('style', '');
 		}
 		$(".grid-upload").addClass('hidden');
 	},
 
 	refresh: function (frm) {
-		frm.set_query("credit_account", function(){
+		frm.set_query("credit_account", function () {
 			return {
 				filters: {
 					'is_group': 0,
@@ -22,58 +22,80 @@ frappe.ui.form.on('TDS Remittance', {
 			show_custom_buttons(frm);
 		}
 
-		if (frm.doc.docstatus == 0){
-			frm.add_custom_button(__('Get Details'),(doc)=>{
+		if (frm.doc.docstatus == 0) {
+			frm.add_custom_button(__('Get Details'), (doc) => {
 				get_details(frm);
 			}).addClass("btn-primary")
 		}
+		frm.set_query("branch", function () {
+			if (frm.doc.company) {
+				return {
+					filters: {
+						'company': frm.doc.company
+					}
+				};
+			}
+			return {};
+		});
 	},
 
-	base_on_region: function(frm){
-		frm.set_value('region','')
-		frm.set_df_property('region','reqd',frm.doc.based_on_region)
+	company: function (frm) {
+		// Simply update the branch query filter when company changes
+		frm.set_query("branch", function () {
+			return {
+				filters: {
+					'company': frm.doc.company
+				}
+			};
+		});
 	},
 
-	tax_withholding_category: function(frm){
+
+	base_on_region: function (frm) {
+		frm.set_value('region', '')
+		frm.set_df_property('region', 'reqd', frm.doc.based_on_region)
+	},
+
+	tax_withholding_category: function (frm) {
 		cur_frm.clear_table("items");
 		cur_frm.refresh_field("items");
 	}
 });
 
 frappe.ui.form.on('TDS Remittance Item', {
-	items_remove:(frm,cdt,cdn)=>{
-		let tds_amount 	= 0;
+	items_remove: (frm, cdt, cdn) => {
+		let tds_amount = 0;
 		let bill_amount = 0;
-		frm.doc.items.forEach(v=>{
-			tds_amount 	+= flt(v.tds_amount);
+		frm.doc.items.forEach(v => {
+			tds_amount += flt(v.tds_amount);
 			bill_amount += flt(v.bill_amount);
 		})
-		frm.set_value('total_amount',bill_amount);
-		frm.set_value('total_tds',tds_amount);
+		frm.set_value('total_amount', bill_amount);
+		frm.set_value('total_tds', tds_amount);
 	}
 })
 
-var show_custom_buttons = function(frm){
+var show_custom_buttons = function (frm) {
 	// show TDS Receipt Update
 	frappe.call({
 		method: "erpnext.accounts.doctype.tds_remittance.tds_remittance.get_tds_receipt_update",
 		args: {
 			tds_remittance: frm.docname
 		},
-		callback: function(r){
-			if(r.message){
-				frm.add_custom_button(__("View Receipt Details"), function() {
-					frappe.set_route('Form', 'TDS Receipt Update', {name: r.message.tds_receipt_update});
+		callback: function (r) {
+			if (r.message) {
+				frm.add_custom_button(__("View Receipt Details"), function () {
+					frappe.set_route('Form', 'TDS Receipt Update', { name: r.message.tds_receipt_update });
 				}, __('View'));
 			} else {
-				frm.add_custom_button(__('Update TDS Receipt Details'), ()=>{
+				frm.add_custom_button(__('Update TDS Receipt Details'), () => {
 					frappe.model.open_mapped_doc({
-						method: "erpnext.accounts.doctype.tds_remittance.tds_remittance.create_tds_receipt_update",	
+						method: "erpnext.accounts.doctype.tds_remittance.tds_remittance.create_tds_receipt_update",
 						frm: cur_frm,
-						callback:(r)=>{
+						callback: (r) => {
 						}
 					});
-				},__("Create"))
+				}, __("Create"))
 				cur_frm.page.set_inner_btn_group_as_primary(__('Create'))
 			}
 		}
@@ -93,7 +115,7 @@ var show_custom_buttons = function(frm){
 	cur_frm.page.set_inner_btn_group_as_primary(__('View'));
 }
 
-var get_details = function(frm){
+var get_details = function (frm) {
 	frm.clear_table("items");
 	frm.refresh_field("items");
 	frm.set_value('total_amount', 0);
@@ -102,10 +124,10 @@ var get_details = function(frm){
 		method: "get_details",
 		doc: frm.doc,
 		callback: function (r, rt) {
-			if ( r.message){
+			if (r.message) {
 				frm.refresh_field("items");
-				frm.set_value('total_amount',r.message[1]);
-				frm.set_value('total_tds',r.message[0]);
+				frm.set_value('total_amount', r.message[1]);
+				frm.set_value('total_tds', r.message[0]);
 				frm.refresh_fields();
 			}
 		},

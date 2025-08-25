@@ -56,6 +56,8 @@
   "existing_pr_reference",
   "column_break_23",
   "gross_purchase_amount",
+  "revalued_asset_value",
+  "re_valued",
   "asset_quantity",
   "asset_rate",
   "purchase_date",
@@ -709,6 +711,23 @@
    "fieldname": "existing_pr_reference",
    "fieldtype": "Data",
    "label": "Existing PR Reference"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "revalued_asset_value",
+   "fieldtype": "Currency",
+   "label": "Revalued Asset Value",
+   "mandatory_depends_on": "eval:(!doc.is_composite_asset || doc.docstatus==1)",
+   "read_only": 1,
+   "read_only_depends_on": "eval:!doc.is_existing_asset && !doc.is_opening_asset"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "re_valued",
+   "fieldtype": "Check",
+   "label": "Revalued Asset",
+   "read_only": 1
   }
  ],
  "idx": 72,
@@ -743,11 +762,12 @@
   },
   {
    "group": "Asset Capitalization",
+   "hidden": 1,
    "link_doctype": "Asset Capitalization",
    "link_fieldname": "target_asset"
   }
  ],
- "modified": "2025-06-23 11:38:26.827156",
+ "modified": "2025-08-24 17:14:45.062184",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Asset",

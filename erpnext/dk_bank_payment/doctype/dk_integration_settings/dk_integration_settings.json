@@ -1,0 +1,175 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-23 20:49:21.838256",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "endpoints_section",
+  "base_url",
+  "account_inquiry",
+  "transaction_status",
+  "fetch_key",
+  "column_break_guvz",
+  "authorization_token",
+  "intrabank_transfer",
+  "gl_turnover",
+  "gl_statement",
+  "credentials_section",
+  "user_name",
+  "client_id",
+  "grand_type",
+  "x_gravitee_api_key",
+  "column_break_ehrg",
+  "password",
+  "client_secret",
+  "source_app",
+  "product_type",
+  "oro_bank_integrations_section",
+  "oro_endpoint",
+  "column_break_juqm",
+  "bearer_token"
+ ],
+ "fields": [
+  {
+   "fieldname": "base_url",
+   "fieldtype": "Data",
+   "label": "Base url"
+  },
+  {
+   "fieldname": "endpoints_section",
+   "fieldtype": "Section Break",
+   "label": "Endpoints"
+  },
+  {
+   "fieldname": "authorization_token",
+   "fieldtype": "Data",
+   "label": "Authorization Token"
+  },
+  {
+   "fieldname": "account_inquiry",
+   "fieldtype": "Data",
+   "label": "Account Inquiry"
+  },
+  {
+   "fieldname": "intrabank_transfer",
+   "fieldtype": "Data",
+   "label": "Intrabank Transfer"
+  },
+  {
+   "fieldname": "transaction_status",
+   "fieldtype": "Data",
+   "label": "Transaction Status"
+  },
+  {
+   "fieldname": "gl_turnover",
+   "fieldtype": "Data",
+   "label": "GL Turnover"
+  },
+  {
+   "fieldname": "fetch_key",
+   "fieldtype": "Data",
+   "label": "Fetch Key"
+  },
+  {
+   "fieldname": "gl_statement",
+   "fieldtype": "Data",
+   "label": "GL Statement"
+  },
+  {
+   "fieldname": "column_break_guvz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "credentials_section",
+   "fieldtype": "Section Break",
+   "label": "Credentials "
+  },
+  {
+   "fieldname": "user_name",
+   "fieldtype": "Data",
+   "label": "User Name"
+  },
+  {
+   "fieldname": "client_id",
+   "fieldtype": "Data",
+   "label": "Client Id"
+  },
+  {
+   "fieldname": "grand_type",
+   "fieldtype": "Data",
+   "label": "Grand Type"
+  },
+  {
+   "fieldname": "column_break_ehrg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Data",
+   "label": "Password"
+  },
+  {
+   "fieldname": "client_secret",
+   "fieldtype": "Password",
+   "label": "Client Secret"
+  },
+  {
+   "fieldname": "source_app",
+   "fieldtype": "Data",
+   "label": "Source App"
+  },
+  {
+   "fieldname": "x_gravitee_api_key",
+   "fieldtype": "Data",
+   "label": "X Gravitee API Key"
+  },
+  {
+   "fieldname": "product_type",
+   "fieldtype": "Data",
+   "label": "Product Type"
+  },
+  {
+   "fieldname": "oro_bank_integrations_section",
+   "fieldtype": "Section Break",
+   "label": "ORO Bank Integrations"
+  },
+  {
+   "fieldname": "column_break_juqm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bearer_token",
+   "fieldtype": "Password",
+   "label": "Bearer Token"
+  },
+  {
+   "fieldname": "oro_endpoint",
+   "fieldtype": "Data",
+   "label": "ORO Bank GL Turn Over Endpoint"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-08-22 17:47:14.312649",
+ "modified_by": "Administrator",
+ "module": "DK Bank Payment",
+ "name": "DK Integration Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

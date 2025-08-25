@@ -20,9 +20,11 @@ class Bank(Document):
 		from frappe.types import DF
 
 		abbr: DF.Data
+		bank_code: DF.Data | None
 		bank_name: DF.Data
 		bank_transaction_mapping: DF.Table[BankTransactionMapping]
 		disabled: DF.Check
+		intra_bank: DF.Check
 		plaid_access_token: DF.Data | None
 		swift_number: DF.Data | None
 	# end: auto-generated types

@@ -112,8 +112,10 @@ class Asset(AccountsController):
 		purchase_date: DF.Date | None
 		purchase_invoice: DF.Link | None
 		purchase_receipt: DF.Link | None
+		re_valued: DF.Check
 		remarks: DF.SmallText | None
 		residual_value: DF.Data | None
+		revalued_asset_value: DF.Currency
 		serial_number: DF.Data | None
 		split_from: DF.Link | None
 		status: DF.Literal["Draft", "Submitted", "Partially Depreciated", "Fully Depreciated", "Sold", "Scrapped", "In Maintenance", "Out of Order", "Issue", "Receipt", "Capitalized", "Decapitalized"]
@@ -166,6 +168,7 @@ class Asset(AccountsController):
 			convert_draft_asset_depr_schedules_into_active(self)
 		self.set_status()
 		add_asset_activity(self.name, _("Asset submitted"))
+		# self.calculate_depreciation()
 
 	def on_cancel(self):
 		self.validate_cancellation()
@@ -176,8 +179,114 @@ class Asset(AccountsController):
 		self.set_status()
 		self.ignore_linked_doctypes = ("Journal Entry","GL Entry", "Stock Ledger Entry")
 		make_reverse_gl_entries(voucher_type="Asset", voucher_no=self.name)
+		self.cancel_all_linked_documents()
 		self.db_set("booked_fixed_asset", 0)
 		add_asset_activity(self.name, _("Asset cancelled"))
+		if self.purchase_receipt:
+			self.cancel_asset_recieved_entries()
+		else:
+			return	
+
+	# def calculate_depreciation(self):
+	# 	if not self.calculate_depreciation:
+	# 		frappe.throw(
+	# 			_("Cannot submit Asset Category without enabling Calculate Depreciation. "
+	# 			"Please check the 'Calculate Depreciation' option.")
+	# 		)			
+
+	def cancel_all_linked_documents(self):
+		# Cancel in the right order: JEs -> GL Entries -> Stock Entries
+		self.cancel_linked_journal_entries()
+		self.cancel_linked_gl_entries()
+		self.cancel_linked_stock_entries()
+
+	def cancel_linked_journal_entries(self):
+		"""Cancel all Journal Entries linked to this asset"""
+		linked_jes = frappe.get_all(
+			"Journal Entry Account",
+			filters={"reference_type": "Asset", "reference_name": self.name},
+			fields=["parent"],
+			distinct=True
+		)
+		
+		for je in linked_jes:
+			try:
+				if frappe.db.exists("Journal Entry", je.parent):
+					je_doc = frappe.get_doc("Journal Entry", je.parent)
+					if je_doc.docstatus == 1:
+						frappe.msgprint(f"Cancelling Journal Entry: {je.parent}")
+						je_doc.cancel()
+			except Exception as e:
+				frappe.log_error(f"Failed to cancel JE {je.parent}: {str(e)}")
+				frappe.throw(_(f"Failed to cancel Journal Entry {je.parent}: {str(e)}"))
+
+	def cancel_linked_gl_entries(self):
+		"""Cancel ALL GL Entries linked to this asset"""
+		# Get all GL Entries linked to this asset (both ways)
+		gl_entries = frappe.get_all(
+			"GL Entry",
+			filters={
+				"is_cancelled": 0,
+				"voucher_no": self.name
+			},
+			fields=["name", "voucher_type", "account", "debit", "credit"]
+		)
+		
+		# Also get GL Entries where asset is the against_voucher
+		against_gl_entries = frappe.get_all(
+			"GL Entry", 
+			filters={
+				"is_cancelled": 0,
+				"against_voucher": self.name  # GL Entry where asset is the against reference
+			},
+			fields=["name", "voucher_type", "account", "debit", "credit"]
+		)
+		
+		all_gl_entries = gl_entries + against_gl_entries
+		
+		for gl in all_gl_entries:
+			try:
+				frappe.db.set_value("GL Entry", gl.name, "is_cancelled", 1)
+				frappe.msgprint(f"Marked GL Entry {gl.name} as cancelled")
+			except Exception as e:
+				frappe.log_error(f"Failed to cancel GL Entry {gl.name}: {str(e)}")
+				frappe.throw(_(f"Failed to cancel GL Entry {gl.name}: {str(e)}"))
+
+	def cancel_linked_stock_entries(self):
+		"""Cancel Stock Ledger Entries linked to this asset"""
+		stock_entries = frappe.get_all(
+			"Stock Ledger Entry",
+			filters={"voucher_type": "Asset", "voucher_no": self.name, "is_cancelled": 0},
+			fields=["name"]
+		)
+		
+		for sle in stock_entries:
+			try:
+				# For Stock Ledger Entries, we typically create reversing entries
+				# rather than "canceling" them directly
+				original_sle = frappe.get_doc("Stock Ledger Entry", sle.name)
+				
+				# Create reversing entry
+				reversing_sle = frappe.new_doc("Stock Ledger Entry")
+				reversing_data = original_sle.as_dict()
+				reversing_data.update({
+					"name": None,
+					"actual_qty": -original_sle.actual_qty,
+					"stock_value_difference": -original_sle.stock_value_difference,
+					"incoming_rate": 0,
+					"is_cancelled": 0,
+					"creation": frappe.utils.now_datetime(),
+					"modified": frappe.utils.now_datetime()
+				})
+				reversing_sle.update(reversing_data)
+				reversing_sle.insert()
+				reversing_sle.submit()
+				
+				# Mark original as cancelled
+				frappe.db.set_value("Stock Ledger Entry", sle.name, "is_cancelled", 1)
+				
+			except Exception as e:
+				frappe.log_error(f"Failed to process Stock Ledger Entry {sle.name}: {str(e)}")	
 
 	def after_insert(self):
 		if self.calculate_depreciation and not self.split_from:
@@ -203,6 +312,11 @@ class Asset(AccountsController):
 
 	def after_delete(self):
 		add_asset_activity(self.name, _("Asset deleted"))
+
+	def cancel_asset_recieved_entries(self):
+		doc = frappe.get_doc("Asset Issue Details",self.asset_issue_details)
+		doc.cancel()
+		frappe.db.commit()
 
 	def validate_asset_and_reference(self):
 		if self.purchase_invoice or self.purchase_receipt:

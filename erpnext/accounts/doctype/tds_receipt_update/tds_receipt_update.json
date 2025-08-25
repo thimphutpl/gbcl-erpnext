@@ -50,8 +50,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Branch",
-   "options": "Branch",
-   "reqd": 1
+   "options": "Branch"
   },
   {
    "fetch_from": "branch.cost_center",
@@ -152,7 +151,7 @@
   {
    "fieldname": "cheque_date",
    "fieldtype": "Date",
-   "label": "Cheque Date",
+   "label": "Payment/ Cheque Date",
    "reqd": 1
   },
   {
@@ -196,7 +195,7 @@
   {
    "fieldname": "cheque_no",
    "fieldtype": "Data",
-   "label": "Cheque No",
+   "label": "Payment Reference No / Cheque No",
    "reqd": 1
   },
   {
@@ -210,7 +209,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-10 14:12:16.111653",
+ "modified": "2025-08-21 09:44:36.943556",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "TDS Receipt Update",

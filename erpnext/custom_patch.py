@@ -1,5 +1,5 @@
 import frappe
-
+from erpnext.dk_integration_utils import fetch_fx_rate
 def make_journal_entry():
 	doc = frappe.get_doc("Employee Advance", "HR-EAD-2025-00004")
 	doc.post_journal_entry()
@@ -29,4 +29,49 @@ def change_acc_abbr():
 			# break
 
 	frappe.db.commit()
+
+def post_fx_rate():
+	try:
+		response = fetch_fx_rate().json()
+		
+		
+
+		for i in response['response_data']['exchange_rates']:
+			currency_code = i['currency_code']
+			if i['currency_code'] == "EURO":
+				currency_code= "EUR"
+			from_currency = currency_code
+			to_currency = 'BTN'
+			rate = i['buy_rate']
+			effect_date = i['effect_date']
+
+			# Check for existing entry
+			exists = frappe.db.exists("Currency Exchange", {
+				"from_currency": from_currency,
+				"to_currency": to_currency,
+				"date": effect_date
+			})
+
+			if exists:
+				frappe.logger().info(f"Skipped: {from_currency} to {to_currency} on {effect_date} already exists.")
+				continue
+
+			# Create new exchange entry
+			exchange = frappe.new_doc("Currency Exchange")
+			exchange.from_currency = from_currency
+			exchange.to_currency = to_currency
+			exchange.exchange_rate = rate
+			exchange.date = effect_date
+
+			exchange.insert()
+			exchange.submit()
+
+		frappe.logger().info("Currency Exchange import completed.")
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), "Currency Exchange Import Failed")
+
+		
+
+# def enque_fx_rate():
+# 	enqueue(post_fx_rate)
 	

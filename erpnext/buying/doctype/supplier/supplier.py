@@ -31,6 +31,8 @@ class Supplier(TransactionBase):
 		from erpnext.utilities.doctype.portal_user.portal_user import PortalUser
 		from frappe.types import DF
 
+		acc_no_swift: DF.Data | None
+		account_holder_name: DF.Data | None
 		account_number: DF.Data | None
 		accounts: DF.Table[PartyAccount]
 		allow_purchase_invoice_creation_without_purchase_order: DF.Check
@@ -62,6 +64,7 @@ class Supplier(TransactionBase):
 		location: DF.Data | None
 		mobile_no: DF.ReadOnly | None
 		naming_series: DF.Literal["SUP-.YYYY.-"]
+		national_id: DF.Data | None
 		on_hold: DF.Check
 		payment_terms: DF.Link | None
 		portal_users: DF.Table[PortalUser]
@@ -77,7 +80,8 @@ class Supplier(TransactionBase):
 		supplier_primary_address: DF.Link | None
 		supplier_primary_contact: DF.Link | None
 		supplier_tpn_no: DF.Data
-		supplier_type: DF.Literal["Domestic Vendor", "Indian Vendor", "International Vendor"]
+		supplier_type: DF.Literal["Domestic Vendor", "International Vendor"]
+		swift_account_holder_name: DF.Data | None
 		swift_code: DF.Data | None
 		tax_category: DF.Link | None
 		tax_holiday: DF.Link | None

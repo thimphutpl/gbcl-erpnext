@@ -764,7 +764,7 @@ class PurchaseReceipt(BuyingController):
 						remarks=remarks,
 						against_account=stock_asset_account_name,
 						account_currency=account_currency,
-						task=item.task,
+						# task=item.task,
 						item=item,
 					)
 

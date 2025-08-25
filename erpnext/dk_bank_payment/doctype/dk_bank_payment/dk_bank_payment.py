@@ -2,8 +2,13 @@
 # For license information, please see license.txt
 
 import frappe
+import json
 from frappe.model.document import Document
 from erpnext.dk_integration_utils import intrabank_transfer,check_status_transaction
+from frappe.utils import (
+	flt,
+	
+)
 
 class DKBankPayment(Document):
 	# begin: auto-generated types
@@ -19,19 +24,21 @@ class DKBankPayment(Document):
 		amended_from: DF.Link | None
 		bank_account_no: DF.Data | None
 		bank_balance: DF.Currency
-		bank_balance_usd: DF.Currency
 		company: DF.Link | None
 		in_queue: DF.Data | None
 		inquiry_id: DF.Data | None
 		is_txn_processed: DF.Data | None
+		paid_from: DF.Link | None
 		payer_name: DF.Data | None
 		posting_status_code: DF.Data | None
 		remarks: DF.SmallText | None
 		response_details: DF.Data | None
 		transaction: DF.Table[DKBankPaymentItems]
+		transaction_code: DF.Link
 		transaction_id: DF.Data | None
+		transaction_no: DF.DynamicLink | None
 		transaction_status_request_id: DF.Data | None
-		transaction_type: DF.Literal["Journal Entry", "Salary"]
+		transaction_type: DF.Literal["Journal Entry", "Payment Entry", "Salary"]
 		txn_authcode: DF.Data | None
 		txn_drn: DF.Data | None
 		txn_status_code: DF.Data | None
@@ -43,11 +50,239 @@ class DKBankPayment(Document):
 		
 	def process_transaction(self):
 		response = intrabank_transfer(self)
+		if response['response_code'] == '4310':
+			frappe.throw(response)
+		
 		self.db_set("transaction_id", response["response_data"]["meta_info"]["txn_id"])
 		self.db_set("transaction_status_request_id", response["response_data"]["meta_info"]["txn_status_req_id"])
 		self.db_set("response_details", response["response_detail"])
+	@frappe.whitelist()
+	def get_entries(self):
+		self.load_items()
 
-import json
+		return 1
+
+	def load_items(self):
+		total_amount = 0
+		self.set("transaction", [])
+		for i in self.get_transactions():
+			import re
+
+			beneficiary_name = re.sub("[^A-Za-z0-9 ]+", "", i.beneficiary_name)
+			row = self.append("transaction", {})
+			row.update(i)
+			# total_amount += flt(i.amount, 2)
+
+	def get_transactions(self):
+		data = []
+		if self.transaction_type == "Salary":
+			data = self.get_salary()
+		elif self.transaction_type == "Journal Entry":
+			data = self.get_journal_entry()
+		elif self.transaction_type == "Payment Entry":
+			data = self.get_payment_entry()
+		
+		
+		return data
+	
+	def get_journal_entry(self):
+		data = []
+		cond = ""
+		if self.transaction_no:
+			cond = 'AND je.name = "{}"'.format(self.transaction_no)
+		# elif not self.transaction_no and self.from_date and self.to_date:
+		# 	cond = 'AND je.posting_date BETWEEN "{}" AND "{}"'.format(
+		# 		str(self.from_date), str(self.to_date)
+		# 	)
+		data1= frappe.db.sql(
+			"""SELECT je.name transaction_id, je.posting_date transaction_date, je.voucher_type,
+								je.user_remark
+								FROM `tabJournal Entry` je 
+								where je.docstatus = 1
+								{cond}
+								AND je.voucher_type in ('Bank Entry','Contra Entry') 
+								AND NOT EXISTS(select 1
+									FROM `tabBank Payment Item` bpi
+									WHERE bpi.transaction_type = 'Journal Entry'
+									AND bpi.transaction_id = je.name
+									AND bpi.parent != '{bank_payment}'
+									AND bpi.docstatus != 2
+									AND bpi.status NOT IN ('Cancelled', 'Failed')
+								)
+								ORDER BY je.posting_date
+							""".format(
+				bank_payment=self.name, cond=cond
+			),
+			as_dict=True,
+		)
+		
+		for a in data1:
+			if a.voucher_type == "Contra Entry":
+				debit_amt = credit_amt = 0.00
+				debit_bank_account = 0
+				for p in frappe.db.sql(
+					"""select a.account, round(a.debit_in_account_currency,2) as debit, 
+									round(a.credit_in_account_currency,2) as credit,
+									b.bank_name, b.bank_branch, b.bank_account_type, b.bank_account_no, b.company
+									from `tabJournal Entry Account` a
+									inner join `tabAccount` b on a.account = b.name
+									where a.parent = '{journal_entry}'
+									and b.account_type = "Bank"
+									""".format(
+						journal_entry=a.transaction_id
+					),
+					as_dict=True,
+				):
+					debit_amt += p.debit
+					credit_amt += p.credit
+					if p.debit > 0:
+						data.append(
+							frappe._dict(
+								{
+									"transaction_type": "Journal Entry",
+									"transaction_id": a.transaction_id,
+									"transaction_date": a.transaction_date,
+									"beneficiary_name": p.company,
+									"bank_name": p.bank_name,
+									"bank_branch": p.bank_branch,
+									"bank_account_type": p.bank_account_type,
+									"bank_account_no": p.bank_account_no,
+									"amount": flt(p.debit),
+									"status": "Draft",
+								}
+							)
+						)
+					if flt(p.debit) > 0:
+						debit_bank_account += 1
+			elif a.voucher_type == "Bank Entry":
+				payment_dtl = []
+				party_type = party = reference_type = reference_name = ""
+				for b in frappe.db.sql(
+					"""select party, party_type,
+										sum(if(credit>0, credit, credit_in_account_currency)) as credit,
+										sum(if(debit>0, debit, debit_in_account_currency)) as debit,
+										sum(tax_amount) as tax_amount
+									from `tabJournal Entry Account` 
+									where parent = '{journal_entry}'
+									AND party!="" AND party is NOT NULL
+									group by party
+								""".format(
+						journal_entry=a.transaction_id
+					),
+					as_dict=True,
+				):
+					amount = flt(b.debit - b.credit - b.tax_amount, 2)
+					payment_dtl.append(
+						{
+							"party": b.party,
+							"party_type": b.party_type,
+							"credit": b.credit,
+							"debit": b.debit,
+							"amount": amount,
+						}
+					)
+				supplier, employee = None, None
+				
+				for i in payment_dtl:
+					if i["party_type"] == "Supplier":
+						query = """select s.bank_name, s.bank_branch, s.bank_account_type, 
+										s.account_number as bank_account_no,s.account_holder_name as beneficiary_name,
+										(CASE WHEN s.bank_name = "INR" THEN s.inr_bank_code ELSE NULL END) inr_bank_code,
+										(CASE WHEN s.bank_name = "INR" THEN s.inr_purpose_code ELSE NULL END) inr_purpose_code
+										from `tabSupplier` s
+										WHERE s.name = '{party}'
+									""".format(
+							party=i["party"]
+						)
+						supplier = i["party"]
+					elif i["party_type"] == "Employee":
+						query = """select e.bank_name, e.bank_branch, e.bank_account_type, e.employee_name as beneficiary_name,
+										e.bank_ac_no as bank_account_no, NULL inr_bank_code, NULL inr_purpose_code
+										from `tabEmployee` e
+										WHERE e.name = '{party}'
+									""".format(
+							party=i["party"]
+						)
+						employee = i["party"]
+					elif i["party_type"] == "Muster Roll Employee":
+						query = """select e.bank_name, e.bank_branch, e.bank_account_type, e.person_name as beneficiary_name,
+										e.bank_ac_no as bank_account_no, NULL inr_bank_code, NULL inr_purpose_code
+										from `tabMuster Roll Employee` e
+										WHERE e.name = '{party}'
+									""".format(
+							party=i["party"]
+						)
+					dtl = frappe.db.sql(query, as_dict=True)
+					
+					data.append(
+						frappe._dict(
+							{
+								
+								
+								"employee": employee,
+								"supplier": supplier,
+								"beneficiary_name": dtl[0]["beneficiary_name"],
+								"bank_name": dtl[0]["bank_name"],
+								"currency_code":"BTN",
+								"beneficiary_account_no": dtl[0]["bank_account_no"],
+								"amount": flt(i["amount"]),
+								
+							}
+						)
+					)
+		
+		return data
+	
+	def get_payment_entry(self):
+		cond = ""
+		if self.transaction_no:
+			
+			cond = 'where pe.name = "{}"'.format(self.transaction_no)
+			
+		# elif not self.transaction_no and self.from_date and self.to_date:
+		# 	cond = 'AND pe.posting_date BETWEEN "{}" AND "{}"'.format(
+		# 		str(self.from_date), str(self.to_date)
+		# 	)
+		
+		return frappe.db.sql(
+						"""SELECT  
+				pe.party AS supplier,
+				s.account_holder_name AS beneficiary_name, 
+				"BTN" as currency_code,
+				s.bank_name AS bank_name,
+				s.account_number AS beneficiary_account_no,
+				ROUND((
+					pe.paid_amount_after_tax +
+					(
+						SELECT IFNULL(SUM(ped.amount), 0)
+						FROM `tabPayment Entry Deduction` ped
+						WHERE ped.parent = pe.name
+					)
+				), 2) AS amount
+			FROM `tabPayment Entry` pe
+			JOIN `tabSupplier` s ON s.name = pe.party
+			LEFT JOIN `tabBank` fib ON fib.name = s.bank_name
+			{cond}
+			AND pe.docstatus = 1
+			AND pe.party_type = 'Supplier'
+			AND pe.party IS NOT NULL
+			AND IFNULL(pe.paid_amount, 0) > 0
+			AND NOT EXISTS (
+				SELECT 1
+				FROM `tabBank Payment Item` bpi
+				WHERE bpi.transaction_type = 'Payment Entry'
+				AND bpi.transaction_id = pe.name
+				AND bpi.parent != '{bank_payment}'
+							AND bpi.docstatus != 2
+							AND bpi.status NOT IN ('Cancelled', 'Failed')
+						)
+						ORDER BY pe.posting_date, pe.name
+			""".format(
+							bank_payment=self.name,  cond=cond
+						),
+						as_dict=True,
+					)
+
 
 @frappe.whitelist()
 def check_transaction_status(doc):
@@ -59,6 +294,7 @@ def check_transaction_status(doc):
 
 	# Call your function to get transaction status
 	response = check_status_transaction(doc)
+	# frappe.throw(str(response))
 	
 	# frappe.throw(frappe.as_json(response))
 	# Update the 'in_queue' field
@@ -70,11 +306,24 @@ def check_transaction_status(doc):
 	dk_doc.txn_drn = response["response_data"]["txn_status_info"]["txn_drn"]
 	dk_doc.txn_status_code = response["response_data"]["txn_status_info"]["txn_status_code"]
 	dk_doc.txn_status_description = response["response_data"]["txn_status_info"]["txn_status_description"]
-	# dk_doc.workflow_state = "Completed"
+	
 
 	# frappe.throw(str(dk_doc.in_queue))
 
 	# Save and commit
 	dk_doc.save()
+
+	if float(response["response_data"]["txn_status_info"]["txn_status_code"]) == 0:
+		frappe.db.sql('''
+			update `tabDK Bank Payment` set workflow_state='Completed' where name='{}'
+		'''.format(dk_doc.name))
+	elif float(response["response_data"]["txn_status_info"]["txn_status_code"]) == 51:
+		frappe.db.sql('''
+			update `tabDK Bank Payment` set workflow_state='Failed' where name='{}'
+		'''.format(dk_doc.name))
+	elif float(response["response_code"]) == 3001:
+		frappe.db.sql('''
+			update `tabDK Bank Payment` set workflow_state='Failed' where name='{}'
+		'''.format(dk_doc.name))
 	frappe.db.commit()
 	return 1

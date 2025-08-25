@@ -103,8 +103,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Branch",
-   "options": "Branch",
-   "reqd": 1
+   "options": "Branch"
   },
   {
    "fieldname": "to_date",
@@ -267,7 +266,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-09 16:11:42.569063",
+ "modified": "2025-07-21 12:17:25.292622",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "TDS Remittance",

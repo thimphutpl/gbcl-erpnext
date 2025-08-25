@@ -15,12 +15,15 @@ class DKBankPaymentItems(Document):
 		from frappe.types import DF
 
 		amount: DF.Currency
+		bank_name: DF.Link | None
 		beneficiary_account_no: DF.Data | None
 		beneficiary_name: DF.Data | None
 		currency_code: DF.Link | None
 		description: DF.SmallText | None
+		employee: DF.Link | None
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
+		supplier: DF.Link | None
 	# end: auto-generated types
 	pass

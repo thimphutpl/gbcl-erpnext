@@ -278,7 +278,8 @@
    "fieldtype": "Date",
    "label": "Date of Joining",
    "oldfieldname": "date_of_joining",
-   "oldfieldtype": "Date"
+   "oldfieldtype": "Date",
+   "reqd": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -472,6 +473,7 @@
    "options": "Phone"
   },
   {
+   "default": "Company Email",
    "fieldname": "prefered_contact_email",
    "fieldtype": "Select",
    "label": "Prefered Contact Email",
@@ -491,7 +493,8 @@
    "label": "Company Email",
    "oldfieldname": "company_email",
    "oldfieldtype": "Data",
-   "options": "Email"
+   "options": "Email",
+   "reqd": 1
   },
   {
    "fieldname": "personal_email",
@@ -881,10 +884,10 @@
   },
   {
    "fieldname": "section_break_teny",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "hidden": 1
   },
   {
-   "depends_on": "eval:doc.salary_mode == 'Bank'",
    "fieldname": "employee_bank_accounts",
    "fieldtype": "Table",
    "label": "Bank Details",
@@ -1039,7 +1042,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-05-19 23:07:03.264455",
+ "modified": "2025-08-20 17:01:34.151643",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Employee",

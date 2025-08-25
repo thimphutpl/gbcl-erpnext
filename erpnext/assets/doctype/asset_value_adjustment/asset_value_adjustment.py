@@ -82,16 +82,24 @@ class AssetValueAdjustment(Document):
 		self.update_asset()
 
 	def on_cancel(self):
-		doc = frappe.get_doc("Journal Entry", self.journal_entry)
-		doc.cancel()
-		self.update_asset(self.current_asset_value)
-		self.remove_adjustment_value()
-		add_asset_activity(
-			self.asset,
-			_("Asset's value adjusted after cancellation of Asset Value Adjustment {0}").format(
-				get_link_to_form("Asset Value Adjustment", self.name)
-			),
-		)
+		self.ignore_linked_doctypes = ("GL Entry", "Stock Ledger Entry", "Payment Ledger Entry")
+		# doc = frappe.get_doc("Journal Entry", self.journal_entry)
+		# doc.cancel()
+		# self.reschedule_depreciations(self.current_asset_value)
+		self.change_value(self.current_asset_value)
+		# self.remove_adjustment_value()
+		self.update_asset(cancel=True)
+	
+		# doc = frappe.get_doc("Journal Entry", self.journal_entry)
+		# doc.cancel()
+		# self.update_asset(self.current_asset_value)
+		# self.remove_adjustment_value()
+		# add_asset_activity(
+		# 	self.asset,
+		# 	_("Asset's value adjusted after cancellation of Asset Value Adjustment {0}").format(
+		# 		get_link_to_form("Asset Value Adjustment", self.name)
+		# 	),
+		# )
 
 	def remove_adjustment_value(self):
 		doc = frappe.get_doc("Asset", self.asset)
@@ -321,13 +329,13 @@ class AssetValueAdjustment(Document):
 		sch.db_set("income_accumulated_depreciation", accu_income)
 		
 	def update_asset(self, cancel=False):
-		if self.re_valued:
-			if cancel:
-				frappe.db.set_value("Asset",self.asset,"revalued_asset_value", 0)
-				frappe.db.set_value("Asset",self.asset, "re_valued", 0)
-			else:
-				frappe.db.set_value("Asset",self.asset,"revalued_asset_value", self.new_asset_value)
-				frappe.db.set_value("Asset",self.asset,"re_valued", 1)
+		# if self.re_valued:
+		if cancel:
+			frappe.db.set_value("Asset",self.asset,"revalued_asset_value", 0)
+			frappe.db.set_value("Asset",self.asset, "re_valued", 0)
+		else:
+			frappe.db.set_value("Asset",self.asset,"revalued_asset_value", self.new_asset_value)
+			frappe.db.set_value("Asset",self.asset,"re_valued", 1)
 	# def update_asset(self, asset_value):
 	# 	asset = frappe.get_doc("Asset", self.asset)
 

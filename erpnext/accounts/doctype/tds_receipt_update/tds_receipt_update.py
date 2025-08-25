@@ -18,7 +18,7 @@ class TDSReceiptUpdate(Document):
 		from frappe.types import DF
 
 		amended_from: DF.Link | None
-		branch: DF.Link
+		branch: DF.Link | None
 		cheque_date: DF.Date
 		cheque_no: DF.Data
 		company: DF.Link
@@ -39,7 +39,16 @@ class TDSReceiptUpdate(Document):
 	def validate(self):
 		self.calculate_total()
 		self.validate_filters()
+		self.validate_branch_company()
 
+	def validate_branch_company(self):
+		if self.branch and self.company:
+			branch_company = frappe.db.get_value("Branch", self.branch, "company")
+			if branch_company != self.company:
+				frappe.throw(_("Branch {0} does not belong to company {1}").format(
+					self.branch, self.company
+				))	
+		
 	def on_update(self):
 		self.check_duplicate_entries()
 
@@ -84,7 +93,7 @@ class TDSReceiptUpdate(Document):
 			name = make_autoname('TDSRE.YYYY.MM.#######')
 			entries.append((name, str(today()), self.branch, self.cost_center, 
 				self.purpose, self.fiscal_year, self.month or "", self.pbva or "" if self.purpose == "PBVA" else "", "", 
-				"", "", "", 
+				"", "", 
 				self.tds_receipt_date, self.tds_receipt_number, self.cheque_no, self.cheque_date,
 				self.name, "", 0, 0, frappe.session.user, str(get_datetime()), str(get_datetime()), frappe.session.user))
 		else:
@@ -108,6 +117,7 @@ class TDSReceiptUpdate(Document):
 
 	def make_tds_receipt_entries(self):
 		entries = self.get_entries()
+		# frappe.throw(str(entries))
 		if len(entries):
 			entries = ', '.join(map(str, entries))
 			query = """INSERT INTO `tabTDS Receipt Entry`(name, posting_date, branch, cost_center, 
@@ -116,12 +126,13 @@ class TDSReceiptUpdate(Document):
 				receipt_date, receipt_number, cheque_no, cheque_date, 
 				tds_receipt_update, tds_remittance, idx, docstatus, owner, creation, modified, modified_by)
 				VALUES {}""".format(entries)
-			frappe.db.sql("""INSERT INTO `tabTDS Receipt Entry`(name, posting_date, branch, cost_center, 
-				purpose, fiscal_year, month, pbva,  
-				invoice_type, invoice_no, bill_no, 
-				receipt_date, receipt_number, cheque_no, cheque_date, 
-				tds_receipt_update, tds_remittance, idx, docstatus, owner, creation, modified, modified_by)
-				VALUES {}""".format(entries))
+			frappe.db.sql(query)
+			# frappe.db.sql("""INSERT INTO `tabTDS Receipt Entry`(name, posting_date, branch, cost_center, 
+			# 	purpose, fiscal_year, month, pbva,  
+			# 	invoice_type, invoice_no, bill_no, 
+			# 	receipt_date, receipt_number, cheque_no, cheque_date, 
+			# 	tds_receipt_update, tds_remittance, idx, docstatus, owner, creation, modified, modified_by)
+			# 	VALUES {}""".format(entries))
 
 	def validate_filters(self):
 		if self.purpose in ("Employee Salary", "PBVA", "Bonus"):

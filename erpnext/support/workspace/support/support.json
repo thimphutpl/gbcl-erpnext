@@ -171,8 +171,8 @@
    "type": "Link"
   }
  ],
- "modified": "2025-05-05 19:53:37.237485",
- "modified_by": "Administrator",
+ "modified": "2025-07-25 13:11:27.170290",
+ "modified_by": "pralad.rai@thimphutechpark.bt",
  "module": "Support",
  "name": "Support",
  "number_cards": [],
@@ -182,7 +182,7 @@
  "quick_lists": [],
  "restrict_to_domain": "",
  "roles": [],
- "sequence_id": 26.0,
+ "sequence_id": 25.0,
  "shortcuts": [
   {
    "color": "Yellow",

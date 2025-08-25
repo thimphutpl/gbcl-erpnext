@@ -4,12 +4,13 @@
 
 import json
 from functools import reduce
-
+from frappe.model.mapper import get_mapped_doc
 import frappe
 from frappe import ValidationError, _, qb, scrub, throw
 from frappe.query_builder import Tuple
 from frappe.query_builder.functions import Count
-from frappe.utils import cint, comma_or, flt, getdate, nowdate
+from frappe.utils import cint, comma_or, flt, getdate, nowdate,get_datetime
+
 from frappe.utils.data import comma_and, fmt_money, get_link_to_form
 from pypika import Case
 from pypika.functions import Coalesce, Sum
@@ -430,6 +431,7 @@ class PaymentEntry(AccountsController):
 			)
 
 			# Group latest_references by (voucher_type, voucher_no)
+			
 			latest_lookup = {}
 			for d in latest_references:
 				d = frappe._dict(d)
@@ -1269,9 +1271,9 @@ class PaymentEntry(AccountsController):
 		bank_account = self.paid_to if self.payment_type == "Receive" else self.paid_from
 		bank_account_type = frappe.get_cached_value("Account", bank_account, "account_type")
 
-		if bank_account_type == "Bank":
-			if not self.reference_no or not self.reference_date:
-				frappe.throw(_("Reference No and Reference Date is mandatory for Bank transaction"))
+		# if bank_account_type == "Bank":
+		# 	if not self.reference_no or not self.reference_date:
+		# 		frappe.throw(_("Reference No and Reference Date is mandatory for Bank transaction"))
 
 	def set_remarks(self):
 		if self.custom_remarks:
@@ -2446,6 +2448,7 @@ def get_outstanding_reference_documents(args, validate=False):
 			accounting_dimensions=accounting_dimensions_filter,
 			vouchers=args.get("vouchers") or None,
 		)
+		# frappe.throw(str(outstanding_invoices))
 
 		outstanding_invoices = split_invoices_based_on_payment_terms(
 			outstanding_invoices, args.get("company")
@@ -2488,7 +2491,7 @@ def get_outstanding_reference_documents(args, validate=False):
 		)
 
 	data = negative_outstanding_invoices + outstanding_invoices + orders_to_be_billed
-
+	
 	if not data:
 		if args.get("get_outstanding_invoices") and args.get("get_orders_to_be_billed"):
 			ref_document_type = "invoices or orders"
@@ -3683,3 +3686,30 @@ def make_payment_order(source_name, target_doc=None):
 @erpnext.allow_regional
 def add_regional_gl_entries(gl_entries, doc):
 	return
+
+
+# ePayment Begins
+@frappe.whitelist()
+def make_bank_payment(source_name, target_doc=None):
+	def set_missing_values(obj, target, source_parent):
+		target.payment_type = None
+		target.transaction_type = "Payment Entry"
+		target.posting_date = get_datetime()
+		target.from_date = None
+		target.to_date = None
+		target.get_entries()
+
+	doc = get_mapped_doc(
+		"Payment Entry",
+		source_name,
+		{
+			"Payment Entry": {
+				"doctype": "DK Bank Payment",
+				"field_map": {"name": "transaction_no", "paid_from": "paid_from","doctype":"transaction_type"},
+				# "postprocess": set_missing_values,
+			},
+		},
+		target_doc,
+		ignore_permissions=True,
+	)
+	return doc

@@ -1,10 +1,11 @@
 // Copyright (c) 2025, Frappe Technologies Pvt. Ltd. and contributors
 // For license information, please see license.txt
-
+cur_frm.add_fetch("paid_from", "bank_ac_no", "bank_account_no");
 frappe.ui.form.on("DK Bank Payment", {
+
 	
 	refresh: function(frm) {
-        if (frm.doc.docstatus === 1) { // 1 = Submitted
+        if (frm.doc.docstatus === 1 && frm.doc.workflow_state!='Completed') { // 1 = Submitted
             frm.add_custom_button(__('Check Transaction Status'), function () {
 
                 frappe.call({
@@ -20,6 +21,7 @@ frappe.ui.form.on("DK Bank Payment", {
                         if (r.message) {
                             console.log("hi");
                             frappe.msgprint(__("Transaction status fetched successfully."));
+                           
                         } else {
                             frappe.throw(__("Unable to fetch Bank Balance"));
                         }
@@ -29,6 +31,26 @@ frappe.ui.form.on("DK Bank Payment", {
             });
         }
     },
+
+    transaction_code:function(frm){
+		if (frm.doc.transaction_code == 'Intrabank transfer'){
+			frm.set_query("pay_to_bank", function() {
+				return {
+					filters: {
+						intra_bank: 1
+					}
+				};
+			});
+		}
+		else{frm.set_query("pay_to_bank", function() {
+			return {
+				filters: {
+					intra_bank: 0
+				}
+			};
+		});}
+		
+	},
 
     bank_account_no: function(frm){
 		frappe.dom.freeze('Fetching bank details...');
@@ -44,7 +66,8 @@ frappe.ui.form.on("DK Bank Payment", {
 					if(r.message.response_code == "0000"){
 						 frm.set_value("bank_balance", r.message.response_data.balance_info.btn_available_balance);
 						 frm.set_value("inquiry_id",r.message.response_data.meta_info.inquiry_id);
-						 frm.set_value("bank_balance_usd",r.message.response_data.balance_info.usd_available_balance);
+                         frm.set_value("payer_name",r.message.response_data.account_info.account_name);
+						//  frm.set_value("bank_balance_usd",r.message.response_data.balance_info.usd_available_balance);
 						 frm.set_value("acc_status_details",r.message.response_data.account_status.acc_status_details);
 					}
 					else{
@@ -54,5 +77,34 @@ frappe.ui.form.on("DK Bank Payment", {
 				}
 			}
 		});
-    }
+    },
+
+
+	get_transactions: function(frm){
+		get_entries(frm);
+	},
 });
+
+
+
+
+function get_entries(frm){
+	
+	cur_frm.clear_table("transaction");
+	
+	if (frm.doc.transaction_type){
+		frappe.call({
+			method: "get_entries",
+			doc: cur_frm.doc,
+			callback: function(r){
+				if(r.message){
+					// cur_frm.set_value('total_amount', r.message);
+				}
+				cur_frm.refresh_fields();
+			},
+			freeze: true,
+            freeze_message: "Fetching Transaction Details.... Please Wait",
+		});
+	}
+	cur_frm.refresh_fields();
+}

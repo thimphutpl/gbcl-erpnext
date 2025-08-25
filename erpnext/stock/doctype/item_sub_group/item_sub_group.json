@@ -52,6 +52,7 @@
   {
    "fieldname": "company",
    "fieldtype": "Link",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "Company",
    "options": "Company"
@@ -59,7 +60,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-10 16:16:24.172846",
+ "modified": "2025-08-22 16:50:15.944834",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item Sub Group",

@@ -2,23 +2,44 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('TDS Receipt Update', {
-	refresh:function(frm){
-		if (frm.doc.docstatus == 0 && in_list(["Other Invoice","Leave Encashment","Overtime"], frm.doc.purpose)){
-			frm.add_custom_button(__('Get Invoices'),(doc)=>{
-				get_invoices(frm);
-			}).addClass("btn-primary")
-		}
+	refresh: function (frm) {
+		// if (frm.doc.docstatus == 0 && in_list(["Other Invoice","Leave Encashment","Overtime"], frm.doc.purpose)){
+		// 	frm.add_custom_button(__('Get Invoices'),(doc)=>{
+		// 		get_invoices(frm);
+		// 	}).addClass("btn-primary")
+		// }
 
-		frm.set_query("pbva", function() {
+		frm.set_query("pbva", function () {
 			return {
 				query: "erpnext.accounts.doctype.tds_receipt_update.tds_receipt_update.apply_pbva_filter",
 			};
 		});
+		// Set branch query filter based on selected company
+		frm.set_query("branch", function () {
+			if (frm.doc.company) {
+				return {
+					filters: {
+						'company': frm.doc.company
+					}
+				};
+			}
+			return {};
+		});
+	},
+	company: function (frm) {
+		// Simply update the branch query filter when company changes
+		frm.set_query("branch", function () {
+			return {
+				filters: {
+					'company': frm.doc.company
+				}
+			};
+		});
 	},
 
-	purpose:function(frm){
-		if (frm.doc.docstatus == 0 && in_list(["Other Invoice","Leave Encashment","Overtime"], frm.doc.purpose)){
-			frm.add_custom_button(__('Get Invoices'),(doc)=>{
+	purpose: function (frm) {
+		if (frm.doc.docstatus == 0 && in_list(["Other Invoice", "Leave Encashment", "Overtime"], frm.doc.purpose)) {
+			frm.add_custom_button(__('Get Invoices'), (doc) => {
 				get_invoices(frm);
 			}).addClass("btn-primary")
 		}
@@ -31,20 +52,20 @@ frappe.ui.form.on('TDS Receipt Update', {
 });
 
 frappe.ui.form.on('TDS Remittance Item', {
-	items_remove: (frm,cdt,cdn) => {
-		let tds_amount 	= 0
+	items_remove: (frm, cdt, cdn) => {
+		let tds_amount = 0
 		let bill_amount = 0
-		frm.doc.items.map(v=>{
-			tds_amount 	+= flt(v.tds_amount)
+		frm.doc.items.map(v => {
+			tds_amount += flt(v.tds_amount)
 			bill_amount += flt(v.bill_amount)
 		})
-		frm.set_value('total_bill_amount',bill_amount)
-		frm.set_value('total_tax_amount',tds_amount)
+		frm.set_value('total_bill_amount', bill_amount)
+		frm.set_value('total_tax_amount', tds_amount)
 	}
 })
 
-var get_invoices = function(frm){
-	if(in_list(["Other Invoice","Leave Encashment","Overtime"], frm.doc.purpose)){
+var get_invoices = function (frm) {
+	if (in_list(["Other Invoice", "Leave Encashment", "Overtime"], frm.doc.purpose)) {
 		frm.clear_table("items");
 		frm.refresh_field("items");
 		frm.set_value('total_bill_amount', 0);
@@ -53,9 +74,9 @@ var get_invoices = function(frm){
 		frappe.call({
 			method: "get_invoices",
 			doc: frm.doc,
-			callback: function(r, rt) {
-				frm.set_value('total_bill_amount',r.message[0]);
-				frm.set_value('total_tax_amount',r.message[1]);
+			callback: function (r, rt) {
+				frm.set_value('total_bill_amount', r.message[0]);
+				frm.set_value('total_tax_amount', r.message[1]);
 				frm.refresh_field("items");
 				frm.refresh_fields();
 			},
