@@ -128,6 +128,7 @@ class SalesInvoice(SellingController):
 		is_pos: DF.Check
 		is_return: DF.Check
 		items: DF.Table[SalesInvoiceItem]
+		journal_number: DF.Data | None
 		language: DF.Data | None
 		letter_head: DF.Link | None
 		loyalty_amount: DF.Currency

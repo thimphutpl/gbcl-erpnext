@@ -79,6 +79,7 @@
   "base_rounding_adjustment",
   "base_rounded_total",
   "base_in_words",
+  "journal_number",
   "column_break5",
   "grand_total",
   "rounding_adjustment",
@@ -2195,6 +2196,12 @@
    "print_hide": 1,
    "reqd": 1,
    "set_only_once": 1
+  },
+  {
+   "fieldname": "journal_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Journal Number"
   }
  ],
  "icon": "fa fa-file-text",
@@ -2207,7 +2214,7 @@
    "link_fieldname": "consolidated_invoice"
   }
  ],
- "modified": "2025-03-20 10:59:07.744972",
+ "modified": "2025-08-27 08:02:54.878929",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Sales Invoice",
