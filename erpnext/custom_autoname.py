@@ -6,7 +6,7 @@ from frappe import msgprint
 # Sets the initials of autoname for PO, PR, SO, SI, PI, etc
 ##
 def get_auto_name(dn, naming_series=None):
-        #msgprint(dn.doctype)
+		#msgprint(dn.doctype)
 	com_abbr = frappe.db.get_value("Company",dn.company,'abbr')
 	series_seq = 'UNKO'
 	if dn.doctype == 'Purchase Order':
@@ -218,5 +218,15 @@ def get_auto_name(dn, naming_series=None):
 			
 		if dn.doctype == 'Leave Encashment':
 			series_seq = str(dn.employee)+"/LE/"
-                
+				
 	return str(series_seq) + ".YY.MM"
+
+def autoname_asset_category(doc, method):
+	if doc.asset_category_name and doc.finance_books:
+		# Take the first finance book from the child table
+		first_finance_book = doc.finance_books[0].finance_book
+		
+
+		if first_finance_book:
+			doc.asset_category_name = f"{doc.asset_category_name}-{first_finance_book}"
+			

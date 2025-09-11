@@ -394,6 +394,9 @@ doc_events = {
 	"Integration Request": {
 		"validate": "erpnext.accounts.doctype.payment_request.payment_request.validate_payment"
 	},
+	"Asset Category": {
+        "before_insert": "erpnext.custom_autoname.autoname_asset_category"
+    }
 }
 
 # function should expect the variable and doc as arguments
