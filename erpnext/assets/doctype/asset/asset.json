@@ -704,6 +704,7 @@
    "depends_on": "eval:!doc.is_composite_asset && !doc.is_existing_asset",
    "fieldname": "is_opening_asset",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Is Opening Asset"
   },
   {
@@ -717,9 +718,7 @@
    "fieldname": "revalued_asset_value",
    "fieldtype": "Currency",
    "label": "Revalued Asset Value",
-   "mandatory_depends_on": "eval:(!doc.is_composite_asset || doc.docstatus==1)",
-   "read_only": 1,
-   "read_only_depends_on": "eval:!doc.is_existing_asset && !doc.is_opening_asset"
+   "read_only": 1
   },
   {
    "allow_on_submit": 1,
@@ -767,7 +766,7 @@
    "link_fieldname": "target_asset"
   }
  ],
- "modified": "2025-08-24 17:14:45.062184",
+ "modified": "2025-09-04 15:02:05.826986",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Asset",
