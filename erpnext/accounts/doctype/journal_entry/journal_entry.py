@@ -106,8 +106,9 @@ class JournalEntry(AccountsController):
 		super().__init__(*args, **kwargs)
 
 	def autoname(self):
-		prefix = frappe.db.get_value("Journal Entry Series", self.naming_series, "prefix")
 		# frappe.throw(str(self.naming_series))
+		prefix = frappe.db.get_value("Journal Entry Series", self.naming_series, "prefix")
+		# frappe.throw(str(prefix))
 		if not prefix:
 			frappe.throw("Please set prefix {}".format(
 				frappe.get_desk_link("Journal Entry Series", self.naming_series)
@@ -263,6 +264,7 @@ class JournalEntry(AccountsController):
 			"Repost Accounting Ledger Items",
 			"Unreconcile Payment",
 			"Unreconcile Payment Entries",
+			"GL Turnover Entry"
 		)
 		self.make_gl_entries(1)
 		self.update_advance_paid()
@@ -924,6 +926,7 @@ class JournalEntry(AccountsController):
 
 	def set_total_debit_credit(self):
 		self.total_debit, self.total_credit, self.difference = 0, 0, 0
+		# frappe.throw(frappe.as_json(self.get("accounts")))
 		for d in self.get("accounts"):
 			tax_amount, tax_dr, tax_cr = 0, 0, 0
 			if d.debit and d.credit:
@@ -946,6 +949,8 @@ class JournalEntry(AccountsController):
 		self.difference = flt(self.total_debit, self.precision("total_debit")) - flt(
 			self.total_credit, self.precision("total_credit")
 		)
+		
+		
 
 	def validate_multi_currency(self):
 		alternate_currency = []
