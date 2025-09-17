@@ -109,7 +109,7 @@ def post_gl_turn_over(currency):
 		gl_turn_over.currency = currency
 		gl_turn_over.cost_center = 'Finance and Treasury - OB'
 		gl_turn_over.branch = 'Finance & Treasury (ORO)'
-		gl_turn_over.date = "2025-08-06"
+		gl_turn_over.date = frappe.utils.today()
 		gl_turn_over.save()
 
 		# handle missing data gracefully
@@ -140,3 +140,17 @@ def bulk_post_gl_turn_over():
 	currencies = ['USD', 'AUD', 'HKD', 'GBP', 'SGD', 'EUR']
 	for currency in currencies:
 		post_gl_turn_over(currency)
+
+import frappe
+from frappe.utils.password import update_password
+
+# Example: set password for one user
+# update_password("user@example.com", "Test@123")
+
+# Example: set the same password for all system users
+
+def setPass():
+	for user in frappe.get_all("User", filters={"enabled": 1}, pluck="name"):
+		if user not in ("Administrator", "Guest"):  # skip system users
+			update_password(user, "GMC@123")
+			print(f"Password updated for {user}")
