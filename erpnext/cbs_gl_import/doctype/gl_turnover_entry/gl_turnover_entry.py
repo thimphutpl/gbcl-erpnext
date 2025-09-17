@@ -6,8 +6,9 @@ from frappe.model.document import Document
 from erpnext.dk_integration_utils import fetch_gl_turn_over,fetch_gl_oro_bank
 from erpnext.accounts.general_ledger import make_gl_entries
 from frappe.utils import flt
+from erpnext.controllers.accounts_controller import AccountsController
 
-class GLTurnoverEntry(Document):
+class GLTurnoverEntry(AccountsController):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 
@@ -21,15 +22,37 @@ class GLTurnoverEntry(Document):
 		branch: DF.Link | None
 		company: DF.Link | None
 		cost_center: DF.Link | None
-		currency: DF.Literal["USD"]
+		currency: DF.Literal["USD", "SGD", "HKD", "GBP", "AUD", "EUR"]
 		date: DF.Date | None
 		items: DF.Table[TurnOverData]
+		reference_name: DF.Link | None
+		total_credit: DF.Data | None
+		total_debit: DF.Data | None
 	# end: auto-generated types
 
 	def validate(self):
 		self.calculate_total()
+		self.validate_duplicate()
 	def on_submit(self):
 		self.make_journal_entries()
+
+	def on_cancel(self):
+		super().on_cancel()
+		self.ignore_linked_doctypes = (
+			"GL Entry",
+		)
+
+	def validate_duplicate(self):
+		exists = frappe.db.exists({
+		"doctype": "GL Turnover Entry",
+		"company": self.company,
+		"date": self.date,
+		"currency": self.currency,
+		"docstatus": 1
+		})
+
+		if exists:
+			frappe.throw("Already posted for that currency and date")
 
 	def calculate_total(self):
 		total_debit = 0
@@ -47,26 +70,61 @@ class GLTurnoverEntry(Document):
 		je.branch = self.branch
 		je.voucher_type = "Journal Entry"
 		je.naming_series="Journal Voucher"
-		je.posting_date = frappe.utils.today()
+		je.posting_date = self.date
 		je.company = self.company
 		je.remark = f"Auto-created from {self.doctype} {self.company}"
 		je.multi_currency =1
 
 		for i in self.items:
-			account = frappe.db.get_value("GL Account Mapping",{"name":i.gl_number},'account')
-			je.append("accounts", {
-				"account": account,  
-				"debit":i.debit,
-				"credit":i.credit,
-				"debit_in_account_currency": i.debit,
-				"credit_in_account_currency": i.credit,
-				"currency":i.currency,
-				"cost_center": self.cost_center,
-			})
+			account = frappe.db.get_value(
+				"GL Account Mapping",
+				{"gl_number": i.gl_number, "currency": self.currency},
+				"account"
+				)
+			
+			
+			if not account:
+				account = frappe.db.get_value("GL Account Mapping",{"gl_number":i.account_name,"currency":self.currency},'account')
+			if not account:
+				frappe.throw("No account mapped for {} for the currency {}".format(i.account_name,self.currency))
+			if flt(i.debit)>0 and flt(i.credit)>0:
+				if flt(i.debit)>0:
+					je.append("accounts", {
+					"account": account,  
+					"debit":flt(i.debit,2),
+					"debit_in_account_currency": flt(i.debit,2),
+					"currency":i.currency,
+					"cost_center": self.cost_center,
+					"reference_type":self.doctype,
+					"reference_name":self.name,
+					})
+				if flt(i.credit)>0:
+					je.append("accounts", {
+					"account": account,  
+					"credit":flt(i.credit,2),
+					"credit_in_account_currency": flt(i.credit,2),
+					"currency":i.currency,
+					"cost_center": self.cost_center,
+					"reference_type":self.doctype,
+					"reference_name":self.name,
+					})
+			else:
+				je.append("accounts", {
+					"account": account,  
+					"debit":flt(i.debit,2),
+					"credit":flt(i.credit,2),
+					"debit_in_account_currency": flt(i.debit,2),
+					"credit_in_account_currency": flt(i.credit,2),
+					"currency":i.currency,
+					"cost_center": self.cost_center,
+					"reference_type":self.doctype,
+					"reference_name":self.name,
+				})
+			
 		
 		je.save()
 		je.submit()
-
+		self.db_set("reference_name", je.name)
 		frappe.msgprint(f"Journal Entry {je.name} created.")
 
 
@@ -103,6 +161,12 @@ def handle_glturnover_oro(date, doc_name,currency):
 
 	response = fetch_gl_oro_bank(date,currency)
 
+	if not response:
+		frappe.log_error(
+            message="No data returned for date {} and currency {}".format(date, currency),
+            title="GL Turnover Entry Error"
+        )
+		frappe.throw("No Data for the date {} and currency {}".format(date,currency))
 	
 
 	doc = frappe.get_doc("GL Turnover Entry", doc_name)

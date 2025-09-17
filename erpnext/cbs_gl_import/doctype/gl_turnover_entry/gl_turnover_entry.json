@@ -20,7 +20,9 @@
   "total_section",
   "total_debit",
   "column_break_smrm",
-  "total_credit"
+  "total_credit",
+  "section_break_gpns",
+  "reference_name"
  ],
  "fields": [
   {
@@ -33,6 +35,7 @@
    "label": "Date"
   },
   {
+   "depends_on": "eval:(doc.docstatus===0)",
    "fieldname": "fetch",
    "fieldtype": "Button",
    "label": "Fetch"
@@ -82,7 +85,7 @@
    "fieldname": "currency",
    "fieldtype": "Select",
    "label": "Currency",
-   "options": "USD"
+   "options": "USD\nSGD\nHKD\nGBP\nAUD\nEUR"
   },
   {
    "fieldname": "total_section",
@@ -102,12 +105,22 @@
    "fieldname": "total_credit",
    "fieldtype": "Data",
    "label": "Total Credit"
+  },
+  {
+   "fieldname": "section_break_gpns",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Link",
+   "label": "Reference Name",
+   "options": "Journal Entry"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-08-22 18:29:24.121700",
+ "modified": "2025-09-17 11:18:19.423054",
  "modified_by": "Administrator",
  "module": "CBS GL Import",
  "name": "GL Turnover Entry",

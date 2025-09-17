@@ -5,7 +5,7 @@
 from frappe.model.document import Document
 
 
-class GLAccountMapping(Document):
+class AutoGLTurnoverCurrencyItem(Document):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 
@@ -14,11 +14,9 @@ class GLAccountMapping(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		account: DF.Link
-		company: DF.Link
-		company_abbr: DF.Data
-		currency: DF.Link
-		gl_number: DF.Data
-		user_account: DF.Check
+		currency: DF.Link | None
+		parent: DF.Data
+		parentfield: DF.Data
+		parenttype: DF.Data
 	# end: auto-generated types
 	pass

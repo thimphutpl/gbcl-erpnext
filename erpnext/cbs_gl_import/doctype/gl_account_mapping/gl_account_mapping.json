@@ -1,21 +1,28 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:gl_number",
+ "autoname": "format:GLAC-{company_abbr}-{gl_number}-{currency}",
  "creation": "2025-07-14 09:55:01.678659",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "company",
+  "company_abbr",
   "gl_number",
   "column_break_gshi",
-  "account"
+  "account",
+  "user_account",
+  "currency",
+  "section_break_mzfo",
+  "html_nzxh"
  ],
  "fields": [
   {
    "fieldname": "gl_number",
    "fieldtype": "Data",
+   "in_standard_filter": 1,
    "label": "GL Number",
-   "unique": 1
+   "reqd": 1
   },
   {
    "fieldname": "column_break_gshi",
@@ -24,17 +31,58 @@
   {
    "fieldname": "account",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Account",
-   "options": "Account"
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "user_account",
+   "fieldtype": "Check",
+   "label": "User Account"
+  },
+  {
+   "fieldname": "section_break_mzfo",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "html_nzxh",
+   "fieldtype": "HTML",
+   "options": "<label>If a GL Number is provided from CBS, you can map that number to the corresponding account in the ERP. However, for GLs such as \u201cUser GL\u201d that do not have a GL Number, you can map the account name to the corresponding account in the ERP.</label>"
+  },
+  {
+   "fetch_from": "company.abbr",
+   "fieldname": "company_abbr",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Company Abbr",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-14 09:58:08.184977",
+ "modified": "2025-09-10 12:20:37.752899",
  "modified_by": "Administrator",
  "module": "CBS GL Import",
  "name": "GL Account Mapping",
- "naming_rule": "By fieldname",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

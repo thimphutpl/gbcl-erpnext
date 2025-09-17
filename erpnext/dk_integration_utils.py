@@ -693,7 +693,6 @@ def generate_fx_signature(private_key):
 
 def fetch_gl_oro_bank(date,currency):
     url = dk_integration_setting.oro_endpoint
-
     if isinstance(date, str):
         date = datetime.strptime(date, "%Y-%m-%d")  # input format: "2024-02-01"
 

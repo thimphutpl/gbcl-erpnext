@@ -53,13 +53,15 @@
    "fieldname": "credit",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Credit"
+   "label": "Credit",
+   "precision": "2"
   },
   {
    "fieldname": "debit",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Debit"
+   "label": "Debit",
+   "precision": "2"
   },
   {
    "fieldname": "item_id",
@@ -70,7 +72,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-07-14 10:38:54.908581",
+ "modified": "2025-09-17 12:22:41.926234",
  "modified_by": "Administrator",
  "module": "CBS GL Import",
  "name": "Turn Over Data",
