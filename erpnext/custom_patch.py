@@ -35,6 +35,7 @@ def post_fx_rate():
 		response = fetch_fx_rate().json()
 		
 		
+		
 
 		for i in response['response_data']['exchange_rates']:
 			currency_code = i['currency_code']
@@ -74,4 +75,68 @@ def post_fx_rate():
 
 # def enque_fx_rate():
 # 	enqueue(post_fx_rate)
+# from erpnext.cbs_gl_import.doctype.gl_turnover_entry.gl_turnover_entry import handle_glturnover_oro
+# def post_gl_turn_over(currency):
+# 	gl_turn_over = frappe.new_doc('GL Turnover Entry')
+# 	gl_turn_over.company='Oro Bank'
+# 	gl_turn_over.currency=currency
+# 	gl_turn_over.cost_center='Finance and Treasury - OB'
+# 	gl_turn_over.branch='Finance & Treasury (ORO)'
+# 	gl_turn_over.date = frappe.utils.today()
+# 	gl_turn_over.save()
+
+# 	handle_glturnover_oro(gl_turn_over.date,gl_turn_over.name,gl_turn_over.currency)
+# 	gl_turn_over.reload()
+# 	gl_turn_over.submit()
+
+# def bulk_post_gl_turn_over():
+#     currencies = ['USD', 'SING', 'HKD', 'GBP', 'AUD', 'EUR']
+#     for currency in currencies:
+#         post_gl_turn_over(currency)
+
 	
+from erpnext.cbs_gl_import.doctype.gl_turnover_entry.gl_turnover_entry import handle_glturnover_oro
+
+import frappe
+import logging
+
+logger = logging.getLogger(__name__)
+
+def post_gl_turn_over(currency):
+	try:
+		gl_turn_over = frappe.new_doc('GL Turnover Entry')
+		gl_turn_over.company = 'Oro Bank'
+		gl_turn_over.currency = currency
+		gl_turn_over.cost_center = 'Finance and Treasury - OB'
+		gl_turn_over.branch = 'Finance & Treasury (ORO)'
+		gl_turn_over.date = "2025-08-06"
+		gl_turn_over.save()
+
+		# handle missing data gracefully
+		try:
+			handle_glturnover_oro(gl_turn_over.date, gl_turn_over.name, gl_turn_over.currency)
+		except Exception as e:
+			logger.warning(f"No data for {currency} on {gl_turn_over.date}: {str(e)}")
+			# continue without submitting
+			gl_turn_over.delete()
+			return
+
+		gl_turn_over.reload()
+		gl_turn_over.submit()
+		frappe.db.commit()
+		logger.info(f"Posted turnover for {currency}")
+
+	except frappe.ValidationError as e:
+		logger.warning(f"Skipping {currency}: {str(e)}")
+		logger.warning(f"No data for {currency} on {gl_turn_over.date}: {str(e)}")
+		frappe.db.rollback()
+
+	except Exception as e:
+		logger.error(f"Unexpected error for {currency}: {frappe.get_traceback()}")
+		frappe.db.rollback()
+
+
+def bulk_post_gl_turn_over():
+	currencies = ['USD', 'AUD', 'HKD', 'GBP', 'SGD', 'EUR']
+	for currency in currencies:
+		post_gl_turn_over(currency)
