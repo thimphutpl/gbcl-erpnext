@@ -133,10 +133,10 @@ class CustomWorkflow:
 
 		self.login_user		= frappe.db.get_value("Employee", {"user_id": frappe.session.user}, self.field_list)
 
-		if not self.login_user and frappe.session.user not in ("Administrator", "sonam.zangmo@thimphutechpark.bt"):
-			if "PERC Member" in frappe.get_roles(frappe.session.user):
-				return
-			frappe.throw("{0} is not added as the employee".format(frappe.session.user))
+		# if not self.login_user and frappe.session.user not in ("Administrator", "sonam.zangmo@thimphutechpark.bt"):
+		# 	if "PERC Member" in frappe.get_roles(frappe.session.user):
+		# 		return
+		# 	frappe.throw("{0} is not added as the employee".format(frappe.session.user))
 	def apply_workflow(self):
 			# frappe.throw('hi')
 			
@@ -427,6 +427,13 @@ class CustomWorkflow:
 			vars(self.doc)[self.doc_approver[0]] = officiating[0] if officiating else self.budget_reappropiation_approver[0]
 			vars(self.doc)[self.doc_approver[1]] = officiating[1] if officiating else self.budget_reappropiation_approver[1]
 			vars(self.doc)[self.doc_approver[2]] = officiating[2] if officiating else self.budget_reappropiation_approver[2]
+		elif approver_type == "None":
+			# officiating = get_officiating_employee(self.budget_reappropiation_approver[3])
+			# if officiating:
+			# 	officiating = frappe.db.get_value("Employee", officiating[0].officiating_employee, self.field_list)
+			vars(self.doc)[self.doc_approver[0]] = ""
+			vars(self.doc)[self.doc_approver[1]] = ""
+			vars(self.doc)[self.doc_approver[2]] = ""
 		else:
 			frappe.throw(_("Invalid approver type for Workflow"))
 
@@ -638,12 +645,16 @@ class CustomWorkflow:
 		if self.new_state.lower() in ("Draft".lower()):
 			if frappe.session.user != self.doc.owner:
 				frappe.throw("Only {} can apply this Material Request".format(self.doc.owner))
-
+		
 		elif self.new_state.lower() == ("Waiting For Verification".lower()):
 			self.set_approver("User Supervisor")
-		elif self.new_state.lower() == ("Waiting For Approval".lower()):
-			if self.doc.material_request_type =="Purchase":
-				frappe.throw("Contact Admin with this regards")
+		# elif self.new_state.lower() == ("Waiting For Approval".lower()):
+		# 	if self.doc.material_request_type =="Purchase":
+		# 		frappe.throw("Contact Admin with this regards")
+		elif self.new_state.lower() == ("Waiting MR Verification".lower()):
+			if frappe.session.user != self.doc.approver:
+				frappe.throw("Only {} can forward this document".format(self.doc.approver))
+			self.set_approver("None")
 		elif self.new_state.lower() == ("Approved".lower()):
 			# if self.doc.material_request_type =="Purchase" and frappe.session.user != self.doc.approver:
 			# 	frappe.throw(f"Only {self.doc.approver} can Approved this Material Request")
@@ -652,8 +663,8 @@ class CustomWorkflow:
 			# if self.doc.material_request_type =="Purchase" and frappe.session.user != self.doc.approver:
 			# 	frappe.throw(f"Only {self.doc.approver} can reject this Material Request")
 			pass
-		else:
-			frappe.throw(_("Invalid Workflow State {}").format(self.doc.workflow_state))
+		# else:
+		# 	frappe.throw(_("Invalid Workflow State {}").format(self.doc.workflow_state))
 
 	def target_setup(self):
 		if self.new_state.lower() in ("Draft".lower(), "Waiting Supervisor Approval".lower()):

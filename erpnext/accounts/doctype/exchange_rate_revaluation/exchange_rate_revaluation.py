@@ -23,19 +23,19 @@ class ExchangeRateRevaluation(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
+		from erpnext.accounts.doctype.exchange_rate_revaluation_account.exchange_rate_revaluation_account import ExchangeRateRevaluationAccount
 		from frappe.types import DF
-
-		from erpnext.accounts.doctype.exchange_rate_revaluation_account.exchange_rate_revaluation_account import (
-			ExchangeRateRevaluationAccount,
-		)
 
 		accounts: DF.Table[ExchangeRateRevaluationAccount]
 		amended_from: DF.Link | None
+		branch: DF.Link
 		company: DF.Link
+		from_date: DF.Date
 		gain_loss_booked: DF.Currency
 		gain_loss_unbooked: DF.Currency
 		posting_date: DF.Date
 		rounding_loss_allowance: DF.Float
+		to_date: DF.Date
 		total_gain_loss: DF.Currency
 	# end: auto-generated types
 
@@ -138,10 +138,13 @@ class ExchangeRateRevaluation(Document):
 
 	@frappe.whitelist()
 	def get_accounts_data(self):
+		# frappe.throw(frappe.as_json(self.to_date))
 		self.validate_mandatory()
 		account_details = self.get_account_balance_from_gle(
 			company=self.company,
 			posting_date=self.posting_date,
+			from_date= self.from_date,
+			to_date= self.to_date,
 			account=None,
 			party_type=None,
 			party=None,
@@ -158,7 +161,7 @@ class ExchangeRateRevaluation(Document):
 
 	@staticmethod
 	def get_account_balance_from_gle(
-		company, posting_date, account, party_type, party, rounding_loss_allowance
+		company, posting_date,from_date,to_date, account, party_type, party, rounding_loss_allowance
 	):
 		account_details = []
 
@@ -195,7 +198,9 @@ class ExchangeRateRevaluation(Document):
 				# conditions
 				conditions = []
 				conditions.append(gle.account.isin(accounts))
-				conditions.append(gle.posting_date.lte(posting_date))
+				# conditions.append(gle.posting_date.lte(posting_date))
+				conditions.append(gle.posting_date.gte(from_date))
+				conditions.append(gle.posting_date.lte(to_date))
 				conditions.append(gle.is_cancelled == 0)
 
 				if party_type:
@@ -482,6 +487,8 @@ class ExchangeRateRevaluation(Document):
 		journal_entry = frappe.new_doc("Journal Entry")
 		journal_entry.voucher_type = "Exchange Rate Revaluation"
 		journal_entry.company = self.company
+		journal_entry.naming_series="Journal Voucher"
+		journal_entry.branch=self.branch
 		journal_entry.posting_date = self.posting_date
 		journal_entry.multi_currency = 1
 
