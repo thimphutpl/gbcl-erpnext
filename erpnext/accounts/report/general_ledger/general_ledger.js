@@ -33,17 +33,24 @@ frappe.query_reports["General Ledger"] = {
 			reqd: 1,
 			width: "60px",
 		},
+		// {
+		// 	fieldname: "account",
+		// 	label: __("Account"),
+		// 	fieldtype: "MultiSelectList",
+		// 	options: "Account",
+		// 	get_data: function (txt) {
+		// 		return frappe.db.get_link_options("Account", txt, {
+		// 			company: frappe.query_report.get_filter_value("company"),
+		// 		});
+		// 	},
+		// },
 		{
-			fieldname: "account",
-			label: __("Account"),
-			fieldtype: "MultiSelectList",
-			options: "Account",
-			get_data: function (txt) {
-				return frappe.db.get_link_options("Account", txt, {
-					company: frappe.query_report.get_filter_value("company"),
-				});
-			},
-		},
+            "fieldname": "against",
+            "label": __("Against Account"),
+            "fieldtype": "Link",
+            "options": "Account",
+            "width": "120px"
+        },
 		{
 			fieldname: "voucher_no",
 			label: __("Voucher No"),
