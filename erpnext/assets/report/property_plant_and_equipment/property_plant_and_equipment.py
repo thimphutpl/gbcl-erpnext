@@ -290,17 +290,21 @@ def get_accounts(filters):
     company = filters.get("company")
     data = []
     category_totals = {}  # Dictionary to store summed values by asset category
+    company_currency = frappe.db.get_value("Company", company, "default_currency")
+    company_symbol = frappe.db.get_value("Currency", company_currency, "symbol")
+ 
     
     # Get all asset categories and their accounts
     asset_categories = frappe.db.sql("""
-        SELECT a.name as category, b.fixed_asset_account as fa, 
-               b.accumulated_depreciation_account as acc, 
-               b.depreciation_expense_account as dep 
-        FROM `tabAsset Category` a, `tabAsset Category Account` b 
+        SELECT a.name as category, 
+               b.fixed_asset_account as fa, 
+                b.accumulated_depreciation_account as acc, 
+                b.depreciation_expense_account as dep
+        FROM `tabAsset Category` a, 
+              `tabAsset Category Account` b
         WHERE a.name = b.parent
         AND a.company = %s
     """, company, as_dict=True)
-
     for category in asset_categories:
         # Initialize category in totals dictionary if not present
         if category.category not in category_totals:
@@ -430,7 +434,8 @@ def get_accounts(filters):
             "dep_total": values["dep_total"],
             "net_block": values["net_block"],
             "opening_income_tax": values["opening_income_tax"],
-            "it_dep_addition": values["it_dep_addition"]
+            "it_dep_addition": values["it_dep_addition"],
+            "currency": company_symbol
         })
 
     # For CWIP Account
@@ -514,7 +519,7 @@ def get_values(account, to_date, from_date, cost_center=None, company=None, open
     value = frappe.db.sql(query, tuple(params), as_dict=True)
     return value or [frappe._dict({"debit": 0.0, "credit": 0.0})]
 
-def get_columns():
+def get_columns():  
     return [
         {
             "fieldname": "company",
@@ -533,66 +538,77 @@ def get_columns():
             "fieldname": "gross_opening",
             "label": _("Opening Acquisation"),
             "fieldtype": "Currency",
+            "options": "currency",
             "width": 150
         },
         {
             "fieldname": "gross_addition",
             "label": _("Acquisation During the Year"),
             "fieldtype": "Currency",
+            "options": "currency",
             "width": 150
         },
         {
             "fieldname": "gross_adjustment",
             "label": _("Adjustment During the Year"),
             "fieldtype": "Currency",
+            "options": "currency",
             "width": 150
         },
         {
             "fieldname": "gross_total",
             "label": _("Gross Total"),
             "fieldtype": "Currency",
+            "options": "currency",
             "width": 150
         },
         {
             "fieldname": "dep_opening",
             "label": _("Accumulated Dep."),
             "fieldtype": "Currency",
+            "options": "currency",
             "width": 150
         },
         {
             "fieldname": "dep_addition",
             "label": _("Dep. During the Year"),
             "fieldtype": "Currency",
+            "options": "currency",
             "width": 150
         },
         {
             "fieldname": "dep_adjustment",
             "label": _("Dep. Adjustment During the Year"),
             "fieldtype": "Currency",
+            "options": "currency",
             "width": 150
         },
         {
             "fieldname": "dep_total",
             "label": _("Dep. Total"),
             "fieldtype": "Currency",
+            "options": "currency",
             "width": 150
         },
         {
             "fieldname": "net_block",
             "label": _("Net Block"),
             "fieldtype": "Currency",
+            "options": "currency",
             "width": 150
         },
         {
             "fieldname": "opening_income_tax",
             "label": _("Open IT Dep."),
             "fieldtype": "Currency",
+            "options": "currency",
             "width": 150
         },
         {
             "fieldname": "it_dep_addition",
             "label": _("IT Dep. During the Year"),
             "fieldtype": "Currency",
+            "options": "currency",
             "width": 150
         },
     ]
