@@ -49,6 +49,8 @@ def get_data(filters):
         )
         .where(
             (vpr.company == filters.get("company"))
+            & (vpr.docstatus == 1)
+            & (vpr.status != "Open")
             & (vpr.location == filters.get("location"))
             & (Date(vpr.posting_date) >= filters.get("from_date"))
             & (Date(vpr.posting_date) <= filters.get("to_date"))
