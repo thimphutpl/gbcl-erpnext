@@ -37,6 +37,14 @@ frappe.ui.form.on("Journal Entry", {
 				}
 			}
 		});
+		frm.set_query('branch', function() {
+            return {
+                filters: {
+                    'company': frm.doc.company
+                }
+            }
+        });
+
 		
 	},
 	onload:function(frm){
@@ -624,9 +632,29 @@ frappe.ui.form.on("Journal Entry Account", {
 		}
 	},
 
-	account: function (frm, dt, dn) {
-		erpnext.journal_entry.set_account_details(frm, dt, dn);
-	},
+	// account: function (frm, dt, dn) {
+	// 	erpnext.journal_entry.set_account_details(frm, dt, dn);
+	// },
+	
+	account: function(frm, cdt, cdn) {
+        erpnext.journal_entry.set_account_details(frm, cdt, cdn);
+		// var row = locals[cdt][cdn];
+        // if (frm.doc.multi_currency && row.exchange_rate) {
+        //     frappe.model.set_value(cdt, cdn, "credit_in_account_currency",
+        //         flt(row.debit_in_account_currency) / flt(row.exchange_rate)
+        //     );
+        // }
+		let row = locals[cdt][cdn];
+        if (frm.doc.multi_currency && row.account && row.exchange_rate) {
+            let first_row = frm.doc.accounts[0];
+
+            if (first_row && first_row.debit_in_account_currency) {
+                let credit_amount = flt(first_row.debit_in_account_currency) / flt(row.exchange_rate);
+
+                frappe.model.set_value(cdt, cdn, "credit_in_account_currency", credit_amount);
+            }
+        }
+    },
 
 	debit_in_account_currency: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
@@ -732,6 +760,7 @@ $.extend(erpnext.journal_entry, {
 			cdn,
 			"credit",
 			flt(flt(row.credit_in_account_currency) * row.exchange_rate, precision("credit", row))
+			// flt(flt(row.credit_in_account_currency)("credit", row))
 		);
 
 		cur_frm.cscript.update_totals(frm.doc);
