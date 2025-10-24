@@ -493,8 +493,7 @@
    "label": "Company Email",
    "oldfieldname": "company_email",
    "oldfieldtype": "Data",
-   "options": "Email",
-   "reqd": 1
+   "options": "Email"
   },
   {
    "fieldname": "personal_email",
@@ -1004,7 +1003,8 @@
    "fieldname": "pms_group",
    "fieldtype": "Link",
    "label": "PMS Group",
-   "options": "PMS Group"
+   "options": "PMS Group",
+   "reqd": 1
   },
   {
    "fieldname": "region",
@@ -1042,7 +1042,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-08-20 17:01:34.151643",
+ "modified": "2025-10-24 14:48:13.044745",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Employee",
