@@ -477,7 +477,8 @@ class Asset(AccountsController):
 				)
 
 		if not self.calculate_depreciation:
-			return
+			frappe.throw(_("Please check Calculate Depreciation"))
+			# return
 		else:
 			if not self.finance_books:
 				frappe.throw(_("Enter depreciation details"))

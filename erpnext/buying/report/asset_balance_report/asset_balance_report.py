@@ -129,6 +129,8 @@ def execute(filters=None):
 	return columns, data
 
 def get_data(filters):
+	if not filters.get("company"):
+		return []
 	data = []
 	to_exclude = []
 	conditions = get_conditions(filters)
@@ -144,19 +146,21 @@ def get_data(filters):
 				IFNULL((SELECT SUM(ai.qty)
 					FROM `tabAsset Issue Details` ai
 					WHERE ai.item_code = ar.item_code
-					AND ai.issued_date BETWEEN '{from_date}' AND '{to_date}' 
+					AND ai.issued_date BETWEEN  %(from_date)s AND %(to_date)s 
 					AND ai.purchase_receipt = ar.ref_doc
 					AND ai.docstatus = 1
 					),0) issued_qty
 			FROM `tabAsset Received Entries` ar
-			WHERE ar.received_date BETWEEN '{from_date}' AND '{to_date}'
+			WHERE ar.received_date BETWEEN %(from_date)s AND %(to_date)s
 			AND ar.docstatus = 1
 			{cond}
 			GROUP BY ar.item_code, ar.ref_doc
 			) AS t, `tabItem` i
 			WHERE i.name = t.item_code
 			GROUP BY  t.item_code, i.item_name, t.cost_center, t.warehouse
-		""".format(from_date=filters.get("from_date"), to_date=filters.get("to_date"), cond = conditions), as_dict=True)
+		""".format(cond = conditions),filters,as_dict=True)
+
+		# from_date=filters.get("from_date"), to_date=filters.get("to_date")
 	
 def get_conditions(filters):
 	if not filters.get("from_date"):

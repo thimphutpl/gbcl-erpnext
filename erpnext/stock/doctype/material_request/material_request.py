@@ -416,6 +416,8 @@ def make_purchase_order(source_name, target_doc=None, args=None):
 					supplier_items.append(d)
 			target_doc.items = supplier_items
 
+			target_doc.branch = source.branch
+
 		set_missing_values(source, target_doc)
 
 	def select_item(d):
@@ -433,6 +435,9 @@ def make_purchase_order(source_name, target_doc=None, args=None):
 			"Material Request": {
 				"doctype": "Purchase Order",
 				"validation": {"docstatus": ["=", 1], "material_request_type": ["=", "Purchase"]},
+				"field_map": {
+                    "branch": "branch" 
+                },
 			},
 			"Material Request Item": {
 				"doctype": "Purchase Order Item",

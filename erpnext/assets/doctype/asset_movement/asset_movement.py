@@ -296,6 +296,7 @@ class AssetMovement(Document):
 				from `tabAsset` 
 				where {cond} 
 				and docstatus = 1 
+				and status NOT IN ('Draft', 'Scrapped', 'Sold')
 				""".format(cond=condition_statement),as_dict = 1)
 			if asset_list:
 				self.set("assets",[])

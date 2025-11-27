@@ -7,6 +7,7 @@ import base64
 import jwt
 import string
 from datetime import datetime
+import datetime
 
 # @frappe.whitelist()
 def dk_payment_test():
@@ -197,26 +198,66 @@ def generate_dk_signature_transaction(private_key,doc):
         frappe.throw("Add Bank Code in the {} Bank".format(doc.pay_to_bank))  
     
 
+    # sample_request_body = {
+    #         "request_meta": {
+    #         "request_id": frappe.generate_hash(length=17),
+    #         "inquiry_id": doc.inquiry_id,
+    #         "source_app": dk_integration_setting.source_app,
+    #         "trans_code":trans_code
+    #         },
+    #         "request_payload": {
+    #         "trans_code":trans_code,
+    #         "payer_acc": doc.bank_account_no,
+    #         "payer_name": doc.payer_name,
+    #         "beneficiary_acc": beneficiary_acc,
+    #         "beneficiary_name": beneficiary_name,
+    #         "beneficiary_bname": beneficiary_bank,
+    #         "beneficiary_bcode":bank_code,
+    #         "currency_code": currency_code,
+    #         "txn_amt": amount,
+    #         "txn_description": description
+    #         }
+    #         }
     sample_request_body = {
-            "request_meta": {
-            "request_id": frappe.generate_hash(length=17),
-            "inquiry_id": doc.inquiry_id,
-            "source_app": dk_integration_setting.source_app,
-            "trans_code":trans_code
-            },
-            "request_payload": {
-            "trans_code":trans_code,
-            "payer_acc": doc.bank_account_no,
-            "payer_name": doc.payer_name,
-            "beneficiary_acc": beneficiary_acc,
-            "beneficiary_name": beneficiary_name,
-            "beneficiary_bname": beneficiary_bank,
-            "beneficiary_bcode":bank_code,
-            "currency_code": currency_code,
-            "txn_amt": amount,
-            "txn_description": description
-            }
-            }
+        "request_meta": {
+        "request_id": frappe.generate_hash(length=17),
+        "inquiry_id": doc.inquiry_id,
+        "source_app": dk_integration_setting.source_app
+        },
+        "request_payload": {
+        "trans_code": trans_code,
+        "dr_cr": "DEBIT",
+        "payer_acc": doc.bank_account_no,
+        "payer_name": doc.payer_name,
+        "payer_bname":"DK Bank",
+        "payer_bcode":"1060",
+        "beneficiary_acc": beneficiary_acc,
+        "beneficiary_name": beneficiary_name,
+        "beneficiary_bname": beneficiary_bank,
+        "beneficiary_bcode": "1060",
+        "txn_description": description,
+        "txn_purpose": "",
+        "source": {
+        "amount": amount,
+        "currency": "BTN",
+        "fx_rate_to_base": 1.00,
+        "base_currency": "BTN",
+        "base_equiv_amount": amount
+        },
+        "target": {
+        "fx_rate":1.00,
+        "amount": amount,
+        "currency": "BTN",
+        "fx_rate_to_base": 1.00,
+        "base_currency": "BTN",
+        "base_equiv_amount":amount
+        },
+        "total": {
+        "amount": amount,
+        "base_currency": "BTN"
+        }
+        }
+        }
     
 
     signature = generate_signature(sample_request_body)
@@ -283,7 +324,7 @@ def generate_dk_signature_checkstatus(private_key,doc):
 # Now convert it to a JSON string
     # data = frappe.as_json(doc)
     data = json.loads(doc)
-    transaction_id = data["transaction_id"]
+    transaction_id = data["transaction_no"]
     transaction_inquiry_id = data["inquiry_id"]
     transaction_status_request_id = data["transaction_status_request_id"]
     # beneficiary_acc = i.beneficiary_account_no
@@ -294,13 +335,21 @@ def generate_dk_signature_checkstatus(private_key,doc):
         
    
 #frappe.generate_hash(length=17),
+    # sample_request_body = {
+    #     "request_id":frappe.generate_hash(length=17),
+    #     "source_app":dk_integration_setting.source_app,
+    #     "txn_id":transaction_id,
+    #     "txn_inquiry_id":transaction_inquiry_id,
+    #     "txn_status_req_id":transaction_status_request_id
+    #     }
+
     sample_request_body = {
+        
         "request_id":frappe.generate_hash(length=17),
         "source_app":dk_integration_setting.source_app,
-        "txn_id":transaction_id,
-        "txn_inquiry_id":transaction_inquiry_id,
-        "txn_status_req_id":transaction_status_request_id
-        }
+        "txn_status_id":transaction_status_request_id
+
+            }
 
     # frappe.throw(frappe.as_json(sample_request_body))
     

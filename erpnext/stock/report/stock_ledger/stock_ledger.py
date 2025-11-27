@@ -49,6 +49,7 @@ def execute(filters=None):
 		actual_qty = opening_row.get("qty_after_transaction")
 		stock_value = opening_row.get("stock_value")
 
+
 	available_serial_nos = {}
 	inventory_dimension_filters_applied = check_inventory_dimension_filters_applied(filters)
 
@@ -103,6 +104,7 @@ def execute(filters=None):
 
 
 def get_segregated_bundle_entries(sle, bundle_details, batch_balance_dict, filters):
+	
 	segregated_entries = []
 	qty_before_transaction = sle.qty_after_transaction - sle.actual_qty
 	stock_value_before_transaction = sle.stock_value - sle.stock_value_difference
@@ -367,6 +369,7 @@ def get_columns(filters):
 
 
 def get_stock_ledger_entries(filters, items):
+	
 	sle = frappe.qb.DocType("Stock Ledger Entry")
 	query = (
 		frappe.qb.from_(sle)
@@ -398,6 +401,7 @@ def get_stock_ledger_entries(filters, items):
 		.orderby(CombineDatetime(sle.posting_date, sle.posting_time))
 		.orderby(sle.creation)
 	)
+	
 
 	inventory_dimension_fields = get_inventory_dimension_fields()
 	if inventory_dimension_fields:
@@ -424,6 +428,7 @@ def get_stock_ledger_entries(filters, items):
 			query = query.where(sle.batch_no == filters.batch_no)
 
 	query = apply_warehouse_filter(query, sle, filters)
+	
 
 	return query.run(as_dict=True)
 

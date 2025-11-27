@@ -50,12 +50,55 @@ class DKBankPayment(Document):
 		
 	def process_transaction(self):
 		response = intrabank_transfer(self)
+		# frappe.throw(str(response))
 		if response['response_code'] == '4310':
 			frappe.throw(response)
+		# frappe.throw(str(response))
+		if response['response_code'] == '0000':
+			if response['response_data']['status']['status_code'] == '0':
+				self.db_set("workflow_state", 'Completed')
+		# self.db_set("transaction_no", response["response_data"]["txn_id"])
+		self.db_set("transaction_status_request_id", response["response_data"]["txn_status_id"])
+		self.db_set("response_details", response["response_data"]["status"]["status_code"])
+
+		self.db_set("in_queue",response["response_data"]["in_queue"])
+		self.db_set("is_txn_processed",response["response_data"]["status"]["is_txn_processed"])
+		self.db_set("posting_status_code",response["response_data"]["status"]["status_code"])
+		self.db_set("txn_authcode",response["response_data"]["status"]["txn_auth_code"])
+		self.db_set("txn_drn",response["response_data"]["status"]["txn_drn"])
+		self.db_set("txn_status_code",response["response_data"]["status"]["status_code"])
+		self.db_set("txn_status_description",response["response_data"]['status']['status_description'])
 		
-		self.db_set("transaction_id", response["response_data"]["meta_info"]["txn_id"])
-		self.db_set("transaction_status_request_id", response["response_data"]["meta_info"]["txn_status_req_id"])
-		self.db_set("response_details", response["response_detail"])
+		# self.db_set("")
+		# dk_doc.in_queue = response["response_data"]["txn_status"]["in_queue"]
+		# dk_doc.is_txn_processed = response["response_data"]["txn_status"]["is_txn_processed"]
+		# dk_doc.posting_status_code = response["response_data"]["txn_status"]["posting_status_code"]
+		# dk_doc.txn_authcode = response["response_data"]["txn_status"]["txn_auth_code"]
+		# dk_doc.txn_drn = response["response_data"]["txn_status"]["txn_drn"]
+		# dk_doc.txn_status_code = response["response_data"]["txn_status"]["txn_status_code"]
+		# dk_doc.txn_status_description = response["response_data"]["txn_status"]["txn_status_description"]
+
+
+	# def process_transaction(self):
+	# 	response = intrabank_transfer(self)
+
+	# 	if not response:
+	# 		frappe.throw("No response received from intrabank transfer service.")
+
+	# 	if response.get("response_code") == "4310":
+	# 		frappe.throw(response.get("response_detail") or "Transaction failed with code 4310.")
+
+	# 	response_data = response.get("response_data")
+	# 	frappe.throw(str(response_data))
+	# 	if not response_data or not response_data.get("meta_info"):
+	# 		frappe.throw(f"Invalid response format: {response}")
+
+	# 	meta_info = response_data["meta_info"]
+
+	# 	self.db_set("transaction_id", meta_info.get("txn_id"))
+	# 	self.db_set("transaction_status_request_id", meta_info.get("txn_status_req_id"))
+	# 	self.db_set("response_details", response.get("response_detail"))
+
 	@frappe.whitelist()
 	def get_entries(self):
 		self.load_items()
@@ -66,6 +109,7 @@ class DKBankPayment(Document):
 		total_amount = 0
 		self.set("transaction", [])
 		for i in self.get_transactions():
+			# frappe.throw(str(i))
 			import re
 
 			beneficiary_name = re.sub("[^A-Za-z0-9 ]+", "", i.beneficiary_name)
@@ -299,13 +343,13 @@ def check_transaction_status(doc):
 	# frappe.throw(frappe.as_json(response))
 	# Update the 'in_queue' field
 	# dk_doc.in_queue = response.get("txn_status_info", {}).get("in_queue")
-	dk_doc.in_queue = response["response_data"]["txn_status_info"]["in_queue"]
-	dk_doc.is_txn_processed = response["response_data"]["txn_status_info"]["is_txn_processed"]
-	dk_doc.posting_status_code = response["response_data"]["txn_status_info"]["posting_status_code"]
-	dk_doc.txn_authcode = response["response_data"]["txn_status_info"]["txn_authcode"]
-	dk_doc.txn_drn = response["response_data"]["txn_status_info"]["txn_drn"]
-	dk_doc.txn_status_code = response["response_data"]["txn_status_info"]["txn_status_code"]
-	dk_doc.txn_status_description = response["response_data"]["txn_status_info"]["txn_status_description"]
+	dk_doc.in_queue = response["response_data"]["txn_status"]["in_queue"]
+	dk_doc.is_txn_processed = response["response_data"]["txn_status"]["is_txn_processed"]
+	dk_doc.posting_status_code = response["response_data"]["txn_status"]["posting_status_code"]
+	dk_doc.txn_authcode = response["response_data"]["txn_status"]["txn_auth_code"]
+	dk_doc.txn_drn = response["response_data"]["txn_status"]["txn_drn"]
+	dk_doc.txn_status_code = response["response_data"]["txn_status"]["txn_status_code"]
+	dk_doc.txn_status_description = response["response_data"]["txn_status"]["txn_status_description"]
 	
 
 	# frappe.throw(str(dk_doc.in_queue))
@@ -313,11 +357,11 @@ def check_transaction_status(doc):
 	# Save and commit
 	dk_doc.save()
 
-	if float(response["response_data"]["txn_status_info"]["txn_status_code"]) == 0:
+	if float(response["response_data"]["txn_status"]["txn_status_code"]) == 0:
 		frappe.db.sql('''
 			update `tabDK Bank Payment` set workflow_state='Completed' where name='{}'
 		'''.format(dk_doc.name))
-	elif float(response["response_data"]["txn_status_info"]["txn_status_code"]) == 51:
+	elif float(response["response_data"]["txn_status"]["txn_status_code"]) == 51:
 		frappe.db.sql('''
 			update `tabDK Bank Payment` set workflow_state='Failed' where name='{}'
 		'''.format(dk_doc.name))

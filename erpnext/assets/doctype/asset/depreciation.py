@@ -1515,7 +1515,7 @@ def get_gl_entries_on_asset_disposal(
 		accumulated_depr_amount,
 		value_after_depreciation,
 	) = get_asset_details(asset, finance_book)
-
+	asset_cost_center = frappe.db.get_value("Asset", asset, "cost_center")
 	
 	gl_entries = [
 		asset.get_gl_dict(
@@ -1523,6 +1523,7 @@ def get_gl_entries_on_asset_disposal(
 				"account": fixed_asset_account,
 				"credit_in_account_currency": asset.gross_purchase_amount,
 				"credit": asset.gross_purchase_amount,
+				"cost_center": asset_cost_center,
 				"posting_date": date,
 			},
 			item=asset,
@@ -1536,6 +1537,7 @@ def get_gl_entries_on_asset_disposal(
 					"account": accumulated_depr_account,
 					"debit_in_account_currency": accumulated_depr_amount,
 					"debit": accumulated_depr_amount,
+					"cost_center": asset_cost_center,
 					"posting_date": date,
 				},
 				item=asset,
@@ -1550,7 +1552,7 @@ def get_gl_entries_on_asset_disposal(
 
 	if profit_amount:
 		
-		asset_cost_center = frappe.db.get_value("Asset",asset,'cost_center')
+		# asset_cost_center = frappe.db.get_value("Asset",asset,'cost_center')
 		get_profit_gl_entries(
 			asset, profit_amount, gl_entries, disposal_account,asset_cost_center,date
 		)

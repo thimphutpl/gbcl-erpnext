@@ -96,7 +96,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Reports",
-   "link_count": 7,
+   "link_count": 5,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -125,34 +125,11 @@
    "dependencies": "Asset",
    "hidden": 0,
    "is_query_report": 1,
-   "label": "Asset Depreciations and Balances",
-   "link_count": 0,
-   "link_to": "Asset Depreciations and Balances",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "dependencies": "Asset",
-   "hidden": 0,
-   "is_query_report": 1,
    "label": "Asset Depreciation Ledger",
    "link_count": 0,
    "link_to": "Asset Depreciation Ledger",
    "link_type": "Report",
    "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "dependencies": "Asset Maintenance",
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Asset Maintenance",
-   "link_count": 0,
-   "link_to": "Asset Maintenance",
-   "link_type": "Report",
-   "onboard": 0,
-   "report_ref_doctype": "Asset Maintenance",
    "type": "Link"
   },
   {
@@ -178,8 +155,8 @@
    "type": "Link"
   }
  ],
- "modified": "2025-07-25 13:11:26.382067",
- "modified_by": "pralad.rai@thimphutechpark.bt",
+ "modified": "2025-09-17 10:50:02.126659",
+ "modified_by": "sonam.bomjan@thimphutechpark.bt",
  "module": "Assets",
  "name": "Assets",
  "number_cards": [],

@@ -396,7 +396,10 @@ doc_events = {
 	},
 	"Asset Category": {
         "before_insert": "erpnext.custom_autoname.autoname_asset_category"
-    }
+    },
+	"Asset": {
+		"before_insert": "erpnext.custom_autoname.autoname_asset"
+	}
 }
 
 # function should expect the variable and doc as arguments

@@ -37,6 +37,13 @@ frappe.ui.form.on("Employee", {
 				}
 			};
 		});
+		frm.set_query("cost_center", function () {
+			return {
+				filters: {
+					company: frm.doc.company,
+				}
+			};
+		});
 
 		frm.set_query("division", function () {
 			return {

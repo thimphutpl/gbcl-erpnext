@@ -113,7 +113,7 @@ class CustomWorkflow:
 
 		if self.doc.doctype == "Material Request":
 			self.user_supervisor = frappe.db.get_value("Employee", frappe.db.get_value("Employee", {'user_id':self.doc.owner}, "reports_to"), self.field_list)
-			
+			# frappe.throw(str(self.user_supervisor))
 		if self.doc.doctype == "Employee Benefits":
 			self.hrgm = frappe.db.get_value("Employee",frappe.db.get_single_value("HR Settings","hrgm"), self.field_list)	
 

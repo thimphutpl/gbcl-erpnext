@@ -31,6 +31,16 @@ frappe.query_reports["Asset Balance Report"] = {
 			"fieldtype": "Link",
 			"options": "Branch"
 		},
-	]
-};
+	],
+	onload: function (report) {
+		report.page.add_inner_button(__("Clear filters"), function () {
+			report.set_filter_value("company", null);
+			report.set_filter_value("from_date", null);
+			report.set_filter_value("to_date", null);
+			report.set_filter_value("branch", null);
+		});
+
+
+	}
+}
 

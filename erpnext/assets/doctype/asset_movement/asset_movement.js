@@ -18,6 +18,7 @@ frappe.ui.form.on('Asset Movement', {
 		}
 	},
 	
+	
 	setup: (frm) => {
 		frm.set_query("to_employee", "assets", (doc) => {
 			return {
@@ -26,6 +27,20 @@ frappe.ui.form.on('Asset Movement', {
 				}
 			};
 		})
+		frm.set_query('to_employee',function() {
+            return {
+                filters: {
+                    'company': frm.doc.company
+                }
+            }
+        });
+		frm.set_query('from_employee',function() {
+            return {
+                filters: {
+                    'company': frm.doc.company
+                }
+            }
+        });
 		frm.set_query("from_employee", "assets", (doc) => {
 			return {
 				filters: {

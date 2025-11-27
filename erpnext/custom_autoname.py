@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from frappe import msgprint
-##
+from frappe.utils import nowdate
 # Sets the initials of autoname for PO, PR, SO, SI, PI, etc
 ##
 def get_auto_name(dn, naming_series=None):
@@ -229,4 +229,14 @@ def autoname_asset_category(doc, method):
 
 		if first_finance_book:
 			doc.asset_category_name = f"{doc.asset_category_name}-{first_finance_book}"
-			
+						
+def autoname_asset(doc, method):
+    if doc.company and doc.finance_books:
+        asset_type_code = "ASS"
+        year = nowdate().split("-")[0]
+
+        # Use first finance book
+        first_finance_book = doc.finance_books[0].finance_book
+        if first_finance_book:
+            # Set naming_series with .#### pattern
+            doc.naming_series = f"{first_finance_book}-{asset_type_code}-{year}-.####"

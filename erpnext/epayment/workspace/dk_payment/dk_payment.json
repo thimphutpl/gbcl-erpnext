@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"5CGbNVIKN6\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>DK Payment</b></span>\",\"col\":12}},{\"id\":\"IwQN1bpEeF\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}}]",
+ "content": "[{\"id\":\"5CGbNVIKN6\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>DK Payment</b></span>\",\"col\":12}},{\"id\":\"IwQN1bpEeF\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"byajYW99zF\",\"type\":\"card\",\"data\":{\"card_name\":\"API Setting\",\"col\":4}}]",
  "creation": "2025-05-15 20:52:30.212312",
  "custom_blocks": [],
  "docstatus": 0,
@@ -9,7 +9,7 @@
  "hide_custom": 0,
  "icon": "expenses",
  "idx": 0,
- "indicator_color": "green",
+ "indicator_color": "",
  "is_hidden": 0,
  "label": "DK Payment",
  "links": [
@@ -51,15 +51,64 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "API Setting",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "API Detail",
+   "link_count": 0,
+   "link_to": "API Detail",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Utility Service Type",
+   "link_count": 0,
+   "link_to": "Utility Service Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Utility Services",
+   "link_count": 0,
+   "link_to": "Utility Services",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bank Payment Settings",
+   "link_count": 0,
+   "link_to": "Bank Payment Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2025-07-30 23:30:45.108141",
- "modified_by": "Administrator",
+ "modified": "2025-09-12 09:41:57.754596",
+ "modified_by": "pralad.rai@thimphutechpark.bt",
  "module": "ePayment",
  "name": "DK Payment",
  "number_cards": [],
  "owner": "Administrator",
- "parent_page": "ePayment",
+ "parent_page": "",
  "public": 1,
  "quick_lists": [],
  "roles": [],
