@@ -42,6 +42,8 @@ class TDSRemittance(AccountsController):
 
 		self.set('items', [])
 		for d in entries:
+			if d.party_type != "Supplier":
+				continue 
 			d.bill_amount 		= flt(d.bill_amount,2)
 			d.tds_amount 		= flt(d.tds_amount,2)
 			total_tds_amount 	+= flt(d.tds_amount)
@@ -204,12 +206,11 @@ def get_tds_invoices(tax_withholding_category, from_date, to_date, name, filter_
 	# frappe.throw(str(name))
 	je_entries = frappe.db.sql(f"""
 		select t.posting_date, t.name as invoice_no, 'Journal Entry' as invoice_type,
-			t1.party_type, t1.party, 
+			t1.party_type, t1.party, t1.name as jeaname,
 			(case when t1.party_type = 'Customer' then c.tax_id 
 				when t1.party_type = 'Supplier' then s.tpn_no else null end) as tpn, 
-			t1.cost_center,
-			(case when t1.tax_amount > 0 and t1.debit > 0 and ifnull(t1.apply_tds, 0) = 1 
-				then t1.taxable_amount else 0 end) as bill_amount, 
+			t1.cost_center, t.total_amount as bill_amount,
+			
 			(case when t1.tax_amount > 0 and t1.debit > 0 and ifnull(t1.apply_tds, 0) = 1 
 				then t1.tax_amount
 				when t1.tax_amount = 0 and t1.credit > 0 then t1.credit
@@ -237,11 +238,55 @@ def get_tds_invoices(tax_withholding_category, from_date, to_date, name, filter_
 					where re.invoice_no = t.name)
 			{party_cond}
 			{cond}
-			
+		
 			
 			
 	""".format(accounts_cond = accounts_cond, cond = cond, existing_cond = existing_cond,
 			party_cond = party_cond, from_date=from_date, to_date=to_date,name=name),as_dict=True)
+	# frappe.throw(str(je_entries))
+	for i in je_entries:
+		party =''
+		party_type=''
+		if (i.party == "") or i.party_type=="":
+			if i.invoice_no:
+				datas = frappe.db.sql("""
+						SELECT against_account 
+						FROM `tabJournal Entry Account` 
+						WHERE name = %s
+					""", (i.jeaname,), as_dict=True)
+				# frappe.throw(str(datas[0]['against_account']))
+				if datas:
+					jea = frappe.db.sql("""
+						SELECT party,party_type
+						FROM `tabJournal Entry Account` 
+						WHERE parent = %s and against_account = %s
+					""", (i.invoice_no,datas[0]['against_account']), as_dict=True)
+					
+					# for k in jea:
+					# 	if k[0]['party']:
+					# 		party = k[0]['party']
+					# 	if k[0]['party_type']:
+					# 		party_type = k[0]['party_type']
+					
+					if jea:
+						for k in jea:
+							party = k.get("party") or ""
+							party_type = k.get("party_type") or ""
+							if party:
+								i.party = party
+								tpn = frappe.db.get_value("Supplier", {"name": i.party}, "tpn_no")
+								if tpn:
+									i.tpn_no = tpn
+
+							if party_type:
+								i.party_type = party_type
+					
+
+				if i.party:
+					tpn = frappe.db.get_value("Supplier", {"name": i.party}, "tpn_no")
+					if tpn:
+						i.tpn = tpn
+				# i.party_type = party_type
 	'''
 	# Journal Entry
 	if len(accounts) == 1:
