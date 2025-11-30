@@ -386,7 +386,7 @@ def account_inquiry(account_no):
                 url = dk_integration_setting.base_url + dk_integration_setting.account_inquiry
                 headers = {
                     'Content-Type': 'application/json',
-                    'X-gravitee-api-key': '98cf3639-df33-4587-9d36-dae9d2bb974c',  # Optional
+                    'X-gravitee-api-key': dk_integration_setting.x_gravitee_api_key,  # Optional
                     'Authorization':f'bearer {token_inquiry}',
                     'DK-Timestamp':timestamp,
                     'DK-Nonce':nonce,
