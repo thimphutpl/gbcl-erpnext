@@ -332,8 +332,12 @@ class PurchaseInvoice(BuyingController):
 		if self.write_off_amount > 0:
 			self.net_total = self.net_total - self.write_off_amount
 	def cal_oustanding_amount(self):
-		# frappe.throw(str(self.outstanding_amount))
-		self.outstanding_amount = self.total - self.discount- flt(self.write_off_amount) - flt(self.total_advance)+(self.total_taxes_and_charges)
+		# frappe.throw(str(self.discount))
+		discount = 0
+		if self.discount:
+			discount = self.discount
+		self.outstanding_amount = self.total - discount- flt(self.write_off_amount) - flt(self.total_advance)+(self.total_taxes_and_charges)
+		# self.outstanding_amount = self.total - self.discount
 		# frappe.throw(str(self.outstanding_amount))
 
 	def cal_total_discount_for_each_item(self):
@@ -909,8 +913,9 @@ class PurchaseInvoice(BuyingController):
 				expense, cost_center = frappe.db.get_value("Purchase Order Item", item.po_detail, ["expense_account", "cost_center"])
 			else:
 				if frappe.db.get_value("Item", item.item_code, "is_fixed_asset"):
-					expense = get_asset_category_accountt('fixed_asset_account', item=item.item_code,
+					expense = get_asset_category_account('fixed_asset_account', item=item.item_code,
 																  company=self.company)
+					# frappe.throw(str(expense))
 			# frappe.throw(str(expense))
 			budget_cost_center = budget_account = ""
 			bud_acc_dtl = frappe.get_doc("Account", expense)
@@ -995,7 +1000,7 @@ class PurchaseInvoice(BuyingController):
 		if self.docstatus == 1:
 			if not gl_entries:
 				gl_entries = self.get_gl_entries()
-			
+			# frappe.throw(frappe.as_json(gl_entries))
 			if gl_entries:
 				make_gl_entries(
 					gl_entries,
@@ -1162,8 +1167,8 @@ class PurchaseInvoice(BuyingController):
 						"party": self.supplier,
 						"due_date": self.due_date,
 						"against": self.against_expense_account,
-						"credit": base_grand_total,
-						"credit_in_account_currency": base_grand_total
+						"credit": self.base_total,
+						"credit_in_account_currency": self.base_total
 						if self.party_account_currency == self.company_currency
 						else grand_total,
 						"against_voucher": against_voucher,
