@@ -25,6 +25,7 @@
   "beneficiary_bank_name",
   "beneficiary_bank_swift_code",
   "beneficiary_address",
+  "amount_currency",
   "amount_in_usd",
   "intermediary_bank_name",
   "intermediary_bank_swift_code",
@@ -259,12 +260,18 @@
    "fieldname": "workflow_state",
    "fieldtype": "Data",
    "label": "workflow_tate"
+  },
+  {
+   "fieldname": "amount_currency",
+   "fieldtype": "Link",
+   "label": "Amount Currency",
+   "options": "Currency"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-03 14:30:21.262467",
+ "modified": "2025-12-03 14:45:08.985610",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "SWIFT Payment Instruction",
