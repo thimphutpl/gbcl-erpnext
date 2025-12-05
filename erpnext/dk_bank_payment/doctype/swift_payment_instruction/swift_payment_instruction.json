@@ -245,8 +245,9 @@
   },
   {
    "fieldname": "whom_to_mail",
-   "fieldtype": "Data",
-   "label": "Whom to mail"
+   "fieldtype": "Link",
+   "label": "Whom to mail",
+   "options": "Swift Payment Email"
   },
   {
    "fieldname": "section_break_ulrb",
@@ -271,7 +272,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-03 14:45:08.985610",
+ "modified": "2025-12-05 11:33:34.236968",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "SWIFT Payment Instruction",
