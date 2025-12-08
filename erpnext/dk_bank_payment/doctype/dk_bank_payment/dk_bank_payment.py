@@ -44,6 +44,20 @@ class DKBankPayment(Document):
 		txn_status_code: DF.Data | None
 		txn_status_description: DF.Data | None
 	# end: auto-generated types
+
+	def validate(self):
+		self.check_duplicate()
+
+	def check_duplicate(self):
+		duplicate = frappe.db.exists(
+			"DK Bank Payment",
+			{
+				"transaction_no": self.transaction_no,
+				"workflow_state": ["!=", "Failed"]
+			}
+			)
+		if duplicate:
+			frappe.throw("DK Bank Payment already exist for transaction {}".format(self.transaction_no))
 	def on_submit(self):
 		self.account_enquire()
 		self.process_transaction()
@@ -64,6 +78,11 @@ class DKBankPayment(Document):
 		if response['response_code'] == '0000':
 			if response['response_data']['status']['status_code'] == '0':
 				self.db_set("workflow_state", 'Completed')
+			else:
+				self.db_set("workflow_state", 'Failed')
+
+		else:
+			self.db_set("workflow_state", 'Failed')
 		# self.db_set("transaction_no", response["response_data"]["txn_id"])
 		# self.db_set("transaction_status_request_id", response["response_data"]["txn_status_id"])
 		self.db_set("response_details", response["response_data"]["status"]["status_code"])
@@ -71,7 +90,8 @@ class DKBankPayment(Document):
 		self.db_set("in_queue",response["response_data"]["in_queue"])
 		self.db_set("is_txn_processed",response["response_data"]["status"]["is_txn_processed"])
 		self.db_set("posting_status_code",response["response_data"]["status"]["status_code"])
-		self.db_set("txn_authcode",response["response_data"]["status"]["txn_auth_code"])
+		if "txn_auth_code" in response.get("response_data", {}).get("status", {}):
+			self.db_set("txn_authcode", response["response_data"]["status"]["txn_auth_code"])
 		self.db_set("txn_drn",response["response_data"]["status"]["txn_drn"])
 		self.db_set("txn_status_code",response["response_data"]["status"]["status_code"])
 		self.db_set("txn_status_description",response["response_data"]['status']['status_description'])
