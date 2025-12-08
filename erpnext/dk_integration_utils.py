@@ -234,7 +234,7 @@ def generate_dk_signature_transaction(private_key,doc):
         "beneficiary_acc": beneficiary_acc,
         "beneficiary_name": beneficiary_name,
         "beneficiary_bname": beneficiary_bank,
-        "beneficiary_bcode": "1060",
+        "beneficiary_bcode": bank_code,
         "txn_description": description,
         "txn_purpose": "",
         "source": {

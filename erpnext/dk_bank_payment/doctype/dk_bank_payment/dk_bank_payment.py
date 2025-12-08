@@ -4,7 +4,7 @@
 import frappe
 import json
 from frappe.model.document import Document
-from erpnext.dk_integration_utils import intrabank_transfer,check_status_transaction
+from erpnext.dk_integration_utils import intrabank_transfer,check_status_transaction,account_inquiry
 from frappe.utils import (
 	flt,
 	
@@ -45,9 +45,16 @@ class DKBankPayment(Document):
 		txn_status_description: DF.Data | None
 	# end: auto-generated types
 	def on_submit(self):
+		self.account_enquire()
 		self.process_transaction()
 		
-		
+	def account_enquire(self):
+		result = account_inquiry(self.bank_account_no)
+		# frappe.throw(str(result))
+		self.inquiry_id = result['response_data']['meta_info']['inquiry_id']
+		self.bank_balance = result['response_data']['balance_info']['btn_available_balance']
+		self.save()
+
 	def process_transaction(self):
 		response = intrabank_transfer(self)
 		# frappe.throw(str(response))
@@ -58,7 +65,7 @@ class DKBankPayment(Document):
 			if response['response_data']['status']['status_code'] == '0':
 				self.db_set("workflow_state", 'Completed')
 		# self.db_set("transaction_no", response["response_data"]["txn_id"])
-		self.db_set("transaction_status_request_id", response["response_data"]["txn_status_id"])
+		# self.db_set("transaction_status_request_id", response["response_data"]["txn_status_id"])
 		self.db_set("response_details", response["response_data"]["status"]["status_code"])
 
 		self.db_set("in_queue",response["response_data"]["in_queue"])
