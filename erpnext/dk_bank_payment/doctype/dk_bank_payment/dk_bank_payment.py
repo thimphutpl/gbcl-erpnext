@@ -53,6 +53,7 @@ class DKBankPayment(Document):
 			"DK Bank Payment",
 			{
 				"transaction_no": self.transaction_no,
+				"name":["!=",self.name],
 				"workflow_state": ["!=", "Failed"]
 			}
 			)
