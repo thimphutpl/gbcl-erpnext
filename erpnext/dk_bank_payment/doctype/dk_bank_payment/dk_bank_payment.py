@@ -47,6 +47,7 @@ class DKBankPayment(Document):
 
 	def validate(self):
 		self.check_duplicate()
+		self.send_notification()
 
 	def check_duplicate(self):
 		duplicate = frappe.db.exists(
@@ -62,6 +63,51 @@ class DKBankPayment(Document):
 	def on_submit(self):
 		self.account_enquire()
 		self.process_transaction()
+
+	def send_notification(self):
+		state = self.workflow_state
+
+		if state == "Waiting for Verification":
+			send_to = frappe.db.get_value(
+				"Company Notification Settings",
+				{"name": self.company},
+				"verifier_email"
+			)
+
+			if not send_to:
+				frappe.throw("Verifier email is not configured in Company Notification Settings")
+
+			frappe.sendmail(
+				recipients=[send_to],
+				subject="DK Bank Payment Verification Needed",
+				message=f"""
+					Dear Sir/Madam,<br><br>
+					You have a new DK Bank Payment <b>Pending Verification</b> with document no <b>{self.name}</b>.<br><br>
+					Regards,<br>
+					DK/GMC ERP System
+				""",
+			)
+
+		elif state == "Waiting Approval":
+			send_to = frappe.db.get_value(
+				"Company Notification Settings",
+				{"name": self.company},
+				"approver_email"
+			)
+
+			if not send_to:
+				frappe.throw("Approver email is not configured in Company Notification Settings")
+
+			frappe.sendmail(
+				recipients=[send_to],
+				subject="DK Bank Payment Approval Needed",
+				message=f"""
+					Dear Sir/Madam,<br><br>
+					You have a new DK Bank Payment <b>Pending Approval</b> with document no <b>{self.name}</b>.<br><br>
+					Regards,<br>
+					DK/GMC ERP System
+				""",
+			)
 		
 	def account_enquire(self):
 		result = account_inquiry(self.bank_account_no)

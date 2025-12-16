@@ -19,6 +19,7 @@ class SWIFTPaymentInstruction(Document):
 		account_number: DF.Data | None
 		account_source: DF.Data | None
 		amended_from: DF.Link | None
+		amount_currency: DF.Link | None
 		amount_in_usd: DF.Data | None
 		amount_in_word: DF.Data | None
 		bank_application_remittance_reference_number: DF.Data | None
@@ -29,7 +30,7 @@ class SWIFTPaymentInstruction(Document):
 		beneficiary_bank_swift_code: DF.Data | None
 		beneficiary_name: DF.Data | None
 		btfn_application_reference_number: DF.Data | None
-		charges_currency: DF.Literal["USD", "BTN"]
+		charges_currency: DF.Literal["USD", "BTN", "SDG"]
 		charges_to_debited_from: DF.Literal["Our", "Beneficiary", "Share"]
 		commission_debit_account_number: DF.Data | None
 		company: DF.Data | None
@@ -49,11 +50,61 @@ class SWIFTPaymentInstruction(Document):
 		transaction_id: DF.DynamicLink | None
 		transaction_type: DF.Literal["", "Journal Entry", "Payment Entry"]
 		type_of_payment: DF.Literal["Advance Payment", "Partial Payment", "Final Payment"]
-		whom_to_mail: DF.Data | None
+		whom_to_mail: DF.Link | None
 		workflow_state: DF.Data | None
 	# end: auto-generated types
+	def validate(self):
+		self.send_notification()
 	def on_submit(self):
 		self.send_pdf_mail(self.name,self.doctype,self.whom_to_mail,"SWIFT Payment Instruction")
+
+	def send_notification(self):
+		state = self.workflow_state
+
+		if state == "Waiting for Verification":
+			send_to = frappe.db.get_value(
+				"Company Notification Settings",
+				{"name": self.company},
+				"sp_verifier_email"
+			)
+
+			if not send_to:
+				frappe.throw("Verifier email is not configured in Company Notification Settings")
+
+			frappe.sendmail(
+				recipients=[send_to],
+				subject="Swift Payment Instruction Verification Needed",
+				message=f"""
+					Dear Sir/Madam,<br><br>
+					You have a new Swift Payment Instruction <b>Pending Verification</b> with document no <b>{self.name}</b>.<br><br>
+					Regards,<br>
+					DK/GMC ERP System
+				""",
+			)
+
+		elif state == "Waiting Approval":
+			send_to = frappe.db.get_value(
+				"Company Notification Settings",
+				{"name": self.company},
+				"sp_approver_email"
+			)
+
+			if not send_to:
+				frappe.throw("Approver email is not configured in Company Notification Settings")
+
+			frappe.sendmail(
+				recipients=[send_to],
+				subject="Swift Payment Instruction Approval Needed",
+				message=f"""
+					Dear Sir/Madam,<br><br>
+					You have a new Swift Payment Instruction <b>Pending Approval</b> with document no <b>{self.name}</b>.<br><br>
+					Regards,<br>
+					DK/GMC ERP System
+				""",
+			)
+
+
+
 
 	def send_pdf_mail(self,docname, doctype, recipient_email, print_format):
     # Get the document
@@ -72,7 +123,7 @@ class SWIFTPaymentInstruction(Document):
 			message=f"""
 				Dear Customer,<br><br>
 				Please find attached the {doctype.lower()} document: <b>{docname}</b>.<br><br>
-				Regards,<br>Your Company
+				Regards,<br>GMC ERP
 			""",
 			attachments=[{
 				"fname": filename,
