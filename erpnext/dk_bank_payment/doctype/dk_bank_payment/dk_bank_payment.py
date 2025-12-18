@@ -183,7 +183,8 @@ class DKBankPayment(Document):
 		total_amount = 0
 		self.set("transaction", [])
 		for i in self.get_transactions():
-			# frappe.throw(str(i))
+			if not i.beneficiary_name:
+				frappe.throw("Please update beneficiary name in the supplier or employee")
 			import re
 
 			beneficiary_name = re.sub("[^A-Za-z0-9 ]+", "", i.beneficiary_name)
