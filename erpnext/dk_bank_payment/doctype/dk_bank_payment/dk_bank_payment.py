@@ -121,13 +121,13 @@ class DKBankPayment(Document):
 		# frappe.throw(str(response))
 		if response['response_code'] == '4310':
 			frappe.throw(response)
-		# frappe.throw(str(response))
 		if response['response_code'] == '0000':
 			if response['response_data']['status']['status_code'] == '0':
 				self.db_set("workflow_state", 'Completed')
 			else:
 				self.db_set("workflow_state", 'Failed')
-
+		if	response['response_code'] == '2004':
+			frappe.throw(str(response))
 		else:
 			self.db_set("workflow_state", 'Failed')
 		# self.db_set("transaction_no", response["response_data"]["txn_id"])
