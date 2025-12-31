@@ -265,8 +265,11 @@ frappe.ui.form.on("Visitor Pass Registry Item", {
 
 	calculate: function (frm, cdt, cdn) {
         let row = frappe.get_doc(cdt, cdn);
+
+		initial_amount = flt(row.qty) * flt(row.ticket_price)
 		
-        frappe.model.set_value(cdt, cdn, "amount", flt(row.qty) * flt(row.ticket_price));
+        frappe.model.set_value(cdt, cdn, "initial_amount", initial_amount);
+		frappe.model.set_value(cdt, cdn, "amount", flt(initial_amount)+(flt(initial_amount) * 0.05));
     },
 });
 
@@ -286,6 +289,9 @@ frappe.ui.form.on("Visitor Pass Other Charges", {
 	calculate: function (frm, cdt, cdn) {
         let row = frappe.get_doc(cdt, cdn);
 		
-        frappe.model.set_value(cdt, cdn, "amount", flt(row.qty) * flt(row.rate));
+        // frappe.model.set_value(cdt, cdn, "amount", flt(row.qty) * flt(row.rate));
+		initial_amount = flt(row.qty) * flt(row.rate)
+		frappe.model.set_value(cdt, cdn, "initial_amount", initial_amount);
+		frappe.model.set_value(cdt, cdn, "amount", flt(initial_amount)+(flt(initial_amount) * 0.05));
     },
 });

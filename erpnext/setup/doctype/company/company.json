@@ -106,6 +106,10 @@
   "depreciation_cost_center",
   "capital_work_in_progress_account",
   "asset_received_but_not_billed",
+  "gst_section",
+  "gst_inward_account",
+  "column_break_rroo",
+  "gst_outward_account",
   "buying_and_selling_tab",
   "sales_settings",
   "default_buying_terms",
@@ -1021,6 +1025,27 @@
    "fieldtype": "Link",
    "label": "POL Advance Account",
    "options": "Account"
+  },
+  {
+   "fieldname": "gst_section",
+   "fieldtype": "Section Break",
+   "label": "GST"
+  },
+  {
+   "fieldname": "gst_inward_account",
+   "fieldtype": "Link",
+   "label": "GST Inward Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_rroo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gst_outward_account",
+   "fieldtype": "Link",
+   "label": "GST Outward Account",
+   "options": "Account"
   }
  ],
  "icon": "fa fa-building",
@@ -1028,7 +1053,7 @@
  "image_field": "company_logo",
  "is_tree": 1,
  "links": [],
- "modified": "2025-03-12 15:03:50.434225",
+ "modified": "2025-12-31 18:40:39.851882",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Company",

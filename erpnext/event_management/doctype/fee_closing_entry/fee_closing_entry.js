@@ -47,12 +47,16 @@ function reset_values(frm) {
 	frm.set_value("references", []);
 	frm.set_value("payments", []);
 	frm.set_value("grand_total", 0);
+	frm.set_value("total_gst_amount", 0);
 }
 
 function set_form_data(data, frm) {
+	console.log(data)
 	data.forEach((d) => {
+		console.log(d)
 		add_reference_docs(d, frm);
 		frm.doc.grand_total += flt(d.grand_total);
+		frm.doc.total_gst_amount += flt(d.gst_amount);
 		refresh_payments(d, frm, true);
 	});
 }
@@ -62,11 +66,14 @@ function add_reference_docs(d, frm) {
 		reference_name: d.name,
 		posting_date: d.posting_date,
 		grand_total: d.grand_total,
+		gst_amount: d.gst_amount
 	});
 }
 
 function refresh_payments(d, frm, is_new) {
+	
 	d.transaction_details.forEach((p) => {
+		console.log(p)
 		const payment = frm.doc.payments.find(
 			(pay) => pay.mode_of_payment === p.mode_of_payment
 		);
@@ -85,4 +92,6 @@ function refresh_fields(frm) {
 	frm.refresh_field("references");
 	frm.refresh_field("payments");
 	frm.refresh_field("grand_total");
+	frm.refresh_field("gst_amount");
+	frm.refresh_field("total_gst_amount");
 }

@@ -89,6 +89,8 @@ class Company(NestedSet):
 		expenses_included_in_valuation: DF.Link | None
 		fax: DF.Data | None
 		fitness_expense_account: DF.Link | None
+		gst_inward_account: DF.Link | None
+		gst_outward_account: DF.Link | None
 		hirecharge_income_account: DF.Link | None
 		insurance_claim_expense_account: DF.Link | None
 		insurance_expense_account: DF.Link | None

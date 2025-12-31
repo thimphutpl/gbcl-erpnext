@@ -11,6 +11,7 @@
   "column_break_fthf",
   "posting_date",
   "cashier",
+  "apply_gst",
   "section_break_jbbg",
   "items",
   "section_break_rpvq",
@@ -21,6 +22,7 @@
   "total_visitors",
   "column_break_parc",
   "total_amount",
+  "gst_amount",
   "total_csr_amount",
   "grand_total",
   "more_info_section",
@@ -198,12 +200,24 @@
    "label": "Grand Total",
    "no_copy": 1,
    "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "apply_gst",
+   "fieldtype": "Check",
+   "label": "Apply GST"
+  },
+  {
+   "fieldname": "gst_amount",
+   "fieldtype": "Currency",
+   "label": "GST Amount",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-01 12:06:35.909344",
+ "modified": "2025-12-31 23:12:43.198995",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Visitor Pass Registry",

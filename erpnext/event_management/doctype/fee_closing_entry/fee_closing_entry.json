@@ -18,6 +18,7 @@
   "section_break_azga",
   "grand_total",
   "column_break_ttsf",
+  "total_gst_amount",
   "more_info_section",
   "column_break_vrnh",
   "status",
@@ -152,12 +153,17 @@
    "fieldname": "journal_entry",
    "fieldtype": "Data",
    "label": "Journal Entry"
+  },
+  {
+   "fieldname": "total_gst_amount",
+   "fieldtype": "Currency",
+   "label": "Total GST Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-16 10:34:14.296529",
+ "modified": "2025-12-31 18:21:32.817406",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Fee Closing Entry",

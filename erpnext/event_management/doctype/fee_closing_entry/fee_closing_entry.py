@@ -31,6 +31,7 @@ class FeeClosingEntry(Document):
 		posting_date: DF.Date
 		references: DF.Table[EntryFeeReference]
 		status: DF.Literal["Draft", "Open", "Submitted", "Cancelled"]
+		total_gst_amount: DF.Currency
 	# end: auto-generated types
 	
 	def validate(self):
@@ -130,6 +131,7 @@ class FeeClosingEntry(Document):
 
 		# Posting Journal Entry
 		accounts = []
+		
 		for d in self.get("payments"):
 			account = get_bank_cash_account(d.mode_of_payment, self.branch)
 			accounts.append({
@@ -139,12 +141,26 @@ class FeeClosingEntry(Document):
 				"reference_type": self.doctype,
 				"reference_name": self.name,
 			})
+		
+		net_income = flt(self.grand_total) - flt(self.total_gst_amount)
 
 		accounts.append({
 			"account": income_account,
-			"credit_in_account_currency": flt(self.grand_total),
+			"credit_in_account_currency": net_income,
 			"cost_center": self.cost_center,
 		})
+		
+		if flt(self.total_gst_amount) > 0:
+			tax_acc = frappe.get_value("Company",self.company,'gst_outward_account')
+			accounts.append({
+			"account": tax_acc,
+			"credit_in_account_currency": flt(self.total_gst_amount),
+			"cost_center": self.cost_center,
+		})
+
+		# frappe.throw(frappe.as_json(accounts))
+
+		
 
 		je = frappe.new_doc("Journal Entry")
 		
@@ -162,6 +178,8 @@ class FeeClosingEntry(Document):
 				"accounts": accounts,
 				"branch": self.branch
 		})
+
+		# frappe.throw(frappe.as_json(je))
 
 		je.save(ignore_permissions = True)
 		je.submit()

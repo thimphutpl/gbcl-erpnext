@@ -11,13 +11,16 @@
   "ticket_price",
   "column_break_qmbj",
   "qty",
+  "column_break_lzbt",
+  "initial_amount",
   "column_break_syko",
   "amount",
   "column_break_vkcl",
   "mode_of_payment",
+  "section_break_pshw",
   "column_break_tlli",
   "journal_no",
-  "section_break_pshw",
+  "column_break_aswy",
   "remarks"
  ],
  "fields": [
@@ -26,7 +29,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "columns": 2,
+   "columns": 1,
    "fetch_from": "ticket_type.ticket_price",
    "fieldname": "ticket_price",
    "fieldtype": "Currency",
@@ -52,11 +55,11 @@
    "fieldtype": "Column Break"
   },
   {
-   "columns": 2,
+   "columns": 1,
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Amount",
+   "label": "Total Amount",
    "read_only": 1
   },
   {
@@ -86,7 +89,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "columns": 1,
+   "columns": 2,
    "fieldname": "journal_no",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -100,12 +103,28 @@
    "label": "Ticket Type",
    "options": "Ticket Type",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_lzbt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "initial_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_aswy",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-03-23 20:06:36.118700",
+ "modified": "2025-12-31 23:27:03.635798",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Visitor Pass Registry Item",

@@ -36,11 +36,13 @@ class VisitorPassRegistry(Document):
 		from frappe.types import DF
 
 		amended_from: DF.Link | None
+		apply_gst: DF.Check
 		branch: DF.Link
 		cashier: DF.Link
 		company: DF.Link | None
 		cost_center: DF.Link | None
 		grand_total: DF.Currency
+		gst_amount: DF.Currency
 		items: DF.Table[VisitorPassRegistryItem]
 		journal_entry: DF.Data | None
 		location: DF.Link
@@ -83,20 +85,35 @@ class VisitorPassRegistry(Document):
 			self.db_set("status", self.status, update_modified=update_modified)
 
 	def validate_amount(self):
-		total_amount, total_visitor = 0.0, 0
+		total_amount, total_visitor,total_initial_amount,oc_inital = 0.0, 0,0,0
 		for d in self.items:
-			d.amount = flt(d.qty) * flt(d.ticket_price)
+			initial_amount = flt(d.qty) * flt(d.ticket_price)
+			d.initial_amount = initial_amount
+			if self.apply_gst:
+				d.amount = initial_amount + flt(initial_amount)* 0.05
+			else:
+				d.amount = initial_amount
 			total_amount += flt(d.amount)
 			total_visitor += flt(d.qty)
+			total_initial_amount += d.initial_amount
 		self.total_visitors = total_visitor
-		self.total_amount = flt(total_amount)
+		self.total_amount = flt(total_initial_amount)
 
 		oc_total = 0.0
 		for oc in self.other_charges:
 			oc_total += flt(oc.amount)
-		self.total_amount += flt(oc_total)
+			oc_inital += flt(oc.initial_amount)
+		self.total_amount += flt(oc_inital)
 
-		self.grand_total = flt(self.total_amount)
+		self.grand_total = flt(total_amount)+flt(oc_total)
+		self.gst_amount = flt(self.grand_total)- flt(self.total_amount)
+
+		# if self.apply_gst:
+		# 	self.gst_amount = flt(self.grand_total) * 0.05
+		# 	self.grand_total += flt(self.gst_amount) 
+		# if not self.apply_gst:
+		# 	self.grand_total = flt(self.grand_total) - flt(self.gst_amount)
+		# 	self.gst_amount = 0
 
 	def validate_transaction_details(self):
 		payments = []
@@ -109,7 +126,7 @@ class VisitorPassRegistry(Document):
 					frappe._dict(
 						{
 							"mode_of_payment": d.mode_of_payment,
-							"amount": d.amount,
+							"amount": flt(d.amount),
 						}
 					)
 				)
@@ -127,7 +144,9 @@ class VisitorPassRegistry(Document):
 						}
 					)
 				)
-
+		# for i in payments:
+		# 	i.amount = flt(i.amount) + (flt(i.amount)*0.05)
+		# frappe.throw(str(payments))
 		self.set("transaction_details", payments)
 
 	# @frappe.whitelist()

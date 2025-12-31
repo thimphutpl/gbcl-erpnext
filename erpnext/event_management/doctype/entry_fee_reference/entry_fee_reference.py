@@ -15,6 +15,7 @@ class EntryFeeReference(Document):
 		from frappe.types import DF
 
 		grand_total: DF.Currency
+		gst_amount: DF.Currency
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
