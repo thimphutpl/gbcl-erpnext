@@ -15,7 +15,6 @@ class VisitorPassRegistryItem(Document):
 		from frappe.types import DF
 
 		amount: DF.Currency
-		initial_amount: DF.Currency
 		journal_no: DF.Data | None
 		mode_of_payment: DF.Link
 		parent: DF.Data

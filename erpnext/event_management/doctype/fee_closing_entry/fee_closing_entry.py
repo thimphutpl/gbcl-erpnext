@@ -142,21 +142,21 @@ class FeeClosingEntry(Document):
 				"reference_name": self.name,
 			})
 		
-		net_income = flt(self.grand_total) - flt(self.total_gst_amount)
+		# net_income = flt(self.grand_total) - flt(self.total_gst_amount)
 
 		accounts.append({
 			"account": income_account,
-			"credit_in_account_currency": net_income,
+			"credit_in_account_currency": flt(self.grand_total),
 			"cost_center": self.cost_center,
 		})
 		
-		if flt(self.total_gst_amount) > 0:
-			tax_acc = frappe.get_value("Company",self.company,'gst_outward_account')
-			accounts.append({
-			"account": tax_acc,
-			"credit_in_account_currency": flt(self.total_gst_amount),
-			"cost_center": self.cost_center,
-		})
+		# if flt(self.total_gst_amount) > 0:
+		# 	tax_acc = frappe.get_value("Company",self.company,'gst_outward_account')
+		# 	accounts.append({
+		# 	"account": tax_acc,
+		# 	"credit_in_account_currency": flt(self.total_gst_amount),
+		# 	"cost_center": self.cost_center,
+		# })
 
 		# frappe.throw(frappe.as_json(accounts))
 

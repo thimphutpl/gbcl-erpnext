@@ -85,28 +85,22 @@ class VisitorPassRegistry(Document):
 			self.db_set("status", self.status, update_modified=update_modified)
 
 	def validate_amount(self):
-		total_amount, total_visitor,total_initial_amount,oc_inital = 0.0, 0,0,0
+		total_amount, total_visitor = 0.0, 0
 		for d in self.items:
-			initial_amount = flt(d.qty) * flt(d.ticket_price)
-			d.initial_amount = initial_amount
-			if self.apply_gst:
-				d.amount = initial_amount + flt(initial_amount)* 0.05
-			else:
-				d.amount = initial_amount
+			d.amount = flt(d.qty) * flt(d.ticket_price)
 			total_amount += flt(d.amount)
 			total_visitor += flt(d.qty)
-			total_initial_amount += d.initial_amount
 		self.total_visitors = total_visitor
-		self.total_amount = flt(total_initial_amount)
+		self.total_amount = flt(total_amount)
 
 		oc_total = 0.0
 		for oc in self.other_charges:
 			oc_total += flt(oc.amount)
-			oc_inital += flt(oc.initial_amount)
-		self.total_amount += flt(oc_inital)
+			# oc_inital += flt(oc.initial_amount)
+		self.total_amount += flt(oc_total)
 
 		self.grand_total = flt(total_amount)+flt(oc_total)
-		self.gst_amount = flt(self.grand_total)- flt(self.total_amount)
+		# self.gst_amount = flt(self.grand_total)- flt(self.total_amount)
 
 		# if self.apply_gst:
 		# 	self.gst_amount = flt(self.grand_total) * 0.05

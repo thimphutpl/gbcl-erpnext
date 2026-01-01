@@ -16,7 +16,6 @@ class VisitorPassOtherCharges(Document):
 
 		amount: DF.Currency
 		fee_type: DF.Link
-		initial_amount: DF.Currency
 		journal_no: DF.Data | None
 		mode_of_payment: DF.Link
 		parent: DF.Data
