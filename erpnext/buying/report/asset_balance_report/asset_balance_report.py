@@ -147,7 +147,10 @@ def get_data(filters):
 					FROM `tabAsset Issue Details` ai
 					WHERE ai.item_code = ar.item_code
 					AND ai.issued_date BETWEEN  %(from_date)s AND %(to_date)s 
-					AND ai.purchase_receipt = ar.ref_doc
+					AND (
+						ar.existing_asset = 1 
+						OR ai.purchase_receipt = ar.ref_doc
+					)
 					AND ai.docstatus = 1
 					),0) issued_qty
 			FROM `tabAsset Received Entries` ar

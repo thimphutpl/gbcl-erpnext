@@ -67,12 +67,23 @@ class AssetIssueDetails(Document):
         #         frappe.throw("You cannot cancel the document before cancelling asset with code {0}".format(self.reference_code))    
     
     def check_qty_balance(self):
-        total_qty = frappe.db.sql("""select sum(ifnull(qty,0)) total_qty 
+        total_qty1 = frappe.db.sql("""select sum(ifnull(qty,0)) total_qty 
                                   from `tabAsset Received Entries`
                                   where item_code="{}"
                                   and ref_doc = "{}"
+                                  and company="{}"
                                   and docstatus = 1
-                        """.format(self.item_code, self.purchase_receipt))[0][0]
+                        """.format(self.item_code, self.purchase_receipt,self.company))[0][0]
+        total_qty2 = frappe.db.sql("""select sum(ifnull(qty,0)) total_qty 
+                                  from `tabAsset Received Entries`
+                                  where item_code="{}"
+                                  and existing_asset = 1
+                                  and company="{}"
+                                  and docstatus = 1
+                        """.format(self.item_code,self.company))[0][0]
+        # frappe.throw(str(total_qty2))
+        total_qty = flt(total_qty1)+flt(total_qty2)
+        
         issued_qty = frappe.db.sql("""select sum(ifnull(qty,0)) issued_qty
                                    from `tabAsset Issue Details` 
                                    where item_code ='{}'
@@ -80,7 +91,8 @@ class AssetIssueDetails(Document):
                                    and purchase_receipt = '{}'
                                    and docstatus = 1 
                                    and name != '{}'
-                        """.format(self.item_code, self.branch, self.purchase_receipt, self.name))[0][0]
+                                   and company="{}"
+                        """.format(self.item_code, self.branch, self.purchase_receipt, self.name,self.company))[0][0]
         
         balance_qty = flt(total_qty) - flt(issued_qty)
         if flt(self.qty) > flt(balance_qty):

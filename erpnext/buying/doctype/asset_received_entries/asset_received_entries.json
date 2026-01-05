@@ -8,6 +8,7 @@
  "field_order": [
   "branch",
   "cost_center",
+  "existing_asset",
   "ref_doc",
   "item_code",
   "qty",
@@ -57,8 +58,8 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Reference Document",
-   "options": "Purchase Receipt",
-   "reqd": 1
+   "mandatory_depends_on": "eval: doc.existing_asset === 0",
+   "options": "Purchase Receipt"
   },
   {
    "fieldname": "branch",
@@ -67,6 +68,7 @@
    "options": "Branch"
   },
   {
+   "fetch_from": "item_code.item_name",
    "fieldname": "item_name",
    "fieldtype": "Data",
    "label": "Item Name"
@@ -105,12 +107,19 @@
    "fieldtype": "Link",
    "label": "Warehouse",
    "options": "Warehouse"
+  },
+  {
+   "default": "0",
+   "fieldname": "existing_asset",
+   "fieldtype": "Check",
+   "label": "Existing Asset",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-11-20 20:50:33.962627",
+ "modified": "2026-01-06 01:46:38.523917",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Asset Received Entries",
