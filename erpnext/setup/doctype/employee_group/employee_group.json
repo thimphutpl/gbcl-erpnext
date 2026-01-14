@@ -6,67 +6,212 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "employee_group_name",
-  "employee_pf",
-  "employer_pf",
-  "column_break_kxht",
-  "health_contribution",
-  "section_break_00",
-  "employee_list",
-  "annual_increment_settings_section",
-  "minimum_months"
- ],
- "fields": [
-  {
-   "fieldname": "employee_group_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Name",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
-   "fieldname": "section_break_00",
-   "fieldtype": "Section Break",
-   "label": "Employee"
-  },
-  {
-   "fieldname": "employee_list",
-   "fieldtype": "Table",
-   "label": "Employee",
-   "options": "Employee Group Table"
-  },
-  {
-   "fieldname": "column_break_kxht",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "health_contribution",
-   "fieldtype": "Currency",
-   "label": "Health Contribution (%)"
-  },
-  {
-   "fieldname": "employee_pf",
-   "fieldtype": "Percent",
-   "label": "Employee PF Contribution (%)"
-  },
-  {
-   "fieldname": "employer_pf",
-   "fieldtype": "Percent",
-   "label": "Employer PF Contribution (%)"
-  },
-  {
-   "fieldname": "annual_increment_settings_section",
-   "fieldtype": "Section Break",
-   "label": "ANNUAL INCREMENT SETTINGS"
-  },
-  {
-   "fieldname": "minimum_months",
-   "fieldtype": "Float",
-   "label": "Minimum No. of Months in Service Required For Full Increment",
-   "precision": "2"
-  }
- ],
+    "employee_group",
+    "retirement_age",
+    "sb_settings",
+    "employee_pf",
+    "employer_pf",
+    "column_break_25",
+    "health_contribution",
+    "sb_salary_advance",
+    "salary_advance_type",
+    "salary_advance_max_months",
+    "column_break_28",
+    "salary_advance_limit",
+    "festival_advance_setting_section",
+    "festival_advance_type",
+    "festival_advance_max_months",
+    "column_break_15",
+    "festival_advance_limit",
+    "sb_increment_settings",
+    "minimum_months",
+    "increment_prorated",
+    "sb_leave_encashment",
+    "encashment_days",
+    "encashment_min",
+    "encashment_lapse",
+    "column_break_23",
+    "leave_encashment_type",
+    "leave_encashment_amount",
+    "leave_encashment_months",
+    "sb_leavecredits",
+    "items"
+   ],
+   "fields": [
+    {
+     "fieldname": "employee_group",
+     "fieldtype": "Data",
+     "label": "Employee Group",
+     "reqd": 1,
+     "unique": 1
+    },
+    {
+     "fieldname": "retirement_age",
+     "fieldtype": "Data",
+     "in_list_view": 1,
+     "label": "Retirement Age",
+     "reqd": 1
+    },
+    {
+     "fieldname": "sb_settings",
+     "fieldtype": "Section Break",
+     "label": "PAYROLL SETTINGS"
+    },
+    {
+     "fieldname": "health_contribution",
+     "fieldtype": "Percent",
+     "label": "Health Contribution ( % )",
+     "reqd": 1
+    },
+    {
+     "fieldname": "employee_pf",
+     "fieldtype": "Percent",
+     "label": "Employee PF Contribution ( % )",
+     "reqd": 1
+    },
+    {
+     "fieldname": "employer_pf",
+     "fieldtype": "Percent",
+     "label": "Employer PF Contribution ( % )",
+     "reqd": 1
+    },
+    {
+     "fieldname": "encashment_days",
+     "fieldtype": "Float",
+     "label": "No.of Days Entitled For Encashment",
+     "precision": "2"
+    },
+    {
+     "fieldname": "encashment_min",
+     "fieldtype": "Float",
+     "label": "Minimum Balance Required For Encashment",
+     "precision": "2"
+    },
+    {
+     "description": "* Employee shall not be able to recover once lapsed",
+     "fieldname": "encashment_lapse",
+     "fieldtype": "Float",
+     "label": "Maximum Balance Limit",
+     "precision": "2"
+    },
+    {
+     "fieldname": "minimum_months",
+     "fieldtype": "Float",
+     "label": "Minimum No.of Months In Service Required For Full Increment",
+     "precision": "2"
+    },
+    {
+     "default": "1",
+     "description": "* Increment amount shall be pro-rated based on no.of months in service",
+     "fieldname": "increment_prorated",
+     "fieldtype": "Check",
+     "label": "Is Prorated?"
+    },
+    {
+     "fieldname": "sb_leavecredits",
+     "fieldtype": "Section Break",
+     "label": "LEAVE CREDITS"
+    },
+    {
+     "description": "* Leave credits defined here shall be auto-allocated Monthly AND Yearly for all the employees belonging to this group.",
+     "fieldname": "items",
+     "fieldtype": "Table",
+     "label": "Leave Credits",
+     "options": "Employee Group Item"
+    },
+    {
+     "fieldname": "salary_advance_type",
+     "fieldtype": "Select",
+     "label": "Salary Advance Type",
+     "options": "\nFlat Amount\nBasic Pay"
+    },
+    {
+     "fieldname": "sb_leave_encashment",
+     "fieldtype": "Section Break",
+     "label": "LEAVE ENCASHMENT SETTINGS"
+    },
+    {
+     "fieldname": "column_break_23",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "leave_encashment_type",
+     "fieldtype": "Select",
+     "label": "Leave Encashment Type",
+     "options": "\nFlat Amount\nBasic Pay\nGross Pay"
+    },
+    {
+     "depends_on": "eval:doc.leave_encashment_type && doc.leave_encashment_type == \"Flat Amount\"",
+     "fieldname": "leave_encashment_amount",
+     "fieldtype": "Currency",
+     "label": "Entitled Amount"
+    },
+    {
+     "depends_on": "eval:doc.leave_encashment_type && doc.leave_encashment_type != \"Flat Amount\"",
+     "fieldname": "leave_encashment_months",
+     "fieldtype": "Float",
+     "label": "No.of Months Pay Entitled For Encashment",
+     "precision": "2"
+    },
+    {
+     "fieldname": "sb_increment_settings",
+     "fieldtype": "Section Break",
+     "label": "ANNUAL INCREMENT SETTINGS"
+    },
+    {
+     "fieldname": "sb_salary_advance",
+     "fieldtype": "Section Break",
+     "label": "SALARY ADVANCE SETTINGS"
+    },
+    {
+     "fieldname": "column_break_25",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "column_break_28",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "festival_advance_type",
+     "fieldtype": "Select",
+     "label": "Festival Advance Type",
+     "options": "\nGross Pay\nBasic Pay\nFlat Amount"
+    },
+    {
+     "fieldname": "festival_advance_setting_section",
+     "fieldtype": "Section Break",
+     "hidden": 1,
+     "label": "FESTIVAL ADVANCE SETTING"
+    },
+    {
+     "fieldname": "column_break_15",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "festival_advance_limit",
+     "fieldtype": "Currency",
+     "label": "Maximum Advance Amount"
+    },
+    {
+     "depends_on": "eval:doc.salary_advance_type && doc.salary_advance_type != \"Flat Amount\"",
+     "fieldname": "salary_advance_max_months",
+     "fieldtype": "Float",
+     "label": "Maximum No.of Months Allowed",
+     "precision": "2"
+    },
+    {
+     "depends_on": "eval:doc.festival_advance_type == \"Gross Pay\" || doc.festival_advance_type == \"Basic Pay\"",
+     "fieldname": "festival_advance_max_months",
+     "fieldtype": "Float",
+     "label": "Festival Advance Max Month",
+     "precision": "2"
+    },
+    {
+     "fieldname": "salary_advance_limit",
+     "fieldtype": "Currency",
+     "label": "Salary Advance Limit"
+    }
+   ],
  "links": [],
  "modified": "2025-02-03 20:01:11.730529",
  "modified_by": "Administrator",
