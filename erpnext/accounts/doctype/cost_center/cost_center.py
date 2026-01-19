@@ -60,10 +60,13 @@ class CostCenter(NestedSet):
 	def create_branch(self):
 		if cint(self.is_group) == 1 or cint(self.branch_created) == 1:
 			return
+		abbr= frappe.db.get_value("Company",{self.company},'abbr')
 		doc = frappe.new_doc("Branch")
 		doc.branch = self.cost_center_name.strip()
 		doc.cost_center = self.name
 		doc.company = self.company
+		doc.company_abbr = abbr
+		
 		doc.save()
 		self.db_set("branch_created", 1)
 

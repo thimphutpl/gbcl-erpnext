@@ -16,6 +16,7 @@ class Branch(Document):
 
 		branch: DF.Data
 		company: DF.Link
+		company_abbr: DF.Data | None
 		cost_center: DF.Link
 		disabled: DF.Check
 		expense_bank_account: DF.Link | None
