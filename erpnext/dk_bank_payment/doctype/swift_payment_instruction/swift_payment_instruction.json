@@ -233,6 +233,7 @@
    "options": "\nJournal Entry\nPayment Entry"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "transaction_id",
    "fieldtype": "Dynamic Link",
    "label": "Transaction ID",
@@ -272,7 +273,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-01-15 14:39:27.229421",
+ "modified": "2026-01-20 10:24:41.538982",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "SWIFT Payment Instruction",
