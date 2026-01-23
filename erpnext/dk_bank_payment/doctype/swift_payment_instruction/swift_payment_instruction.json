@@ -12,6 +12,7 @@
   "column_break_lave",
   "transaction_type",
   "transaction_id",
+  "purpose",
   "section_break_ulrb",
   "name1",
   "permanent_address",
@@ -269,12 +270,17 @@
    "fieldtype": "Link",
    "label": "Amount Currency",
    "options": "Currency"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Small Text",
+   "label": "Purpose"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-01-20 10:35:40.738050",
+ "modified": "2026-01-23 10:34:04.997405",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "SWIFT Payment Instruction",
