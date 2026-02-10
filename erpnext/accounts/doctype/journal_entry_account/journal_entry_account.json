@@ -104,6 +104,7 @@
    "columns": 2,
    "fieldname": "party",
    "fieldtype": "Dynamic Link",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "label": "Party",
    "options": "party_type"
@@ -368,7 +369,7 @@
  "idx": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-09-08 23:20:52.627152",
+ "modified": "2026-02-09 16:28:17.310808",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Journal Entry Account",
