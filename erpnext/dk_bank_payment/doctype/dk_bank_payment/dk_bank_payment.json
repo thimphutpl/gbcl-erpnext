@@ -10,6 +10,10 @@
   "company",
   "transaction_type",
   "transaction_no",
+  "recipient_details",
+  "invoice_number",
+  "party_type",
+  "party",
   "column_break_smlo",
   "transaction_code",
   "remarks",
@@ -244,12 +248,35 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "invoice_number",
+   "fieldtype": "Data",
+   "label": "Invoice Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "recipient_details",
+   "fieldtype": "Heading",
+   "label": "Recipient Details"
+  },
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Select",
+   "label": "Party Type",
+   "options": "Supplier\nEmployee\nCustomer"
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
+   "label": "Party",
+   "options": "party_type"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-09 01:00:44.485646",
+ "modified": "2026-01-27 12:39:07.050079",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "DK Bank Payment",
