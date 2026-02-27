@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-21 12:17:55.391245",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "beneficiary_account_no",
+  "currency_code",
+  "employee",
+  "supplier",
+  "description",
+  "column_break_ekqb",
+  "beneficiary_name",
+  "amount",
+  "bank_name",
+  "dk_bank_payment"
+ ],
+ "fields": [
+  {
+   "fieldname": "beneficiary_account_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Beneficiary Account No"
+  },
+  {
+   "default": "BTN",
+   "fieldname": "currency_code",
+   "fieldtype": "Link",
+   "label": "Currency Code",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "column_break_ekqb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "beneficiary_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Beneficiary Name"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Beneficiary Bank",
+   "options": "Bank"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "label": "Supplier",
+   "options": "Supplier",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dk_bank_payment",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "DK Bank Payment",
+   "options": "DK Bank Payment"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-25 17:53:54.153578",
+ "modified_by": "Administrator",
+ "module": "ePayment",
+ "name": "Bulk DK Bank Payment Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
