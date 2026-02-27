@@ -1,0 +1,170 @@
+{
+ "actions": [],
+ "autoname": "BDKBP-.YY.MM.DD.#####",
+ "creation": "2026-02-20 13:19:29.280351",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "transaction_type",
+  "transaction_no",
+  "column_break_pphw",
+  "posting_date",
+  "paid_from_ac_detail_section",
+  "paid_from",
+  "payer_name",
+  "inquiry_id",
+  "column_break_ialf",
+  "bank_account_no",
+  "bank_balance",
+  "acc_status_details",
+  "section_break_rgif",
+  "get_transactions",
+  "transaction",
+  "section_break_ylwk",
+  "total_amount",
+  "column_break_lozn",
+  "section_break_kumt",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_kumt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Bulk DK Bank Payment",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "column_break_pphw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_type",
+   "fieldtype": "Select",
+   "label": "Transaction Type",
+   "options": "Payroll Entry"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "paid_from_ac_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Paid From A/C Detail"
+  },
+  {
+   "fieldname": "paid_from",
+   "fieldtype": "Link",
+   "label": "Paid From Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "payer_name",
+   "fieldtype": "Data",
+   "label": "Payer Name"
+  },
+  {
+   "fieldname": "column_break_ialf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "inquiry_id",
+   "fieldtype": "Data",
+   "label": "Inquiry ID"
+  },
+  {
+   "fetch_from": "paid_from.bank_ac_no",
+   "fieldname": "bank_account_no",
+   "fieldtype": "Data",
+   "label": "Bank Account No"
+  },
+  {
+   "fieldname": "transaction_no",
+   "fieldtype": "Dynamic Link",
+   "label": "Transaction No",
+   "options": "transaction_type"
+  },
+  {
+   "fieldname": "section_break_rgif",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_ylwk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount"
+  },
+  {
+   "fieldname": "column_break_lozn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "get_transactions",
+   "fieldtype": "Button",
+   "label": "Get Transactions"
+  },
+  {
+   "fieldname": "transaction",
+   "fieldtype": "Table",
+   "options": "Bulk DK Bank Payment Item"
+  },
+  {
+   "fieldname": "bank_balance",
+   "fieldtype": "Currency",
+   "label": "Bank Balance (Nu)"
+  },
+  {
+   "fieldname": "acc_status_details",
+   "fieldtype": "Data",
+   "label": "Account Status"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-25 11:00:04.010425",
+ "modified_by": "Administrator",
+ "module": "ePayment",
+ "name": "Bulk DK Bank Payment",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
+}
