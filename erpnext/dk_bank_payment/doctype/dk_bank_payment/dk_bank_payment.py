@@ -27,8 +27,11 @@ class DKBankPayment(Document):
 		company: DF.Link | None
 		in_queue: DF.Data | None
 		inquiry_id: DF.Data | None
+		invoice_number: DF.Data | None
 		is_txn_processed: DF.Data | None
 		paid_from: DF.Link | None
+		party: DF.DynamicLink | None
+		party_type: DF.Literal["Supplier", "Employee", "Customer"]
 		payer_name: DF.Data | None
 		posting_status_code: DF.Data | None
 		remarks: DF.SmallText | None
@@ -38,7 +41,7 @@ class DKBankPayment(Document):
 		transaction_id: DF.Data | None
 		transaction_no: DF.DynamicLink | None
 		transaction_status_request_id: DF.Data | None
-		transaction_type: DF.Literal["Journal Entry", "Payment Entry", "Salary"]
+		transaction_type: DF.Literal["Journal Entry", "Payment Entry", "Salary", "Bulk DK Bank Payment"]
 		txn_authcode: DF.Data | None
 		txn_drn: DF.Data | None
 		txn_status_code: DF.Data | None
@@ -48,8 +51,29 @@ class DKBankPayment(Document):
 	def validate(self):
 		self.check_duplicate()
 		self.send_notification()
+		self.check_invoice_no()
+
+	def check_invoice_no(self):
+		if self.invoice_number and self.party:
+			exists = frappe.db.exists(
+				"DK Bank Payment",
+				{
+					"invoice_number": self.invoice_number,
+					"party": self.party,
+					"name": ["!=", self.name]  # important for updates
+				}
+			)
+
+			if exists:
+				frappe.throw(
+					"Invoice No {0} already exists for Party {1}"
+					.format(self.invoice_number, self.party)
+				)
+					
 
 	def check_duplicate(self):
+		if self.transaction_type =='Bulk DK Bank Payment':
+			return
 		duplicate = frappe.db.exists(
 			"DK Bank Payment",
 			{
@@ -63,6 +87,7 @@ class DKBankPayment(Document):
 	def on_submit(self):
 		self.account_enquire()
 		self.process_transaction()
+		
 
 	def send_notification(self):
 		state = self.workflow_state
@@ -114,22 +139,39 @@ class DKBankPayment(Document):
 		# frappe.throw(str(result))
 		self.inquiry_id = result['response_data']['meta_info']['inquiry_id']
 		self.bank_balance = result['response_data']['balance_info']['btn_available_balance']
+		self.payer_name = result['response_data']['account_info']['account_name']
+		# frappe.throw(frappe.as_json(self.bank_balance))
 		self.save()
+		# frappe.db.commit()
 
 	def process_transaction(self):
 		response = intrabank_transfer(self)
-		# frappe.throw(str(response))
-		if response['response_code'] == '4310':
+		# response_code = response.get("response_code")
+		# frappe.throw(frappe.as_json(response))
+
+		# SUCCESS
+		if not response['response_data']:
+			frappe.throw(response['response_detail'])
+		# frappe.throw(frappe.as_json(response))
+		# if int(response['response_code']) == 5001:
+		# 	frappe.throw(frappe.as_json(response['response_code']['response_data']))
+		if int(response.get("response_code", 0)) == 5001:
+			frappe.throw(frappe.as_json(response.get("response_data")))
+		if int(response['response_data']['status']['status_code']) == 0:
+			# frappe.throw(str(int(response['response_data']['status']['status_code'])))
+			self.db_set("workflow_state", 'Completed')
+
+		elif int(response['response_code']) == 4310:
 			frappe.throw(response)
-		if response['response_code'] == '0000':
-			if response['response_data']['status']['status_code'] == '0':
-				self.db_set("workflow_state", 'Completed')
-			else:
-				self.db_set("workflow_state", 'Failed')
-		if	response['response_code'] == '2004':
-			frappe.throw(str(response))
 		else:
-			self.db_set("workflow_state", 'Failed')
+		# 	if flt(response['response_data']['status']['status_code']) == 0:
+		# 		self.db_set("workflow_state", 'Completed')
+		# 	else:
+		# 		self.db_set("workflow_state", 'Failed')
+		# if	flt(response['response_code']) == 2004:
+			frappe.throw(str(response))
+		# else:
+		# 	self.db_set("workflow_state", 'Failed')
 		# self.db_set("transaction_no", response["response_data"]["txn_id"])
 		# self.db_set("transaction_status_request_id", response["response_data"]["txn_status_id"])
 		self.db_set("response_details", response["response_data"]["status"]["status_code"])
