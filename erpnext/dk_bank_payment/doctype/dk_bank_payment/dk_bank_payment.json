@@ -274,16 +274,18 @@
    "options": "party_type"
   },
   {
-    "fieldname": "bank_balance_usd",
-    "fieldtype": "Currency",
-    "label": "Bank Balance (USD)",
-    "options": "USD"
- }
+   "allow_on_submit": 1,
+   "fieldname": "bank_balance_usd",
+   "fieldtype": "Currency",
+   "label": "Bank Balance (USD)",
+   "options": "USD",
+   "read_only": 1
+  }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-11 00:34:08.004069",
+ "modified": "2026-05-11 00:42:20.288985",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "DK Bank Payment",
