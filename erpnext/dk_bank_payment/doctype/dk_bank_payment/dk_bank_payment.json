@@ -24,6 +24,7 @@
   "column_break_rilu",
   "bank_account_no",
   "bank_balance",
+  "bank_balance_usd",
   "acc_status_details",
   "transaction_details_section",
   "get_transactions",
@@ -271,12 +272,18 @@
    "fieldtype": "Dynamic Link",
    "label": "Party",
    "options": "party_type"
-  }
+  },
+  {
+    "fieldname": "bank_balance_usd",
+    "fieldtype": "Currency",
+    "label": "Bank Balance (USD)",
+    "options": "USD"
+ }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-02-27 16:04:48.556090",
+ "modified": "2026-05-11 00:34:08.004069",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "DK Bank Payment",
