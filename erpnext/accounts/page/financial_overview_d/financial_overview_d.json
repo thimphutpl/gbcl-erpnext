@@ -1,0 +1,28 @@
+{
+ "content": null,
+ "creation": "2026-05-20 06:38:14.200291",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-05-20 06:38:32.259865",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "financial-overview-d",
+ "owner": "Administrator",
+ "page_name": "financial-overview-d",
+ "roles": [
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts Master"
+  },
+  {
+   "role": "Accounts User"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0
+}
