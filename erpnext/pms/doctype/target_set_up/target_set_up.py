@@ -191,9 +191,16 @@ class TargetSetUp(Document):
 			for item in self.common_target:
 				total_target_weightage += flt(item.weightage)
 
-			if flt(total_target_weightage) != 100:
+			# if flt(total_target_weightage) != 100:
+			# 	frappe.throw(
+			# 		title=_("Error"),
+			# 		msg=_('Sum of Weightage for Target must be 100 but your total weightage is <b>{}</b>'.format(total_target_weightage)))
+
+			# self.total_weightage = total_target_weightage
+
+			if self.max_weightage_for_target > flt(total_target_weightage) < self.min_weightage_for_target:
 				frappe.throw(
-					title=_("Error"),
+					title=_("Message"),
 					msg=_('Sum of Weightage for Target must be 100 but your total weightage is <b>{}</b>'.format(total_target_weightage)))
 
 			self.total_weightage = total_target_weightage

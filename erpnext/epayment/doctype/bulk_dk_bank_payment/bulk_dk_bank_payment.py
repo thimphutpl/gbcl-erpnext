@@ -241,6 +241,32 @@ class BulkDKBankPayment(Document):
 
 		
 # 	return created_payments
+
+	@frappe.whitelist()
+	def get_entries(self):
+		# frappe.throw("hi my friends, she ill ")
+		data1= frappe.db.sql("""
+			select employee, gross_pay, net_pay from `tabSalary Slip` 
+			where payroll_entry='{}';
+			""".format(self.transaction_no),
+			as_dict=True,
+		)
+		# frappe.throw(frappe.as_json(data1))
+		for row in data1:
+			bank_name = frappe.db.get_value("Employee",row.employee,"bank_name")
+			bank_ac_no = frappe.db.get_value("Employee",row.employee,"bank_ac_no")
+			employee_name = frappe.db.get_value("Employee",row.employee,"employee_name")
+			# frappe.throw(str(bank_ac_no))
+			# beneficiary_name = frappe.db.get_value("Employee",row.employee,"bank_ac_no")
+
+
+			row["bank_ac_no"] = bank_ac_no
+			row["bank_name"] = bank_name
+			row["employee_name"] = employee_name
+		return data1
+		# frappe.throw(frappe.as_json(data1))
+
+
 def create_bank_payments(bulk_doc_name):
 	bulk_doc = frappe.get_doc("Bulk DK Bank Payment", bulk_doc_name)
 	created_payments = []
@@ -287,28 +313,4 @@ def create_bank_payments(bulk_doc_name):
 	return created_payments
 
 			
-
-	@frappe.whitelist()
-	def get_entries(self):
-		# frappe.throw("hi my friends, she ill ")
-		data1= frappe.db.sql("""
-			select employee, gross_pay, net_pay from `tabSalary Slip` 
-			where payroll_entry='{}';
-			""".format(self.transaction_no),
-			as_dict=True,
-		)
-		# frappe.throw(frappe.as_json(data1))
-		for row in data1:
-			bank_name = frappe.db.get_value("Employee",row.employee,"bank_name")
-			bank_ac_no = frappe.db.get_value("Employee",row.employee,"bank_ac_no")
-			employee_name = frappe.db.get_value("Employee",row.employee,"employee_name")
-			# frappe.throw(str(bank_ac_no))
-			# beneficiary_name = frappe.db.get_value("Employee",row.employee,"bank_ac_no")
-
-
-			row["bank_ac_no"] = bank_ac_no
-			row["bank_name"] = bank_name
-			row["employee_name"] = employee_name
-		return data1
-		# frappe.throw(frappe.as_json(data1))
 

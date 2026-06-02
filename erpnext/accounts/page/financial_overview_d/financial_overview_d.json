@@ -3,8 +3,9 @@
  "creation": "2026-05-20 06:38:14.200291",
  "docstatus": 0,
  "doctype": "Page",
+ "icon": "PRY",
  "idx": 0,
- "modified": "2026-05-20 06:38:32.259865",
+ "modified": "2026-06-01 14:57:24.589596",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "financial-overview-d",
@@ -19,10 +20,14 @@
   },
   {
    "role": "Accounts User"
+  },
+  {
+   "role": "ADM User"
   }
  ],
  "script": null,
  "standard": "Yes",
  "style": null,
- "system_page": 0
+ "system_page": 0,
+ "title": ""
 }

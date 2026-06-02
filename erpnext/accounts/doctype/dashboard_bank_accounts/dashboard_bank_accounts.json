@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "accounts",
+  "accounts_name",
   "column_break_scec",
   "account_no"
  ],
@@ -27,11 +28,16 @@
    "fieldname": "account_no",
    "fieldtype": "Data",
    "label": "Account No"
+  },
+  {
+   "fieldname": "accounts_name",
+   "fieldtype": "Data",
+   "label": "Account Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-20 06:43:16.524335",
+ "modified": "2026-06-01 09:34:23.259209",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Dashboard Bank Accounts",

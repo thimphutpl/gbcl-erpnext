@@ -287,8 +287,8 @@ class Company(NestedSet):
 
 		if not frappe.local.flags.ignore_chart_of_accounts:
 			self.set_default_accounts()
-			if self.default_cash_account:
-				self.set_mode_of_payment_account()
+			# if self.default_cash_account:
+			# 	self.set_mode_of_payment_account()
 
 		if self.default_currency:
 			frappe.db.set_value("Currency", self.default_currency, "enabled", 1)

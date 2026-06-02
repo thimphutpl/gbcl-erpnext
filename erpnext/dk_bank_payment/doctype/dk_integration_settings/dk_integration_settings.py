@@ -20,6 +20,7 @@ class DKIntegrationSettings(Document):
 		bearer_token: DF.Password | None
 		client_id: DF.Data | None
 		client_secret: DF.Password | None
+		exchange_rate: DF.Data | None
 		fetch_key: DF.Data | None
 		gl_statement: DF.Data | None
 		gl_turnover: DF.Data | None

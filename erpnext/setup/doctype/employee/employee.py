@@ -469,3 +469,19 @@ def has_upload_permission(doc, ptype="read", user=None):
 	if get_doc_permissions(doc, user=user, ptype=ptype).get(ptype):
 		return True
 	return doc.user_id == user
+
+
+def get_permission_query_conditions(user):
+	
+	if not user:
+		user = frappe.session.user
+
+	user_roles = frappe.get_roles(user)
+	if user == "Administrator" or "HR User" in user_roles or "HR Manager" in user_roles:
+		return
+	emp=frappe.db.get_value("Employee", {"user_id": user})
+	return """(`tabEmployee`.reports_to='{emp}')""".format(
+		emp=emp
+	)
+	
+

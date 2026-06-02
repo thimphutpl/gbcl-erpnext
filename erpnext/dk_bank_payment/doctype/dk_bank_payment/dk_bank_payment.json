@@ -14,6 +14,7 @@
   "invoice_number",
   "party_type",
   "party",
+  "table_eqqy",
   "column_break_smlo",
   "transaction_code",
   "remarks",
@@ -37,6 +38,7 @@
   "transaction_status_info_section",
   "in_queue",
   "posting_status_code",
+  "txn_id",
   "txn_drn",
   "txn_status_description",
   "column_break_ujsk",
@@ -254,7 +256,8 @@
   {
    "fieldname": "invoice_number",
    "fieldtype": "Data",
-   "label": "Invoice Number"
+   "label": "Invoice Number",
+   "read_only": 1
   },
   {
    "fieldname": "recipient_details",
@@ -279,12 +282,24 @@
    "fieldtype": "Float",
    "label": "Bank Balance (USD)",
    "read_only": 1
+  },
+  {
+   "fieldname": "table_eqqy",
+   "fieldtype": "Table",
+   "label": "Invoices",
+   "options": "DK Bank Payment Invoices"
+  },
+  {
+   "fieldname": "txn_id",
+   "fieldtype": "Data",
+   "label": "txn id",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-11 00:49:52.451444",
+ "modified": "2026-06-01 15:38:07.714795",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "DK Bank Payment",

@@ -8,7 +8,8 @@ frappe.ui.form.on("GL Turnover Entry", {
 	
 	fetch: function(frm){
 		if (frm.doc.date){
-			if (frm.doc.company=='Digital Kidu'){
+			// if (frm.doc.company=='Digital Kidu'){
+			if (frm.doc.company=='DK GMCA'){
 				frappe.call({
 					method: "erpnext.cbs_gl_import.doctype.gl_turnover_entry.gl_turnover_entry.handle_glturnover",
 					args: {

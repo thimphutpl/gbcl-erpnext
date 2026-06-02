@@ -902,11 +902,18 @@ class JournalEntry(AccountsController):
 					# frappe.msgprint(frappe.as_json(d))
 				if flt(d.credit) > 0:
 					accounts_credited.append(d.party or d.account)
+		
 
 			for d in self.get("accounts"):
+				
+				
 				if flt(d.debit) > 0:
+					if accounts_credited:
+						frappe.throw(_("Row {0}: You cannot debit an account if there is a credit entry in the same row").format(d.idx))
 					d.against_account = ", ".join(list(set(accounts_credited)))
 				if flt(d.credit) > 0:
+					if accounts_debited:
+						frappe.throw(_("Row {0}: You cannot credit an account if there is a debit entry in the same row").format(d.idx))
 					d.against_account = ", ".join(list(set(accounts_debited)))
 
 	def validate_debit_credit_amount(self):
@@ -1085,7 +1092,8 @@ class JournalEntry(AccountsController):
 		currency = bank_account_currency = party_account_currency = pay_to_recd_from = None
 		party_type = None
 		for d in self.get("accounts"):
-			if d.party_type in ["Customer", "Supplier"] and d.party:
+			# if d.party_type in ["Customer", "Supplier"] and d.party:
+			if d.party_type in ["Customer", "Supplier","Employee"] and d.party:
 				party_type = d.party_type
 				if not pay_to_recd_from:
 					pay_to_recd_from = d.party
@@ -1099,9 +1107,17 @@ class JournalEntry(AccountsController):
 				bank_account_currency = d.account_currency
 
 		if party_type and pay_to_recd_from:
-			self.pay_to_recd_from = frappe.db.get_value(
-				party_type, pay_to_recd_from, "customer_name" if party_type == "Customer" else "supplier_name"
-			)
+			# self.pay_to_recd_from = frappe.db.get_value(
+			# 	party_type, pay_to_recd_from, "customer_name" if party_type == "Customer" else "supplier_name"
+			# )
+			if party_type =="Employee":
+              	self.pay_to_recd_from = frappe.db.get_value(
+                               party_type, pay_to_recd_from, "employee_name" if party_type == "Employee" else ""
+                        )
+            else:
+				self.pay_to_recd_from = frappe.db.get_value(
+						party_type, pay_to_recd_from, "customer_name" if party_type == "Customer" else "supplier_name"
+				)
 			if bank_amount:
 				total_amount = bank_amount
 				currency = bank_account_currency

@@ -8,6 +8,7 @@ import jwt
 import string
 from datetime import datetime
 import datetime
+from frappe.utils import flt
 
 # @frappe.whitelist()
 def dk_payment_test():
@@ -84,6 +85,7 @@ def generate_dk_signature(private_key,account_no):
     def generate_nonce(length=16):
         """Generate random alphanumeric nonce of given length"""
         return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
     def generate_signature(request_body: dict):
         # Convert the request body to JSON string
         request_body_str = json.dumps(request_body, sort_keys=True,separators=(",", ":"))
@@ -108,7 +110,12 @@ def generate_dk_signature(private_key,account_no):
             "data": body_base64
         }, PRIVATE_KEY_PEM, algorithm="RS256")
         return dk_signature, nonce, timestamp,request_body_str
-       
+    
+        currency= frappe.get_all(
+            "DK Bank Payment Items",
+            filters={"account_no": account_no},
+            pluck="currency_code"
+        )
 
         # Testaccount_no":"100100365856",
     sample_request_body = {
@@ -183,6 +190,10 @@ def generate_dk_signature_transaction(private_key,doc):
     amount = i.amount
     description = i.description
     beneficiary_bank = i.bank_name
+    currency = i.currency_code
+    fx_rate = i.fx_rate
+
+    # frappe.throw(str(currency))
         
     # if doc.salary:
     #     trans_code = dk_integration_setting.strans_code
@@ -225,7 +236,7 @@ def generate_dk_signature_transaction(private_key,doc):
         "source_app": dk_integration_setting.source_app
         },
         "request_payload": {
-        "trans_code": trans_code,
+        "trans_code": "2400R" if doc.transaction_type == "Bulk DK Bank Payment" else trans_code,
         "dr_cr": "DEBIT",
         "payer_acc": doc.bank_account_no,
         "payer_name": doc.payer_name,
@@ -238,26 +249,28 @@ def generate_dk_signature_transaction(private_key,doc):
         "txn_description": description,
         "txn_purpose": "",
         "source": {
-        "amount": amount,
-        "currency": "BTN",
-        "fx_rate_to_base": 1.00,
-        "base_currency": "BTN",
-        "base_equiv_amount": amount
+            "amount": amount,
+            "currency": currency,
+            "fx_rate_to_base": fx_rate,
+            "base_currency": "BTN",
+            "base_equiv_amount": amount * flt(fx_rate)
         },
-        "target": {
-        "fx_rate":1.00,
-        "amount": amount,
-        "currency": "BTN",
-        "fx_rate_to_base": 1.00,
-        "base_currency": "BTN",
-        "base_equiv_amount":amount
+            "target": {
+            "fx_rate":1,
+            "amount": amount,
+            "currency": currency,
+            "fx_rate_to_base": fx_rate,
+            "base_currency": "BTN",
+            # "target_fx_rate ":1.0,
+            "base_equiv_amount":amount * flt(fx_rate)
         },
-        "total": {
-        "amount": amount,
-        "base_currency": "BTN"
+            "total": {
+            "amount": amount * flt(fx_rate),
+            "base_currency": "BTN"
         }
         }
         }
+    # frappe.throw(frappe.as_json(sample_request_body))
     
 
     signature = generate_signature(sample_request_body)
@@ -404,6 +417,7 @@ def account_inquiry(account_no):
                 if inquiry_response.status_code == 200:
                     # frappe.throw((inquiry_response.json()))
                     inquiry_detail = inquiry_response.json()
+                    # frappe.throw(frappe.as_json(inquiry_detail))
                     return inquiry_detail
                     # frappe.throw(frappe.as_json(inquiry_detail))
                     print('Success:', inquiry_response.json())
@@ -412,6 +426,7 @@ def account_inquiry(account_no):
 
     else:
         frappe.throw('Could not fetch auth token')
+
 
 @frappe.whitelist()
 def intrabank_transfer(doc):
@@ -458,9 +473,15 @@ def intrabank_transfer(doc):
                 # frappe.throw(frappe.as_json(inquiry_response.json()))
                 # if inquiry_response.status_code == 200:
                     # frappe.throw((inquiry_response.json()))
+                frappe.log_error(
+                    title="Intrabank Transfer Request",
+                    message=request_body_str
+                )
+
                 inquiry_detail = inquiry_response.json()
                 return inquiry_detail
                     # frappe.throw(frappe.as_json(inquiry_detail))
+                
                 print('Success:', inquiry_response.json())
                 # return token_response
             
@@ -544,7 +565,7 @@ def fetch_gl_turn_over(date):
 
             # frappe.throw(str(dk_time_stamp))
             if signature_data:
-                url = 'https://internal-gateway.sit.digitalkidu.bt:8082/uat/cbs/connect/v1/gl/turnover'
+                url = 'https://internal.digitalkidu.bt:8082/api/cbs/connect/v1/gl/turnover'
                 headers = {
                     'Content-Type': 'application/json',
                     'X-gravitee-api-key': dk_integration_setting.x_gravitee_api_key,  # Optional
@@ -628,6 +649,65 @@ def generate_glturnover_signature(private_key,date):
     return signature,sample_request_body
 
     print("✅ Digital Signature (JWT):\n", signature)
+def fetch_currencies(payment_name):
+    currency = frappe.db.sql("""
+            SELECT currency 
+            FROM `tabTransaction Code` 
+            WHERE name= %s""",(payment_name), as_dict=True)[0].currency
+    return currency
+def fetch_exchange_rate(payment_name):
+    currencies = fetch_currencies(payment_name)
+    token_response = fetch_authorization_token("keys:read")
+    if token_response.status_code == 200:
+        # frappe.throw(response.json()['response_data']['access_token'])
+        token = token_response.json()['response_data']['access_token']
+        # frappe.msgprint("Access Token Fetch Successfully")
+        private_key = fetch_private_key(token)
+        if private_key.status_code == 200:
+            # frappe.throw(private_key.text)
+            # dk_signature= generate_dk_signature(private_key.text,account_no)
+            (signature_data, request_body) = generate_exchange_rate_signature(private_key.text, currencies)
+            (jwt_token, nonce, timestamp,request_body_str) = signature_data
+            # frappe.throw(frappe.as_json(dk_signature))
+            token_response_inquiry = fetch_authorization_token("fx_rate:read")
+            # frappe.throw(frappe.as_json(token_response_inquiry.json()))
+            token_inquiry = token_response_inquiry.json()['response_data']['access_token']
+
+            # frappe.throw(str(dk_time_stamp))
+            if signature_data:
+                url = dk_integration_setting.base_url + dk_integration_setting.exchange_rate
+                headers = {
+                    'Content-Type': 'application/json',
+                    'X-gravitee-api-key': dk_integration_setting.x_gravitee_api_key,  # Optional
+                    'Authorization':f'bearer {token_inquiry}',
+                    'DK-Timestamp':timestamp,
+                    'DK-Nonce':nonce,
+                    'DK-Signature':f'DKSignature {jwt_token}',
+                    # 'Host':'internal-gateway.sit.digitalkidu.bt:8082',
+                    # 'Accept':'*/*',
+                    # 'Accept-Encoding':'gzip,deflate,br',
+                    # 'Connection':'keep-alive'
+                
+                }
+                # frappe.throw(str(headers))
+                # data = frappe.as_json(dk_signature[1])
+                # data = json.dumps(request_body)
+
+                # inquiry_response = requests.post(url, headers=headers, data=data)
+                inquiry_response = requests.post(url, headers=headers, data=request_body_str)
+
+                # frappe.throw(frappe.as_json(inquiry_response.json()))
+                # if inquiry_response.status_code == 200:
+                    # frappe.throw((inquiry_response.json()))
+                inquiry_detail = inquiry_response.json()
+                # return inquiry_detail
+                # frappe.throw(frappe.as_json(inquiry_detail))
+                # print('Success:', inquiry_response.json())
+                # return token_response
+                return inquiry_response
+
+    else:
+        frappe.throw('Could not fetch auth token')
 
 
 @frappe.whitelist()
@@ -685,6 +765,55 @@ def fetch_fx_rate():
 
     else:
         frappe.throw('Could not fetch auth token')
+
+
+def generate_exchange_rate_signature(private_key,currencies):
+    
+
+    # Dummy RSA private key (for testing ONLY, do not use in production)
+    PRIVATE_KEY_PEM = private_key
+    # frappe.throw(frappe.as_json(doc))
+    def generate_nonce(length=16):
+        """Generate random alphanumeric nonce of given length"""
+        return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+    def generate_signature(request_body: dict):
+        # Convert the request body to JSON string
+        request_body_str = json.dumps(request_body, sort_keys=True,separators=(",", ":"))
+        print(request_body_str)
+
+    
+        body_base64 = base64.b64encode(request_body_str.encode()).decode()
+
+        # nonce = "1234567yu8"
+        nonce = generate_nonce()
+        print("Nonce:", nonce)
+        # timestamp = "2025-05-15T11:23:45Z"
+        timestamp = datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+
+        expiration = datetime.datetime.utcnow() + datetime.timedelta(minutes=50)
+        
+        
+        dk_signature = jwt.encode({
+            "nonce": nonce,
+            "timestamp": timestamp,
+            "exp": expiration,
+            "data": body_base64
+        }, PRIVATE_KEY_PEM, algorithm="RS256")
+        return dk_signature, nonce, timestamp,request_body_str
+   
+        
+    sample_request_body =  {
+                "request_id":frappe.generate_hash(length=19),
+                "source_app":"SRC_APP_0201",
+                "currencies":currencies
+                }
+            
+
+    signature = generate_signature(sample_request_body)
+
+    return signature,sample_request_body
+
+    print("✅ Digital Signature (JWT):\n", signature)
 
 def generate_fx_signature(private_key):
     

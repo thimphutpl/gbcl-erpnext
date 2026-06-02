@@ -92,6 +92,7 @@
   "relation",
   "attendance_and_leave_details",
   "attendance_device_id",
+  "attendance_location",
   "column_break_44",
   "holiday_list",
   "salary_information",
@@ -1035,6 +1036,12 @@
    "fieldname": "employee_pms",
    "fieldtype": "Table",
    "options": "Employee PMS Rating"
+  },
+  {
+   "fieldname": "attendance_location",
+   "fieldtype": "Link",
+   "label": "Attendance Location",
+   "options": "Attendance Location"
   }
  ],
  "icon": "fa fa-user",
@@ -1042,7 +1049,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-10-24 14:48:13.044745",
+ "modified": "2026-05-22 13:22:47.655457",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Employee",

@@ -31,7 +31,7 @@ frappe.ui.form.on("DK Bank Payment", {
             });
         }
     },
-
+	
     transaction_code:function(frm){
 		if (frm.doc.transaction_code == 'Intrabank transfer'){
 			frm.set_query("pay_to_bank", function() {
@@ -49,7 +49,6 @@ frappe.ui.form.on("DK Bank Payment", {
 				}
 			};
 		});}
-		
 	},
 
     bank_account_no: function(frm){
@@ -60,11 +59,19 @@ frappe.ui.form.on("DK Bank Payment", {
 				account_no: frm.doc.bank_account_no,
 			},
 			callback: function(r) {
+				// console.log('hihi')
+				// console.log(frm.doc.transaction_code);
 				frappe.dom.unfreeze();
 				if(r.message) {
 					console.log(r.message);
 					if(r.message.response_code == "0000"){
-						 frm.set_value("bank_balance", r.message.response_data.balance_info.btn_available_balance);
+						
+				
+
+						frm.set_value("bank_balance", r.message.response_data.balance_info.btn_available_balance);
+                        frm.set_value("bank_balance_usd", r.message.response_data.balance_info.usd_available_balance);
+						
+						
 						 frm.set_value("inquiry_id",r.message.response_data.meta_info.inquiry_id);
                          frm.set_value("payer_name",r.message.response_data.account_info.account_name);
 						//  frm.set_value("bank_balance_usd",r.message.response_data.balance_info.usd_available_balance);
@@ -78,6 +85,8 @@ frappe.ui.form.on("DK Bank Payment", {
 			}
 		});
     },
+
+	
 
 
 	get_transactions: function(frm){

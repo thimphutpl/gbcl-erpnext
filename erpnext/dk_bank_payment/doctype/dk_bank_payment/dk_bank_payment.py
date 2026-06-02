@@ -4,7 +4,7 @@
 import frappe
 import json
 from frappe.model.document import Document
-from erpnext.dk_integration_utils import intrabank_transfer,check_status_transaction,account_inquiry
+from erpnext.dk_integration_utils import intrabank_transfer,check_status_transaction,account_inquiry,fetch_exchange_rate
 from frappe.utils import (
 	flt,
 	
@@ -18,12 +18,14 @@ class DKBankPayment(Document):
 
 	if TYPE_CHECKING:
 		from erpnext.dk_bank_payment.doctype.dk_bank_payment_items.dk_bank_payment_items import DKBankPaymentItems
+		from erpnext.epayment.doctype.dk_bank_payment_invoices.dk_bank_payment_invoices import DKBankPaymentInvoices
 		from frappe.types import DF
 
 		acc_status_details: DF.Data | None
 		amended_from: DF.Link | None
 		bank_account_no: DF.Data | None
 		bank_balance: DF.Currency
+		bank_balance_usd: DF.Float
 		company: DF.Link | None
 		in_queue: DF.Data | None
 		inquiry_id: DF.Data | None
@@ -36,6 +38,7 @@ class DKBankPayment(Document):
 		posting_status_code: DF.Data | None
 		remarks: DF.SmallText | None
 		response_details: DF.Data | None
+		table_eqqy: DF.Table[DKBankPaymentInvoices]
 		transaction: DF.Table[DKBankPaymentItems]
 		transaction_code: DF.Link
 		transaction_id: DF.Data | None
@@ -44,6 +47,7 @@ class DKBankPayment(Document):
 		transaction_type: DF.Literal["Journal Entry", "Payment Entry", "Salary", "Bulk DK Bank Payment"]
 		txn_authcode: DF.Data | None
 		txn_drn: DF.Data | None
+		txn_id: DF.Data | None
 		txn_status_code: DF.Data | None
 		txn_status_description: DF.Data | None
 	# end: auto-generated types
@@ -52,6 +56,14 @@ class DKBankPayment(Document):
 		self.check_duplicate()
 		self.send_notification()
 		self.check_invoice_no()
+		self.set_currency()
+
+	def set_currency(self):
+		for i in self.transaction:
+			if self.transaction_code =='Intrabank transfer (USD-USD)':
+				i.currency_code ="USD"
+			else:
+				i.currency_code ="BTN"
 
 	def check_invoice_no(self):
 		if self.invoice_number and self.party:
@@ -69,6 +81,17 @@ class DKBankPayment(Document):
 					"Invoice No {0} already exists for Party {1}"
 					.format(self.invoice_number, self.party)
 				)
+		if self.table_eqqy:
+			for i in self.table_eqqy:
+				exists = frappe.db.sql('''
+				select bpi.invoice as invoice, bp.name as doc_name  from `tabDK Bank Payment` bp inner join 
+				`tabDK Bank Payment Invoices` bpi on bp.name=bpi.parent where 
+				bp.party=%s 
+				and bpi.invoice=%s and bp.name != %s;
+				''',(self.party,i.invoice,self.name))
+
+				if exists:
+					frappe.throw("Invoice {} already exist for {}".format(exists[0][0],exists[0][1]))
 					
 
 	def check_duplicate(self):
@@ -82,8 +105,8 @@ class DKBankPayment(Document):
 				"workflow_state": ["!=", "Failed"]
 			}
 			)
-		if duplicate:
-			frappe.throw("DK Bank Payment already exist for transaction {}".format(self.transaction_no))
+		# if duplicate:
+		# 	frappe.throw("DK Bank Payment already exist for transaction {}".format(self.transaction_no))
 	def on_submit(self):
 		self.account_enquire()
 		self.process_transaction()
@@ -138,7 +161,20 @@ class DKBankPayment(Document):
 		result = account_inquiry(self.bank_account_no)
 		# frappe.throw(str(result))
 		self.inquiry_id = result['response_data']['meta_info']['inquiry_id']
-		self.bank_balance = result['response_data']['balance_info']['btn_available_balance']
+		# if self.transaction_code=="Intrabank transfer (USD-USD)":
+		# 	frappe.throw('hi')
+		# 	self.bank_balance = result['response_data']['balance_info']['usd_available_balance']
+		# else:
+		balance_info = result.get('response_data', {}).get('balance_info', {})
+
+		if balance_info.get('btn_available_balance'):
+			self.bank_balance = balance_info.get('btn_available_balance')
+
+		if balance_info.get('usd_available_balance'):
+			self.usd_bank_balance = balance_info.get('usd_available_balance')
+		# if result['response_data']['balance_info']['btn_available_balance']:
+		# 	self.bank_balance = result['response_data']['balance_info']['btn_available_balance']
+		self.payer_name = result['response_data']['account_info']['account_name']
 		self.payer_name = result['response_data']['account_info']['account_name']
 		# frappe.throw(frappe.as_json(self.bank_balance))
 		self.save()
@@ -148,7 +184,7 @@ class DKBankPayment(Document):
 		response = intrabank_transfer(self)
 		# response_code = response.get("response_code")
 		# frappe.throw(frappe.as_json(response))
-
+	
 		# SUCCESS
 		if not response['response_data']:
 			frappe.throw(response['response_detail'])
@@ -163,13 +199,13 @@ class DKBankPayment(Document):
 
 		elif int(response['response_code']) == 4310:
 			frappe.throw(response)
-		else:
+		# else:
 		# 	if flt(response['response_data']['status']['status_code']) == 0:
 		# 		self.db_set("workflow_state", 'Completed')
 		# 	else:
 		# 		self.db_set("workflow_state", 'Failed')
 		# if	flt(response['response_code']) == 2004:
-			frappe.throw(str(response))
+			# frappe.throw(str(response))
 		# else:
 		# 	self.db_set("workflow_state", 'Failed')
 		# self.db_set("transaction_no", response["response_data"]["txn_id"])
@@ -182,6 +218,7 @@ class DKBankPayment(Document):
 		if "txn_auth_code" in response.get("response_data", {}).get("status", {}):
 			self.db_set("txn_authcode", response["response_data"]["status"]["txn_auth_code"])
 		self.db_set("txn_drn",response["response_data"]["status"]["txn_drn"])
+		self.db_set("txn_id", response["response_data"]["txn_id"])
 		self.db_set("txn_status_code",response["response_data"]["status"]["status_code"])
 		self.db_set("txn_status_description",response["response_data"]['status']['status_description'])
 		
@@ -224,6 +261,35 @@ class DKBankPayment(Document):
 	def load_items(self):
 		total_amount = 0
 		self.set("transaction", [])
+
+		currency = frappe.db.sql("""
+				SELECT currency 
+				FROM `tabTransaction Code` 
+				WHERE name= %s""",(self.transaction_code), as_dict=True)[0].currency
+		if currency and currency.upper() != "BTN":
+			result=fetch_exchange_rate(self.transaction_code)
+			data = result.json()
+			if data.get("response_code") != "0000":
+				frappe.throw("Failed to fetch exchange rate: {}".format(
+					data.get("response_detail", "No details provided")
+				))
+
+			rates = data.get("response_data", {}).get("exchange_rates", [])
+
+			if not rates:
+				frappe.throw("No exchange rate found")
+
+			fx_rate = 1  # fallback
+
+			for rate in rates:
+				if rate.get("currency_code", "").upper() == currency.upper():
+					fx_rate = float(rate.get("buy_rate", 1))
+					break
+		else:
+			fx_rate = 1
+				
+
+		
 		for i in self.get_transactions():
 			if not i.beneficiary_name:
 				frappe.throw("Please update beneficiary name in the supplier or employee")
@@ -231,6 +297,10 @@ class DKBankPayment(Document):
 
 			beneficiary_name = re.sub("[^A-Za-z0-9 ]+", "", i.beneficiary_name)
 			row = self.append("transaction", {})
+			row.currency_code = currency
+			row.fx_rate = fx_rate
+
+			
 			row.update(i)
 			# total_amount += flt(i.amount, 2)
 
@@ -247,6 +317,7 @@ class DKBankPayment(Document):
 		return data
 	
 	def get_journal_entry(self):
+		
 		data = []
 		cond = ""
 		if self.transaction_no:
@@ -284,7 +355,7 @@ class DKBankPayment(Document):
 				for p in frappe.db.sql(
 					"""select a.account, round(a.debit_in_account_currency,2) as debit, 
 									round(a.credit_in_account_currency,2) as credit,
-									b.bank_name, b.bank_branch, b.bank_account_type, b.bank_account_no, b.company
+									b.bank_name, b.bank_branch, b.bank_account_type, b.bank_ac_no, b.company
 									from `tabJournal Entry Account` a
 									inner join `tabAccount` b on a.account = b.name
 									where a.parent = '{journal_entry}'
@@ -307,7 +378,7 @@ class DKBankPayment(Document):
 									"bank_name": p.bank_name,
 									"bank_branch": p.bank_branch,
 									"bank_account_type": p.bank_account_type,
-									"bank_account_no": p.bank_account_no,
+									"beneficiary_account_no": p.bank_ac_no,
 									"amount": flt(p.debit),
 									"status": "Draft",
 								}
@@ -384,14 +455,16 @@ class DKBankPayment(Document):
 								"supplier": supplier,
 								"beneficiary_name": dtl[0]["beneficiary_name"],
 								"bank_name": dtl[0]["bank_name"],
-								"currency_code":"BTN",
+								# "currency_code": "USD" if self.transaction_code == "Intrabank transfer (USD-USD)" else "BTN",
+								"currency_code": "BTN",
 								"beneficiary_account_no": dtl[0]["bank_account_no"],
 								"amount": flt(i["amount"]),
 								
 							}
 						)
 					)
-		
+
+			# frappe.throw(frappe.as_json(data))
 		return data
 	
 	def get_payment_entry(self):
@@ -444,6 +517,10 @@ class DKBankPayment(Document):
 						as_dict=True,
 					)
 
+@frappe.whitelist()
+
+def get_currency_code(company):
+	return frappe.db.get_value("Company", company, "default_currency")
 
 @frappe.whitelist()
 def check_transaction_status(doc):

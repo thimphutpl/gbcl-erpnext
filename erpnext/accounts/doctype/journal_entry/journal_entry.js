@@ -1024,7 +1024,8 @@ var create_custom_buttons = function(frm){
 
 /* ePayment Begins */
 var create_custom_buttons2 = function(frm){
-	if(frm.doc.docstatus == 1 && (frm.doc.mode_of_payment == "Swift")){
+	// if(frm.doc.docstatus == 1 && (frm.doc.mode_of_payment == "Swift")){
+	if(frm.doc.docstatus == 1 && (frm.doc.mode_of_payment == "Swift Payment")){
 		
 			frm.page.set_primary_action(__('Process Swift Transfer Instruction'), () => {
 				frappe.model.open_mapped_doc({

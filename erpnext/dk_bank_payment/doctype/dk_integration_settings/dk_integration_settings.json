@@ -15,6 +15,7 @@
   "intrabank_transfer",
   "gl_turnover",
   "gl_statement",
+  "exchange_rate",
   "credentials_section",
   "user_name",
   "client_id",
@@ -147,12 +148,17 @@
    "fieldname": "oro_endpoint",
    "fieldtype": "Data",
    "label": "ORO Bank GL Turn Over Endpoint"
+  },
+  {
+   "fieldname": "exchange_rate",
+   "fieldtype": "Data",
+   "label": "Exchange Rate"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-08-22 17:47:14.312649",
+ "modified": "2026-06-01 12:52:00.724361",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "DK Integration Settings",
