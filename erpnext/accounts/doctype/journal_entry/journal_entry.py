@@ -1111,10 +1111,10 @@ class JournalEntry(AccountsController):
 			# 	party_type, pay_to_recd_from, "customer_name" if party_type == "Customer" else "supplier_name"
 			# )
 			if party_type =="Employee":
-              	self.pay_to_recd_from = frappe.db.get_value(
-                               party_type, pay_to_recd_from, "employee_name" if party_type == "Employee" else ""
-                        )
-            else:
+			  	self.pay_to_recd_from = frappe.db.get_value(
+							   party_type, pay_to_recd_from, "employee_name" if party_type == "Employee" else ""
+						)
+			else:
 				self.pay_to_recd_from = frappe.db.get_value(
 						party_type, pay_to_recd_from, "customer_name" if party_type == "Customer" else "supplier_name"
 				)
