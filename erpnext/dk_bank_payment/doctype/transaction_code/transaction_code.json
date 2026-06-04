@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "api",
+  "currency",
   "column_break_qbjc",
   "trans_code"
  ],
@@ -25,11 +26,17 @@
    "fieldname": "trans_code",
    "fieldtype": "Data",
    "label": "Trans Code"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-16 12:12:16.973697",
+ "modified": "2026-05-31 20:51:46.909365",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "Transaction Code",
