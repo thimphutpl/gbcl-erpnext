@@ -1,6 +1,6 @@
 // Copyright (c) 2025, Frappe Technologies Pvt. Ltd. and contributors
 // For license information, please see license.txt
-cur_frm.add_fetch("paid_from", "bank_ac_no", "bank_account_no");
+// cur_frm.add_fetch("paid_from", "bank_ac_no", "bank_account_no");
 frappe.ui.form.on("DK Bank Payment", {
 
 	
@@ -31,6 +31,26 @@ frappe.ui.form.on("DK Bank Payment", {
             });
         }
     },
+	paid_from: function(frm) {
+
+		if (frm.doc.paid_from) {
+			frappe.db.get_value("Account", frm.doc.paid_from, "bank_ac_no", (r) => {
+				frm.set_value("bank_account_no", r.bank_ac_no);
+			});
+
+		} else {
+
+			// clear everything when removed
+			frm.set_value({
+				bank_account_no: "",
+				bank_balance: "",
+				bank_balance_usd: "",
+				inquiry_id: "",
+				payer_name: "",
+				acc_status_details: ""
+			});
+		}
+	},
 	
     transaction_code:function(frm){
 		if (frm.doc.transaction_code == 'Intrabank transfer'){
@@ -52,7 +72,7 @@ frappe.ui.form.on("DK Bank Payment", {
 	},
 
     bank_account_no: function(frm){
-		frappe.dom.freeze('Fetching bank details...');
+		// frappe.dom.freeze('Fetching bank details...');
         frappe.call({
 			method: "erpnext.dk_integration_utils.account_inquiry",
 			args: {
@@ -64,9 +84,10 @@ frappe.ui.form.on("DK Bank Payment", {
 				frappe.dom.unfreeze();
 				if(r.message) {
 					console.log(r.message);
+
 					if(r.message.response_code == "0000"){
 						
-				
+				    
 
 						frm.set_value("bank_balance", r.message.response_data.balance_info.btn_available_balance);
                         frm.set_value("bank_balance_usd", r.message.response_data.balance_info.usd_available_balance);

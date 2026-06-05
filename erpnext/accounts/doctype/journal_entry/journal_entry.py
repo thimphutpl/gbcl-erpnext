@@ -905,15 +905,9 @@ class JournalEntry(AccountsController):
 		
 
 			for d in self.get("accounts"):
-				
-				
 				if flt(d.debit) > 0:
-					if accounts_credited:
-						frappe.throw(_("Row {0}: You cannot debit an account if there is a credit entry in the same row").format(d.idx))
 					d.against_account = ", ".join(list(set(accounts_credited)))
 				if flt(d.credit) > 0:
-					if accounts_debited:
-						frappe.throw(_("Row {0}: You cannot credit an account if there is a debit entry in the same row").format(d.idx))
 					d.against_account = ", ".join(list(set(accounts_debited)))
 
 	def validate_debit_credit_amount(self):

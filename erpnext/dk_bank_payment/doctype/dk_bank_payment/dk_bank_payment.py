@@ -57,6 +57,7 @@ class DKBankPayment(Document):
 		self.send_notification()
 		self.check_invoice_no()
 		self.set_currency()
+		self.validate_account()
 
 	def set_currency(self):
 		for i in self.transaction:
@@ -156,9 +157,41 @@ class DKBankPayment(Document):
 					DK/GMC ERP System
 				""",
 			)
-		
+
+	def validate_account(self):
+		result = frappe.db.sql(
+			"""select trans_code from `tabTransaction Code` where name=%s""",
+			(self.transaction_code,),
+			as_list=True
+		)
+
+		trans_code = result[0][0] if result else None
+
+		if trans_code != "3110R":
+			return
+
+		# Validate payer account
+		if not (self.bank_account_no or "").startswith("1201"):
+			frappe.throw(
+				"For USD-USD transactions (3110R), the payer account must start with '1201'."
+			)
+
+		# Validate beneficiary accounts
+		for row in self.transaction:
+			if not (row.beneficiary_account_no or "").startswith("1201"):
+				frappe.throw(
+					f"Beneficiary account {row.beneficiary_account_no} must start with '1201' for USD-USD transactions."
+				)
+
 	def account_enquire(self):
 		result = account_inquiry(self.bank_account_no)
+		if self.transaction_code == "3110R":
+			account_no = result.get("response_data", {}).get("account_info", {}).get("account_no", "")
+
+			if not account_no.startswith("1201"):
+				frappe.throw(
+					"For USD-USD transactions (3110R), only accounts starting with '1201' are allowed."
+				)
 		# frappe.throw(str(result))
 		self.inquiry_id = result['response_data']['meta_info']['inquiry_id']
 		# if self.transaction_code=="Intrabank transfer (USD-USD)":
@@ -186,6 +219,7 @@ class DKBankPayment(Document):
 		# frappe.throw(frappe.as_json(response))
 	
 		# SUCCESS
+		# frappe.throw(frappe.as_json(response))
 		if not response['response_data']:
 			frappe.throw(response['response_detail'])
 		# frappe.throw(frappe.as_json(response))
@@ -294,6 +328,12 @@ class DKBankPayment(Document):
 			if not i.beneficiary_name:
 				frappe.throw("Please update beneficiary name in the supplier or employee")
 			import re
+			if i.bank_name == "DK":
+				account_inquiry(i.beneficiary_account_no)
+			    
+
+
+
 
 			beneficiary_name = re.sub("[^A-Za-z0-9 ]+", "", i.beneficiary_name)
 			row = self.append("transaction", {})
@@ -532,7 +572,7 @@ def check_transaction_status(doc):
 
 	# Call your function to get transaction status
 	response = check_status_transaction(doc)
-	# frappe.throw(str(response))
+	
 	
 	# frappe.throw(frappe.as_json(response))
 	# Update the 'in_queue' field

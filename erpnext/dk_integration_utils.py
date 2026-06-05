@@ -251,21 +251,21 @@ def generate_dk_signature_transaction(private_key,doc):
         "source": {
             "amount": amount,
             "currency": currency,
-            "fx_rate_to_base": fx_rate,
+            "fx_rate_to_base": flt(fx_rate,2),
             "base_currency": "BTN",
-            "base_equiv_amount": amount * flt(fx_rate)
+            "base_equiv_amount": flt(amount * flt(fx_rate, 2), 2)
         },
             "target": {
             "fx_rate":1,
             "amount": amount,
             "currency": currency,
-            "fx_rate_to_base": fx_rate,
+            "fx_rate_to_base": flt(fx_rate,2),
             "base_currency": "BTN",
             # "target_fx_rate ":1.0,
-            "base_equiv_amount":amount * flt(fx_rate)
+            "base_equiv_amount":flt(amount * flt(fx_rate, 2), 2)
         },
             "total": {
-            "amount": amount * flt(fx_rate),
+            "amount":flt(amount * flt(fx_rate, 2), 2),
             "base_currency": "BTN"
         }
         }
@@ -374,58 +374,180 @@ def generate_dk_signature_checkstatus(private_key,doc):
     print("✅ Digital Signature (JWT):\n", signature)
 
 
+# @frappe.whitelist()
+# def account_inquiry(account_no):
+#     # frappe.throw(account_no)
+#     token_response = fetch_authorization_token("keys:read")
+#     if token_response.status_code != 200:
+#         frappe.throw("Failed to fetch auth token")
+   
+#     if token_response.status_code == 200:
+#         # frappe.throw(response.json()['response_data']['access_token'])
+#         token = token_response.json()['response_data']['access_token']
+#         # frappe.msgprint("Access Token Fetch Successfully")
+#         private_key = fetch_private_key(token)
+#         if private_key.status_code == 200:
+#             # frappe.throw(private_key.text)
+#             # dk_signature= generate_dk_signature(private_key.text,account_no)
+#             (signature_data, request_body) = generate_dk_signature(private_key.text, account_no)
+#             (jwt_token, nonce, timestamp,request_body_str) = signature_data
+#             # frappe.throw(frappe.as_json(dk_signature))
+#             token_response_inquiry = fetch_authorization_token("accounts:read")
+            
+#             token_inquiry = token_response_inquiry.json()['response_data']['access_token']
+
+#             # frappe.throw(str(dk_time_stamp))
+#             if signature_data:
+#                 url = dk_integration_setting.base_url + dk_integration_setting.account_inquiry
+#                 headers = {
+#                     'Content-Type': 'application/json',
+#                     'X-gravitee-api-key': dk_integration_setting.x_gravitee_api_key,  # Optional
+#                     'Authorization':f'bearer {token_inquiry}',
+#                     'DK-Timestamp':timestamp,
+#                     'DK-Nonce':nonce,
+#                     'DK-Signature':f'DKSignature {jwt_token}'
+                
+#                 }
+#                 # frappe.throw(str(headers))
+#                 # data = frappe.as_json(dk_signature[1])
+#                 data = json.dumps(request_body)
+
+#                 # inquiry_response = requests.post(url, headers=headers, data=data)
+#                 inquiry_response = requests.post(url, headers=headers, data=request_body_str)
+           
+               
+#                 if inquiry_response.status_code != 200:
+#                     frappe.throw(f"CBS inquiry failed: {inquiry_response.text}")
+                    
+               
+#                 # frappe.throw(frappe.as_json(inquiry_response.json()))
+#                 # if inquiry_response.status_code == 200:
+
+#                     # frappe.throw(str(inquiry_response.json()))
+#                 inquiry_detail = inquiry_response.json()
+#                 acc_status = inquiry_detail.get("response_data", {}).get("account_status", {}).get("acc_status_code")
+#                 if acc_status in ["00","01"]:
+#                     return inquiry_detail
+#                 elif acc_status == "05":
+#                     frappe.throw("Account is Dormant")
+#                     return
+#                 elif acc_status == "14":
+#                     frappe.throw("Account is Closed")
+#                     return
+#                 else:
+#                     frappe.throw(f"Account inquiry failed with status code: {acc_status}")
+#                     return
+                       
+
+                 
+#                     # return inquiry_detail
+#                     # frappe.throw(frappe.as_json(inquiry_detail))
+                   
+#                 # return token_response
+            
+
+#     else:
+#         frappe.throw('Could not fetch auth token')
+
 @frappe.whitelist()
 def account_inquiry(account_no):
-    # frappe.throw(account_no)
+
+    if not account_no:
+        frappe.throw("Account number is required")
+
+    # 1. Get auth token
     token_response = fetch_authorization_token("keys:read")
-   
-    if token_response.status_code == 200:
-        # frappe.throw(response.json()['response_data']['access_token'])
-        token = token_response.json()['response_data']['access_token']
-        # frappe.msgprint("Access Token Fetch Successfully")
-        private_key = fetch_private_key(token)
-        if private_key.status_code == 200:
-            # frappe.throw(private_key.text)
-            # dk_signature= generate_dk_signature(private_key.text,account_no)
-            (signature_data, request_body) = generate_dk_signature(private_key.text, account_no)
-            (jwt_token, nonce, timestamp,request_body_str) = signature_data
-            # frappe.throw(frappe.as_json(dk_signature))
-            token_response_inquiry = fetch_authorization_token("accounts:read")
-            
-            token_inquiry = token_response_inquiry.json()['response_data']['access_token']
+    if token_response.status_code != 200:
+        frappe.throw("Failed to fetch auth token")
 
-            # frappe.throw(str(dk_time_stamp))
-            if signature_data:
-                url = dk_integration_setting.base_url + dk_integration_setting.account_inquiry
-                headers = {
-                    'Content-Type': 'application/json',
-                    'X-gravitee-api-key': dk_integration_setting.x_gravitee_api_key,  # Optional
-                    'Authorization':f'bearer {token_inquiry}',
-                    'DK-Timestamp':timestamp,
-                    'DK-Nonce':nonce,
-                    'DK-Signature':f'DKSignature {jwt_token}'
-                
-                }
-                # frappe.throw(str(headers))
-                # data = frappe.as_json(dk_signature[1])
-                data = json.dumps(request_body)
+    token = token_response.json().get("response_data", {}).get("access_token")
+    if not token:
+        frappe.throw("Access token missing in response")
 
-                # inquiry_response = requests.post(url, headers=headers, data=data)
-                inquiry_response = requests.post(url, headers=headers, data=request_body_str)
+    # 2. Get private key
+    private_key = fetch_private_key(token)
+    if private_key.status_code != 200:
+        frappe.throw("Failed to fetch private key")
 
-                # frappe.throw(frappe.as_json(inquiry_response.json()))
-                if inquiry_response.status_code == 200:
-                    # frappe.throw((inquiry_response.json()))
-                    inquiry_detail = inquiry_response.json()
-                    # frappe.throw(frappe.as_json(inquiry_detail))
-                    return inquiry_detail
-                    # frappe.throw(frappe.as_json(inquiry_detail))
-                    print('Success:', inquiry_response.json())
-                # return token_response
-            
+    # 3. Generate signature
+    signature_data, request_body = generate_dk_signature(private_key.text, account_no)
+    jwt_token, nonce, timestamp, request_body_str = signature_data
 
-    else:
-        frappe.throw('Could not fetch auth token')
+    # 4. CBS auth token
+    token_response_inquiry = fetch_authorization_token("accounts:read")
+    token_inquiry = token_response_inquiry.json().get("response_data", {}).get("access_token")
+
+    if not token_inquiry:
+        frappe.throw("Failed to fetch inquiry access token")
+
+    # 5. Call CBS API
+    url = dk_integration_setting.base_url + dk_integration_setting.account_inquiry
+
+    headers = {
+        "Content-Type": "application/json",
+        "X-gravitee-api-key": dk_integration_setting.x_gravitee_api_key,
+        "Authorization": f"bearer {token_inquiry}",
+        "DK-Timestamp": timestamp,
+        "DK-Nonce": nonce,
+        "DK-Signature": f"DKSignature {jwt_token}",
+    }
+
+    try:
+        inquiry_response = requests.post(url, headers=headers, data=request_body_str, timeout=30)
+    except Exception as e:
+        frappe.throw(f"CBS connection failed: {str(e)}")
+
+    # 6. Handle HTTP-level failure
+    try:
+        # response_json = inquiry_response.json()
+        inquiry_detail = inquiry_response.json()
+    except Exception:
+        frappe.throw(f"Invalid JSON response from CBS: {inquiry_response.text}")
+
+    # THIS is where your error comes from (4002 etc.)
+    if inquiry_response.status_code != 200:
+        frappe.throw(
+            f"CBS inquiry failed ({inquiry_detail.get('response_code')}): "
+            f"{inquiry_detail.get('response_detail')}"
+        )
+    
+
+    # 7. Extract business-level status safely
+    data = inquiry_detail.get("response_data") or {}
+    if data.get("response_code") != "0000":
+
+        error_details = data.get("error_details") or {}
+        error_code = error_details.get("error_code")
+        error_message = error_details.get("error_message")
+
+        # 1. Handle specific CBS error codes FIRST
+        if error_code == "2400":
+            frappe.throw("Account not found.")
+
+        elif error_code == "4002":
+            frappe.throw("Invalid account number provided.")
+
+        # 2. Handle known response_code cases
+        elif data.get("response_code") == "2012":
+            frappe.throw(error_message or "Account inquiry failed")
+    
+
+    acc_status = data.get("account_status", {}).get("acc_status_code")
+
+    if not acc_status:
+        frappe.throw("Missing account status from CBS response")
+
+    # 8. Business rules
+    if acc_status in ["00", "01"]:
+        return inquiry_detail
+
+    if acc_status == "05":
+        frappe.throw("Account is Dormant. Transactions not allowed.")
+
+    if acc_status == "14":
+        frappe.throw("Account is Closed. Transaction not allowed.")
+
+    # frappe.throw(f"Unsupported account status: {acc_status}")
 
 
 @frappe.whitelist()
@@ -532,7 +654,7 @@ def check_status_transaction(doc):
 
                 # frappe.throw(frappe.as_json(inquiry_response.json()))
                 # if inquiry_response.status_code == 200:
-                # frappe.throw((inquiry_response.json()))
+            
                 inquiry_detail = inquiry_response.json()
                 return inquiry_detail
                     # frappe.throw(frappe.as_json(inquiry_detail))
