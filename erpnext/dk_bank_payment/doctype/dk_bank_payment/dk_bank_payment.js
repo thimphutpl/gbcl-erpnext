@@ -72,7 +72,10 @@ frappe.ui.form.on("DK Bank Payment", {
 	},
 
     bank_account_no: function(frm){
-		// frappe.dom.freeze('Fetching bank details...');
+		  if (!frm.doc.bank_account_no || !frm.doc.paid_from) {
+        return;
+    }
+		frappe.dom.freeze('Fetching bank details...');
         frappe.call({
 			method: "erpnext.dk_integration_utils.account_inquiry",
 			args: {
