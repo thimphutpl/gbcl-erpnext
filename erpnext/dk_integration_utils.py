@@ -733,6 +733,7 @@ def generate_glturnover_signature(private_key,date):
     def generate_signature(request_body: dict):
         # Convert the request body to JSON string
         request_body_str = json.dumps(request_body, sort_keys=True,separators=(",", ":"))
+        # frappe.throw(str(request_body_str))
         print(request_body_str)
 
     
@@ -797,7 +798,8 @@ def fetch_exchange_rate(payment_name):
 
             # frappe.throw(str(dk_time_stamp))
             if signature_data:
-                url = dk_integration_setting.base_url + dk_integration_setting.exchange_rate
+                # url = dk_integration_setting.base_url + dk_integration_setting.exchange_rate
+                url=f"{dk_integration_setting.base_url}{dk_integration_setting.exchange_rate}"
                 headers = {
                     'Content-Type': 'application/json',
                     'X-gravitee-api-key': dk_integration_setting.x_gravitee_api_key,  # Optional
