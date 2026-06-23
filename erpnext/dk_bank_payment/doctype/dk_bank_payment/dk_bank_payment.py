@@ -111,6 +111,7 @@ class DKBankPayment(Document):
 	def on_submit(self):
 		self.account_enquire()
 		self.process_transaction()
+	
 		
 
 	def send_notification(self):
@@ -228,22 +229,27 @@ class DKBankPayment(Document):
 		if int(response.get("response_code", 0)) == 5001:
 			frappe.throw(frappe.as_json(response.get("response_data")))
 		if int(response['response_data']['status']['status_code']) == 0:
-			# frappe.throw(str(int(response['response_data']['status']['status_code'])))
+			# frappe.throw("Status Code:" + str(int(response['response_data']['status']['status_code'])))
 			self.db_set("workflow_state", 'Completed')
+		elif int(response['response_data']['status']['status_code']) == 51:
+			self.db_set("workflow_state", 'Failed')
+		
 
 		elif int(response['response_code']) == 4310:
 			frappe.throw(response)
+		
 		# else:
 		# 	if flt(response['response_data']['status']['status_code']) == 0:
 		# 		self.db_set("workflow_state", 'Completed')
-		# 	else:
-		# 		self.db_set("workflow_state", 'Failed')
+		# else:
+		# 	self.db_set("workflow_state", 'Failed')
 		# if	flt(response['response_code']) == 2004:
 			# frappe.throw(str(response))
 		# else:
 		# 	self.db_set("workflow_state", 'Failed')
 		# self.db_set("transaction_no", response["response_data"]["txn_id"])
 		# self.db_set("transaction_status_request_id", response["response_data"]["txn_status_id"])
+		created_by = frappe.db.get_value("User", frappe.session.user, "full_name")
 		self.db_set("response_details", response["response_data"]["status"]["status_code"])
 
 		self.db_set("in_queue",response["response_data"]["in_queue"])
@@ -254,7 +260,11 @@ class DKBankPayment(Document):
 		self.db_set("txn_drn",response["response_data"]["status"]["txn_drn"])
 		self.db_set("txn_id", response["response_data"]["txn_id"])
 		self.db_set("txn_status_code",response["response_data"]["status"]["status_code"])
-		self.db_set("txn_status_description",response["response_data"]['status']['status_description'])
+		# self.db_set("txn_status_description",response["response_data"]['status']['status_description'])
+		self.db_set(
+    "txn_status_description",
+    f"{response['response_data']['status']['status_description']} | Created by: {created_by}"
+)
 		
 		# self.db_set("")
 		# dk_doc.in_queue = response["response_data"]["txn_status"]["in_queue"]
@@ -296,12 +306,16 @@ class DKBankPayment(Document):
 		total_amount = 0
 		self.set("transaction", [])
 
+		if not self.transaction_code:
+			f
+
 		currency = frappe.db.sql("""
 				SELECT currency 
 				FROM `tabTransaction Code` 
 				WHERE name= %s""",(self.transaction_code), as_dict=True)[0].currency
 		if currency and currency.upper() != "BTN":
 			result=fetch_exchange_rate(self.transaction_code)
+			
 			data = result.json()
 			if data.get("response_code") != "0000":
 				frappe.throw("Failed to fetch exchange rate: {}".format(
@@ -336,6 +350,7 @@ class DKBankPayment(Document):
 
 
 			beneficiary_name = re.sub("[^A-Za-z0-9 ]+", "", i.beneficiary_name)
+			# frappe.throw(beneficiary_name)
 			row = self.append("transaction", {})
 			row.currency_code = currency
 			row.fx_rate = fx_rate
@@ -387,6 +402,8 @@ class DKBankPayment(Document):
 			),
 			as_dict=True,
 		)
+		if not data1:
+			frappe.throw("No Journal Entry found")
 		
 		for a in data1:
 			if a.voucher_type == "Contra Entry":
@@ -496,7 +513,7 @@ class DKBankPayment(Document):
 								"beneficiary_name": dtl[0]["beneficiary_name"],
 								"bank_name": dtl[0]["bank_name"],
 								# "currency_code": "USD" if self.transaction_code == "Intrabank transfer (USD-USD)" else "BTN",
-								"currency_code": "BTN",
+								# "currency_code": "BTN",
 								"beneficiary_account_no": dtl[0]["bank_account_no"],
 								"amount": flt(i["amount"]),
 								

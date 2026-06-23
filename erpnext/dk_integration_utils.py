@@ -451,6 +451,7 @@ def generate_dk_signature_checkstatus(private_key,doc):
 
 @frappe.whitelist()
 def account_inquiry(account_no):
+    # frappe.throw(str(account_no))
 
     if not account_no:
         frappe.throw("Account number is required")
@@ -601,6 +602,7 @@ def intrabank_transfer(doc):
                 )
 
                 inquiry_detail = inquiry_response.json()
+                # frappe.throw(str(inquiry_detail))
                 return inquiry_detail
                     # frappe.throw(frappe.as_json(inquiry_detail))
                 
