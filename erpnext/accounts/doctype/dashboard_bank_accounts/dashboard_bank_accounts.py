@@ -17,5 +17,6 @@ class DashboardBankAccounts(Document):
 		account_no: DF.Data | None
 		accounts: DF.Link | None
 		accounts_name: DF.Data | None
+		sequence: DF.Int
 	# end: auto-generated types
 	pass
