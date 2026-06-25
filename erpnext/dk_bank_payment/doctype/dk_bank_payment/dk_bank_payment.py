@@ -67,6 +67,7 @@ class DKBankPayment(Document):
 				i.currency_code ="BTN"
 
 	def check_invoice_no(self):
+		# frappe.throw("hii")
 		if self.invoice_number and self.party:
 			exists = frappe.db.exists(
 				"DK Bank Payment",
@@ -87,9 +88,9 @@ class DKBankPayment(Document):
 				exists = frappe.db.sql('''
 				select bpi.invoice as invoice, bp.name as doc_name  from `tabDK Bank Payment` bp inner join 
 				`tabDK Bank Payment Invoices` bpi on bp.name=bpi.parent where 
-				bp.party=%s 
-				and bpi.invoice=%s and bp.name != %s;
-				''',(self.party,i.invoice,self.name))
+				 
+				bpi.invoice=%s and bpi.name != %s;
+				''',(i.invoice,i.name))
 
 				if exists:
 					frappe.throw("Invoice {} already exist for {}".format(exists[0][0],exists[0][1]))
