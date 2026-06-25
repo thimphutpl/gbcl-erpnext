@@ -43,7 +43,21 @@ frappe.ui.form.on("Journal Entry", {
                     'company': frm.doc.company
                 }
             }
+
         });
+
+		frm.set_query("party", "accounts", function (doc, cdt, cdn) {
+			let row = locals[cdt][cdn];
+
+			if (row.party_type === "Employee") {
+				return {
+					filters: {
+						company: doc.company
+					}
+				};
+			}
+		});
+		
 
 		
 	},

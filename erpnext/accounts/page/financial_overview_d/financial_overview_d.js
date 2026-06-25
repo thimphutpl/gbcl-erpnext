@@ -123,8 +123,9 @@ frappe.pages['financial-overview-d'].on_page_load = function(wrapper) {
 		method: "frappe.client.get_list",
 		args: {
 			doctype: "Dashboard Bank Accounts",
-			fields: [ "accounts_name","name", "accounts", "account_no"],
-			limit_page_length: 100
+			fields: [ "accounts_name","name", "accounts", "account_no","sequence"],
+			limit_page_length: 100,
+			order_by: "sequence asc"
 		},
 		callback: function(r) {
 
