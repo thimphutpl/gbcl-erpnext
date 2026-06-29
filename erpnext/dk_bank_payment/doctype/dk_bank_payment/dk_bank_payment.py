@@ -263,8 +263,8 @@ class DKBankPayment(Document):
 		self.db_set("txn_status_code",response["response_data"]["status"]["status_code"])
 		# self.db_set("txn_status_description",response["response_data"]['status']['status_description'])
 		self.db_set(
-    "txn_status_description",
-    f"{response['response_data']['status']['status_description']} | Created by: {created_by}"
+	"txn_status_description",
+	f"{response['response_data']['status']['status_description']} | Created by: {created_by}"
 )
 		
 		# self.db_set("")
@@ -308,7 +308,7 @@ class DKBankPayment(Document):
 		self.set("transaction", [])
 
 		if not self.transaction_code:
-			f
+			frappe.throw("Please select a transaction code")
 
 		currency = frappe.db.sql("""
 				SELECT currency 
@@ -319,6 +319,7 @@ class DKBankPayment(Document):
 			
 			data = result.json()
 			if data.get("response_code") != "0000":
+				
 				frappe.throw("Failed to fetch exchange rate: {}".format(
 					data.get("response_detail", "No details provided")
 				))
@@ -345,7 +346,7 @@ class DKBankPayment(Document):
 			import re
 			if i.bank_name == "DK":
 				account_inquiry(i.beneficiary_account_no)
-			    
+				
 
 
 
@@ -355,6 +356,7 @@ class DKBankPayment(Document):
 			row = self.append("transaction", {})
 			row.currency_code = currency
 			row.fx_rate = fx_rate
+			
 
 			
 			row.update(i)
