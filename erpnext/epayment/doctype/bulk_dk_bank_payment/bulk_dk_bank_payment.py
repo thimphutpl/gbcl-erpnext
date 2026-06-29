@@ -33,7 +33,7 @@ class BulkDKBankPayment(Document):
 		frappe.enqueue(
 			method="erpnext.epayment.doctype.bulk_dk_bank_payment.bulk_dk_bank_payment.create_bank_payments",
 			queue="long",
-			timeout=60,
+			timeout=600,
 			bulk_doc_name=self.name
 		)
 
