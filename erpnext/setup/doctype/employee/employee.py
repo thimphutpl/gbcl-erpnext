@@ -107,6 +107,13 @@ class Employee(NestedSet):
 			self.update_user()
 			self.update_user_permissions()
 		self.reset_employee_emails_cache()
+		self.update_salary_structure()
+	def update_salary_structure(self):
+		ss = frappe.db.get_value("Salary Structure", {"employee": self.name, "is_active": "Yes"}, "name")
+		if ss:
+			doc = frappe.get_doc("Salary Structure", ss)
+			doc.flags.ignore_permissions = 1
+			doc.save()
 	def sync_user_status(self):
 		if self.user_id and frappe.db.exists("User", self.user_id):
 			if self.status == "Inactive":
@@ -480,7 +487,7 @@ def get_permission_query_conditions(user):
 	if user == "Administrator" or "HR User" in user_roles or "HR Manager" in user_roles:
 		return
 	emp=frappe.db.get_value("Employee", {"user_id": user})
-	return """(`tabEmployee`.reports_to='{emp}')""".format(
+	return """(`tabEmployee`.reports_to='{emp}') or `tabEmployee`.name = '{emp}'""".format(
 		emp=emp
 	)
 	
