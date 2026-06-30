@@ -65,35 +65,114 @@ class DKBankPayment(Document):
 				i.currency_code ="USD"
 			else:
 				i.currency_code ="BTN"
-
+				
 	def check_invoice_no(self):
-		# frappe.throw("hii")
-		if self.invoice_number and self.party:
-			exists = frappe.db.exists(
-				"DK Bank Payment",
-				{
-					"invoice_number": self.invoice_number,
-					"party": self.party,
-					"name": ["!=", self.name]  # important for updates
-				}
+		# ==========================================================
+		# Validation for child table:
+		# Invoice + Invoice Issuer combination must be unique.
+		#
+		# Same invoice + same issuer      = NOT allowed
+		# Same invoice + different issuer = allowed
+		# Different invoice + same issuer = allowed
+		# ==========================================================
+
+		if not self.table_eqqy:
+			return
+
+		seen_invoice_issuer = {}
+
+		for row in self.table_eqqy:
+			invoice = (row.invoice or "").strip()
+			invoice_issuer = (row.invoice_issuer or "").strip()
+
+			# Skip fully empty row
+			if not invoice and not invoice_issuer:
+				continue
+
+			# Invoice entered but issuer missing
+			if invoice and not invoice_issuer:
+				frappe.throw(
+					"Please select Invoice Issuer for Invoice {0} in row {1}"
+					.format(invoice, row.idx)
+				)
+
+			# Issuer entered but invoice missing
+			if invoice_issuer and not invoice:
+				frappe.throw(
+					"Please enter Invoice for Invoice Issuer {0} in row {1}"
+					.format(invoice_issuer, row.idx)
+				)
+
+			key = (invoice, invoice_issuer)
+
+			# Check duplicate inside same current document
+			if key in seen_invoice_issuer:
+				frappe.throw(
+					"Duplicate Invoice found.<br><br>"
+					"Invoice <b>{0}</b> with Invoice Issuer <b>{1}</b> "
+					"is already added in row {2} and again in row {3}."
+					.format(invoice, invoice_issuer, seen_invoice_issuer[key], row.idx)
+				)
+
+			seen_invoice_issuer[key] = row.idx
+
+			# Check duplicate from already saved DK Bank Payment documents
+			exists = frappe.db.sql(
+				"""
+				SELECT
+					bpi.invoice,
+					bpi.invoice_issuer,
+					bp.name AS doc_name
+				FROM `tabDK Bank Payment` bp
+				INNER JOIN `tabDK Bank Payment Invoices` bpi
+					ON bpi.parent = bp.name
+				WHERE
+					bp.name != %s
+					AND bp.docstatus != 2
+					AND IFNULL(bp.workflow_state, '') != 'Failed'
+					AND IFNULL(bpi.invoice, '') = %s
+					AND IFNULL(bpi.invoice_issuer, '') = %s
+				LIMIT 1
+				""",
+				(self.name, invoice, invoice_issuer),
+				as_dict=True
 			)
 
 			if exists:
 				frappe.throw(
-					"Invoice No {0} already exists for Party {1}"
-					.format(self.invoice_number, self.party)
+					"Invoice <b>{0}</b> with Invoice Issuer <b>{1}</b> "
+					"already exists in DK Bank Payment <b>{2}</b>."
+					.format(invoice, invoice_issuer, exists[0].doc_name)
 				)
-		if self.table_eqqy:
-			for i in self.table_eqqy:
-				exists = frappe.db.sql('''
-				select bpi.invoice as invoice, bp.name as doc_name  from `tabDK Bank Payment` bp inner join 
-				`tabDK Bank Payment Invoices` bpi on bp.name=bpi.parent where 
-				 
-				bpi.invoice=%s and bpi.name != %s;
-				''',(i.invoice,i.name))
 
-				if exists:
-					frappe.throw("Invoice {} already exist for {}".format(exists[0][0],exists[0][1]))
+	# def check_invoice_no(self):
+	# 	# frappe.throw("hii")
+	# 	if self.invoice_number and self.party:
+	# 		exists = frappe.db.exists(
+	# 			"DK Bank Payment",
+	# 			{
+	# 				"invoice_number": self.invoice_number,
+	# 				"party": self.party,
+	# 				"name": ["!=", self.name]  # important for updates
+	# 			}
+	# 		)
+
+	# 		if exists:
+	# 			frappe.throw(
+	# 				"Invoice No {0} already exists for Party {1}"
+	# 				.format(self.invoice_number, self.party)
+	# 			)
+	# 	if self.table_eqqy:
+	# 		for i in self.table_eqqy:
+	# 			exists = frappe.db.sql('''
+	# 			select bpi.invoice as invoice, bp.name as doc_name  from `tabDK Bank Payment` bp inner join 
+	# 			`tabDK Bank Payment Invoices` bpi on bp.name=bpi.parent where 
+				 
+	# 			bpi.invoice=%s and bpi.name != %s;
+	# 			''',(i.invoice,i.name))
+
+	# 			if exists:
+	# 				frappe.throw("Invoice {} already exist for {}".format(exists[0][0],exists[0][1]))
 					
 
 	def check_duplicate(self):

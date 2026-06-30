@@ -5,7 +5,7 @@ frappe.ui.form.on("DK Bank Payment", {
 
 	
 	refresh: function(frm) {
-        if (frm.doc.docstatus === 1 && frm.doc.workflow_state!='Completed') { // 1 = Submitted
+        if (frm.doc.docstatus === 1 && frm.doc.workflow_state=='Completed') { // 1 = Submitted
             frm.add_custom_button(__('Check Transaction Status'), function () {
 
                 frappe.call({
@@ -30,6 +30,7 @@ frappe.ui.form.on("DK Bank Payment", {
 
             });
         }
+
     },
 	paid_from: function(frm) {
 
@@ -68,7 +69,9 @@ frappe.ui.form.on("DK Bank Payment", {
 					intra_bank: 0
 				}
 			};
-		});}
+		});
+	}
+
 	},
 
     bank_account_no: function(frm){
@@ -100,6 +103,12 @@ frappe.ui.form.on("DK Bank Payment", {
                          frm.set_value("payer_name",r.message.response_data.account_info.account_name);
 						//  frm.set_value("bank_balance_usd",r.message.response_data.balance_info.usd_available_balance);
 						 frm.set_value("acc_status_details",r.message.response_data.account_status.acc_status_details);
+					} else if (r.message.status === "failed") {
+						frappe.msgprint(
+							r.message.message
+						);
+						return;
+
 					}
 					else{
 						frappe.throw("Unable to fetch Bank Balance");
