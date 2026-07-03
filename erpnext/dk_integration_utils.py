@@ -207,28 +207,14 @@ def generate_dk_signature_transaction(private_key,doc):
     bank_code = frappe.db.get_value("Bank",{"name":beneficiary_bank},'bank_code')
     if not bank_code:
         frappe.throw("Add Bank Code in the {} Bank".format(doc.pay_to_bank))  
+    if doc.transaction_type == "Bulk DK Bank Payment":
+        if currency_code == "USD":
+            trans_code = "3110R"
+        elif currency_code == "BTN":
+            trans_code = "2400R"
+        else:
+            trans_code = trans_code
     
-
-    # sample_request_body = {
-    #         "request_meta": {
-    #         "request_id": frappe.generate_hash(length=17),
-    #         "inquiry_id": doc.inquiry_id,
-    #         "source_app": dk_integration_setting.source_app,
-    #         "trans_code":trans_code
-    #         },
-    #         "request_payload": {
-    #         "trans_code":trans_code,
-    #         "payer_acc": doc.bank_account_no,
-    #         "payer_name": doc.payer_name,
-    #         "beneficiary_acc": beneficiary_acc,
-    #         "beneficiary_name": beneficiary_name,
-    #         "beneficiary_bname": beneficiary_bank,
-    #         "beneficiary_bcode":bank_code,
-    #         "currency_code": currency_code,
-    #         "txn_amt": amount,
-    #         "txn_description": description
-    #         }
-    #         }
     sample_request_body = {
         "request_meta": {
         "request_id": frappe.generate_hash(length=17),
@@ -236,7 +222,7 @@ def generate_dk_signature_transaction(private_key,doc):
         "source_app": dk_integration_setting.source_app
         },
         "request_payload": {
-        "trans_code": "2400R" if doc.transaction_type == "Bulk DK Bank Payment" else trans_code,
+        "trans_code":trans_code,
         "dr_cr": "DEBIT",
         "payer_acc": doc.bank_account_no,
         "payer_name": doc.payer_name,

@@ -3,8 +3,29 @@
 
 frappe.ui.form.on("Bulk DK Bank Payment", {
     refresh(frm) {},
-
+    paid_from: function(frm) {
+        if (frm.doc.paid_from) {
+            frappe.db.get_value("Account", frm.doc.paid_from, "bank_ac_no", function(r) {
+                frm.set_value("bank_account_no", r.bank_ac_no).then(() => {
+                    frm.trigger("bank_account_no");
+                });
+            });
+        } else {
+            frm.set_value({
+                bank_account_no: "",
+                bank_balance: "",
+                bank_balance_usd: "",
+                inquiry_id: "",
+                payer_name: "",
+                acc_status_details: ""
+            });
+        }
+    },
     bank_account_no: function(frm){
+        if (!frm.doc.bank_account_no ) {
+            return;
+        }
+     
 		frappe.dom.freeze('Fetching bank details...');
         frappe.call({
 			method: "erpnext.dk_integration_utils.account_inquiry",
@@ -19,7 +40,7 @@ frappe.ui.form.on("Bulk DK Bank Payment", {
 						 frm.set_value("bank_balance", r.message.response_data.balance_info.btn_available_balance);
 						 frm.set_value("inquiry_id",r.message.response_data.meta_info.inquiry_id);
                          frm.set_value("payer_name",r.message.response_data.account_info.account_name);
-						//  frm.set_value("bank_balance_usd",r.message.response_data.balance_info.usd_available_balance);
+						 frm.set_value("bank_balance_usd",r.message.response_data.balance_info.usd_available_balance);
 						 frm.set_value("acc_status_details",r.message.response_data.account_status.acc_status_details);
 					}
 					else{
@@ -27,7 +48,11 @@ frappe.ui.form.on("Bulk DK Bank Payment", {
 					}
 						
 				}
-			}
+			},
+            error: function(err) {
+                frappe.dom.unfreeze();
+
+        }
 		});
     },
 
@@ -54,7 +79,9 @@ frappe.ui.form.on("Bulk DK Bank Payment", {
                         row.beneficiary_account_no = trx.bank_ac_no;
                         row.bank_name = trx.bank_name;
                         row.beneficiary_name = trx.employee_name;
-                        // add other fields as needed
+                        row.currency_code = trx.currency_code;
+                        row.fx_rate = trx.fx_rate;  
+
                     });
 
                     frm.refresh_field("transaction");

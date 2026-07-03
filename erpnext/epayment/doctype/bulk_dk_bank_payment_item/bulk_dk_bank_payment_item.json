@@ -15,21 +15,23 @@
   "beneficiary_name",
   "amount",
   "bank_name",
-  "dk_bank_payment"
+  "dk_bank_payment",
+  "fx_rate"
  ],
  "fields": [
   {
    "fieldname": "beneficiary_account_no",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Beneficiary Account No"
+   "label": "Beneficiary Account No",
+   "read_only": 1
   },
   {
-   "default": "BTN",
    "fieldname": "currency_code",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "label": "Currency Code",
-   "options": "Currency"
+   "options": "Company:company:default_currency",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_ekqb",
@@ -39,13 +41,16 @@
    "fieldname": "beneficiary_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Beneficiary Name"
+   "label": "Beneficiary Name",
+   "read_only": 1
   },
   {
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Amount"
+   "label": "Amount",
+   "options": "Company:company:default_currency",
+   "read_only": 1
   },
   {
    "fieldname": "description",
@@ -55,9 +60,11 @@
   {
    "fieldname": "bank_name",
    "fieldtype": "Link",
+   "in_global_search": 1,
    "in_list_view": 1,
    "label": "Beneficiary Bank",
-   "options": "Bank"
+   "options": "Bank",
+   "read_only": 1
   },
   {
    "fieldname": "employee",
@@ -80,13 +87,21 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "DK Bank Payment",
-   "options": "DK Bank Payment"
+   "options": "DK Bank Payment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fx_rate",
+   "fieldtype": "Float",
+   "label": "FX Rate",
+   "precision": "2",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-02-25 17:53:54.153578",
+ "modified": "2026-07-02 11:10:59.170340",
  "modified_by": "Administrator",
  "module": "ePayment",
  "name": "Bulk DK Bank Payment Item",

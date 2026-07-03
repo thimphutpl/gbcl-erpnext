@@ -18,10 +18,11 @@ class BulkDKBankPaymentItem(Document):
 		bank_name: DF.Link | None
 		beneficiary_account_no: DF.Data | None
 		beneficiary_name: DF.Data | None
-		currency_code: DF.Link | None
+		currency_code: DF.Data | None
 		description: DF.SmallText | None
 		dk_bank_payment: DF.Link | None
 		employee: DF.Link | None
+		fx_rate: DF.Float
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data

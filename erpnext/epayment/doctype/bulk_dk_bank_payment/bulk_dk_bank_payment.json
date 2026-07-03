@@ -9,6 +9,7 @@
   "transaction_type",
   "transaction_no",
   "column_break_pphw",
+  "transaction_code",
   "posting_date",
   "paid_from_ac_detail_section",
   "paid_from",
@@ -17,6 +18,7 @@
   "column_break_ialf",
   "bank_account_no",
   "bank_balance",
+  "bank_balance_usd",
   "acc_status_details",
   "section_break_rgif",
   "get_transactions",
@@ -130,18 +132,35 @@
   {
    "fieldname": "bank_balance",
    "fieldtype": "Currency",
-   "label": "Bank Balance (Nu)"
+   "label": "Bank Balance (Nu)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
   },
   {
    "fieldname": "acc_status_details",
    "fieldtype": "Data",
    "label": "Account Status"
+  },
+  {
+   "fieldname": "bank_balance_usd",
+   "fieldtype": "Currency",
+   "label": "Bank Balance(USD)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transaction_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Transaction Code",
+   "options": "Transaction Code",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-02-25 11:00:04.010425",
+ "modified": "2026-07-02 15:56:37.716534",
  "modified_by": "Administrator",
  "module": "ePayment",
  "name": "Bulk DK Bank Payment",
