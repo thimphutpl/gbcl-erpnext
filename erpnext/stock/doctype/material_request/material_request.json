@@ -106,6 +106,7 @@
    "allow_on_submit": 1,
    "fieldname": "schedule_date",
    "fieldtype": "Date",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "Required By"
   },
@@ -409,7 +410,7 @@
  "idx": 70,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-09-17 16:05:27.086476",
+ "modified": "2026-06-25 11:28:24.473585",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request",

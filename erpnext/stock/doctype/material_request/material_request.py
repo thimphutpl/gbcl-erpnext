@@ -102,8 +102,8 @@ class MaterialRequest(BuyingController):
 					)
 
 	def validate(self):
-		validate_workflow_states(self)
-		super().validate()
+		# validate_workflow_states(self)
+		# super().validate()
 
 		self.validate_schedule_date()
 		self.check_for_on_hold_or_closed_status("Sales Order", "sales_order")
@@ -436,8 +436,8 @@ def make_purchase_order(source_name, target_doc=None, args=None):
 				"doctype": "Purchase Order",
 				"validation": {"docstatus": ["=", 1], "material_request_type": ["=", "Purchase"]},
 				"field_map": {
-                    "branch": "branch" 
-                },
+					"branch": "branch" 
+				},
 			},
 			"Material Request Item": {
 				"doctype": "Purchase Order Item",
@@ -828,3 +828,28 @@ def make_in_transit_stock_entry(source_name, in_transit_warehouse):
 		row.t_warehouse = in_transit_warehouse
 
 	return ste_doc
+
+
+def get_permission_query_conditions(user):
+	if not user:
+		user = frappe.session.user
+	user_roles = frappe.get_roles(user)
+
+	# Full access for admins
+	if "System Manager" in user_roles or "Administrator" in user_roles:
+	
+		return 
+
+	# Get employee linked to user
+	employee = frappe.db.get_value("Employee", {"user_id": user}, "name")
+
+	if not employee:
+		return "1=0"
+
+	# Get branch from employee
+	branch = frappe.db.get_value("Employee", employee, "branch")
+
+	if not branch:
+		return "1=0"
+
+	return f"`tabMaterial Request`.branch = '{branch}'"
