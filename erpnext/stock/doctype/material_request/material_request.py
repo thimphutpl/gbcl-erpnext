@@ -836,7 +836,7 @@ def get_permission_query_conditions(user):
 	user_roles = frappe.get_roles(user)
 
 	# Full access for admins
-	if "System Manager" in user_roles or "Administrator" in user_roles:
+	if "System Manager" in user_roles or "Administrator" in user_roles or "Purchase Manager" in user_roles or "CFO" in user_roles:
 	
 		return 
 
