@@ -831,25 +831,35 @@ def make_in_transit_stock_entry(source_name, in_transit_warehouse):
 
 
 def get_permission_query_conditions(user):
-	if not user:
-		user = frappe.session.user
-	user_roles = frappe.get_roles(user)
+    if not user:
+        user = frappe.session.user
 
-	# Full access for admins
-	if "System Manager" in user_roles or "Administrator" in user_roles or "Purchase Manager" in user_roles or "CFO" in user_roles:
-	
-		return 
+    user_roles = frappe.get_roles(user)
 
-	# Get employee linked to user
-	employee = frappe.db.get_value("Employee", {"user_id": user}, "name")
+    # Admins get full access
+    if "System Manager" in user_roles or "Administrator" in user_roles:
+        return ""
 
-	if not employee:
-		return "1=0"
+    conditions = []
 
-	# Get branch from employee
-	branch = frappe.db.get_value("Employee", employee, "branch")
+    # 🔴 Role-based override (NO branch restriction)
+    if "Purchase Manager" in user_roles:
+        conditions.append("`tabMaterial Request`.workflow_state = 'Waiting for Verification'")
+        return " AND ".join(conditions)
 
-	if not branch:
-		return "1=0"
+    if "CFO" in user_roles:
+        conditions.append("`tabMaterial Request`.workflow_state = 'Waiting Approval'")
+        return " AND ".join(conditions)
 
-	return f"`tabMaterial Request`.branch = '{branch}'"
+    # 🟢 Default users: branch restriction only
+    employee = frappe.db.get_value("Employee", {"user_id": user}, "name")
+    if not employee:
+        return "1=0"
+
+    branch = frappe.db.get_value("Employee", employee, "branch")
+    if not branch:
+        return "1=0"
+
+    conditions.append(f"`tabMaterial Request`.branch = '{branch}'")
+
+    return " AND ".join(conditions)
