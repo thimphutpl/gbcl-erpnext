@@ -61,7 +61,7 @@
   "approver_name",
   "column_break_38",
   "approver_designation",
-  "rev_workflow_state",
+  "workflow_state",
   "other_details_section",
   "reason",
   "column_break_40",
@@ -269,13 +269,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "rev_workflow_state",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Workflow State",
-   "read_only": 1
-  },
-  {
    "default": "Today",
    "fieldname": "review_date",
    "fieldtype": "Date",
@@ -471,12 +464,19 @@
    "options": "Review",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Workflow State",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-23 16:50:34.493894",
+ "modified": "2026-07-07 16:49:25.209184",
  "modified_by": "Administrator",
  "module": "PMS",
  "name": "Review",

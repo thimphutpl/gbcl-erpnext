@@ -49,7 +49,6 @@ class Review(Document):
 		reference: DF.Link | None
 		region: DF.Link | None
 		required_to_set_target: DF.Data | None
-		rev_workflow_state: DF.Data | None
 		review_competency_item: DF.Table[ReviewCompetencyItem]
 		review_date: DF.Date | None
 		review_target_item: DF.Table[ReviewTargetItem]
@@ -61,6 +60,7 @@ class Review(Document):
 		total_weightage: DF.Float
 		unit: DF.Link | None
 		user_id: DF.Link | None
+		workflow_state: DF.Data | None
 	# end: auto-generated types
 	def validate(self):
 		self.check_duplicate_entry()
@@ -219,7 +219,7 @@ def create_review(source_name, target_doc=None):
 
 @frappe.whitelist()
 def manual_approval_for_hr(name, employee, pms_calendar):
-	frappe.db.sql("update `tabReview` set rev_workflow_state = 'Approved', docstatus = 1 where employee = '{0}' and pms_calendar = '{1}' and name = '{2}' and rev_workflow_state = 'Waiting Approval'".format(employee, pms_calendar, name))
+	frappe.db.sql("update `tabReview` set workflow_state = 'Approved', docstatus = 1 where employee = '{0}' and pms_calendar = '{1}' and name = '{2}' and workflow_state = 'Waiting Approval'".format(employee, pms_calendar, name))
 	frappe.msgprint("Document has been Approved")
 
 def get_permission_query_conditions(user):
