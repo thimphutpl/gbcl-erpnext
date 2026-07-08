@@ -25,6 +25,7 @@ class BankClearanceDetail(Document):
 		payment_document: DF.Link | None
 		payment_entry: DF.DynamicLink | None
 		posting_date: DF.Date | None
+		reference: DF.Data | None
 	# end: auto-generated types
 
 	pass

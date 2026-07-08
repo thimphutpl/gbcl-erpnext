@@ -146,7 +146,7 @@ def get_payment_entries_for_bank_clearance(
 				"Journal Entry" as payment_document, t1.name as payment_entry,
 				t1.cheque_no as cheque_number, t1.cheque_date,
 				sum(t2.debit_in_account_currency) as debit, sum(t2.credit_in_account_currency) as credit,
-				t1.posting_date, t2.against_account, t1.clearance_date, t2.account_currency
+				t1.posting_date, t2.against_account, t1.clearance_date, t2.account_currency,t1.remark as reference
 			from
 				`tabJournal Entry` t1, `tabJournal Entry Account` t2
 			where
