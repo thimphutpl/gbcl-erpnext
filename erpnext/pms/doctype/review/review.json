@@ -211,6 +211,7 @@
    "depends_on": "eval:doc.pms_calendar",
    "fieldname": "get_target",
    "fieldtype": "Button",
+   "hidden": 1,
    "label": "Get Target"
   },
   {
@@ -476,7 +477,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-07 16:49:25.209184",
+ "modified": "2026-07-08 14:07:49.881768",
  "modified_by": "Administrator",
  "module": "PMS",
  "name": "Review",
