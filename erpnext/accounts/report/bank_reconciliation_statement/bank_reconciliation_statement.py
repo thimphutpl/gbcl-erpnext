@@ -93,9 +93,18 @@ def get_columns():
 			"options": "Account",
 			"width": 200,
 		},
+		{
+			"fieldname": "remark",
+			"label": _("Remark"),
+			"fieldtype": "data",
+		
+			"width": 200,
+		},
 		{"fieldname": "reference_no", "label": _("Reference"), "fieldtype": "Data", "width": 100},
 		{"fieldname": "ref_date", "label": _("Ref Date"), "fieldtype": "Date", "width": 110},
 		{"fieldname": "clearance_date", "label": _("Clearance Date"), "fieldtype": "Date", "width": 110},
+
+	
 		{
 			"fieldname": "account_currency",
 			"label": _("Currency"),
@@ -136,7 +145,8 @@ def get_journal_entries(filters):
 		select "Journal Entry" as payment_document, jv.posting_date,
 			jv.name as payment_entry, jvd.debit_in_account_currency as debit,
 			jvd.credit_in_account_currency as credit, jvd.against_account,
-			jv.cheque_no as reference_no, jv.cheque_date as ref_date, jv.clearance_date, jvd.account_currency
+			jv.cheque_no as reference_no, jv.cheque_date as ref_date, jv.clearance_date, jvd.account_currency,
+			jv.remark
 		from
 			`tabJournal Entry Account` jvd, `tabJournal Entry` jv
 		where jvd.parent = jv.name and jv.docstatus=1
