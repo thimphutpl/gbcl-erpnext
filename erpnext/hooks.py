@@ -290,6 +290,7 @@ permission_query_conditions = {
     # "Employee": "erpnext.setup.doctype.employee.employee.get_permission_query_conditions",
 	"Asset":"erpnext.assets.doctype.asset.asset.get_permission_query_conditions",
 	"Material Request": "erpnext.stock.doctype.material_request.material_request.get_permission_query_conditions",
+    "Target Set Up": "erpnext.pms.doctype.target_set_up.target_set_up.get_permission_query_conditions",
 }
 
 has_website_permission = {
