@@ -36,6 +36,7 @@
   "commission_debit_account_number",
   "company",
   "workflow_state",
+  "iban",
   "column_break_shzz",
   "account_source",
   "beneficiary_bank_address",
@@ -275,12 +276,17 @@
    "fieldname": "purpose",
    "fieldtype": "Small Text",
    "label": "Purpose"
+  },
+  {
+   "fieldname": "iban",
+   "fieldtype": "Data",
+   "label": "IBAN"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-02-24 09:54:35.582488",
+ "modified": "2026-07-17 17:05:53.689835",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "SWIFT Payment Instruction",
