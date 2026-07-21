@@ -55,7 +55,8 @@ class DKBankPayment(Document):
 	def validate(self):
 		self.check_duplicate()
 		self.send_notification()
-		self.check_invoice_no()
+		if self.workflow_state == "Draft" :
+			self.check_invoice_no()
 		self.set_currency()
 		self.validate_account()
 
@@ -422,6 +423,10 @@ class DKBankPayment(Document):
 		for i in self.get_transactions():
 			if not i.beneficiary_name:
 				frappe.throw("Please update beneficiary name in the supplier or employee")
+			if not i.bank_name:
+				frappe.throw("Bank name is required. Please update the supplier or employee.")
+			if not i.fx_rate:
+				frappe.throw("Fx rate  is required. Please click on get transactions")
 			import re
 			if i.bank_name == "DK":
 				account_inquiry(i.beneficiary_account_no)
