@@ -64,7 +64,7 @@ class BankPayment(Document):
 		from_date: DF.Date | None
 		items: DF.Table[BankPaymentItem]
 		month: DF.Literal["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-		paid_from: DF.Link
+		paid_from: DF.Link | None
 		payment_type: DF.Literal["", "One-One Payment", "Bulk Payment"]
 		posting_date: DF.Datetime | None
 		region: DF.Link | None
