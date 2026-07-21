@@ -66,6 +66,8 @@ class DKBankPayment(Document):
 				i.currency_code ="USD"
 			else:
 				i.currency_code ="BTN"
+
+				
 				
 	def check_invoice_no(self):
 		# ==========================================================
@@ -249,6 +251,17 @@ class DKBankPayment(Document):
 
 		trans_code = result[0][0] if result else None
 
+		for row in self.transaction:
+			if not row.bank_name:
+				frappe.throw(
+					f"Bank name is required for {row.beneficiary_name}."
+				)
+
+			if not row.fx_rate:
+				frappe.throw(
+					f"FX rate is required for {row.beneficiary_name}. Please click Get Transactions."
+				)
+
 		if trans_code != "3110R":
 			return
 
@@ -423,10 +436,6 @@ class DKBankPayment(Document):
 		for i in self.get_transactions():
 			if not i.beneficiary_name:
 				frappe.throw("Please update beneficiary name in the supplier or employee")
-			if not i.bank_name:
-				frappe.throw("Bank name is required. Please update the supplier or employee.")
-			if not i.fx_rate:
-				frappe.throw("Fx rate  is required. Please click on get transactions")
 			import re
 			if i.bank_name == "DK":
 				account_inquiry(i.beneficiary_account_no)
