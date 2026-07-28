@@ -14,6 +14,7 @@ class TDSReceiptUpdate(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
+		from erpnext.accounts.doctype.employee_tds_item.employee_tds_item import EmployeeTDSItem
 		from erpnext.accounts.doctype.tds_remittance_item.tds_remittance_item import TDSRemittanceItem
 		from frappe.types import DF
 
@@ -23,10 +24,11 @@ class TDSReceiptUpdate(Document):
 		cheque_no: DF.Data
 		company: DF.Link
 		cost_center: DF.Link | None
+		employees: DF.Table[EmployeeTDSItem]
 		fiscal_year: DF.Link | None
 		from_date: DF.Date | None
 		items: DF.Table[TDSRemittanceItem]
-		month: DF.Literal["", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+		month: DF.Literal["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 		pbva: DF.Data | None
 		purpose: DF.Literal["", "Other Invoice", "Employee Salary", "Salary Arrear", "Leave Encashment", "PBVA", "Bonus"]
 		tax_withholding_category: DF.Link | None
@@ -34,20 +36,113 @@ class TDSReceiptUpdate(Document):
 		tds_receipt_number: DF.Data
 		to_date: DF.Date | None
 		total_bill_amount: DF.Currency
+		total_gross_salary: DF.Currency
+		total_health_contribution: DF.Currency
+		total_salary_tax: DF.Currency
 		total_tax_amount: DF.Currency
 	# end: auto-generated types
 	def validate(self):
 		self.calculate_total()
 		self.validate_filters()
+		self.validate_employees()
 
 	def on_update(self):
 		self.check_duplicate_entries()
 
 	def on_submit(self):
-		self.make_tds_receipt_entries()
+		if self.purpose in ("Employee Salary", "Bulk Leave Encashment"):
+			self.update_tds_receipt_number()
+		else:
+			self.make_tds_receipt_entries()
 
 	def on_cancel(self):
-		frappe.db.sql("delete from `tabTDS Receipt Entry` where tds_receipt_update = '{}'".format(self.name))
+		if self.purpose in ("Employee Salary", "Bulk Leave Encashment"):
+			self.update_tds_receipt_number(cancel=True)
+		else:
+			frappe.db.sql("delete from `tabTDS Receipt Entry` where tds_receipt_update = '{}'".format(self.name))
+
+	def validate_employees(self):
+		if not self.employees:
+			return
+		self.number_of_employees = len(self.employees)
+		
+		total_salary_tax = total_health_contribution = gross_salary = 0.0
+
+		for sd in self.employees:
+			salary_tax = health_contribution = 0.0
+			doc = frappe.get_doc("Salary Slip", sd.salary_slip)
+			
+			for detail in doc.get("earnings") + doc.get("deductions"):
+				if detail.salary_component in ["Salary Tax", "Health Contribution"]:
+					if detail.salary_component == "Salary Tax":
+						salary_tax += flt(detail.amount)
+						total_salary_tax += flt(detail.amount)
+					elif detail.salary_component == "Health Contribution":
+						health_contribution += flt(detail.amount)
+						total_health_contribution += flt(detail.amount)
+			
+			sd.salary_tax = flt(salary_tax)
+			sd.health_contribution = flt(health_contribution)
+			sd.gross_salary = flt(doc.gross_pay)
+			gross_salary += flt(doc.gross_pay)
+
+		self.total_gross_salary = gross_salary
+		self.total_salary_tax = total_salary_tax
+		self.total_health_contribution = total_health_contribution
+
+	def make_filters(self):
+		filters = frappe._dict(
+			company=self.company,
+			fiscal_year=self.fiscal_year,
+			month=self.month
+		)
+		return filters
+
+	def update_tds_receipt_number(self, cancel=False):
+		if self.purpose == "Employee Salary":
+			self.update_salary_slip(cancel)
+		elif self.purpose == "Bulk Leave Encashment":
+			self.update_bulk_leave_encashment(cancel)
+
+	def update_salary_slip(self, cancel):
+		if not self.employees:
+			frappe.throw("No employees found to update TDS receipt numbers.")
+		if cancel:
+			receipt_number = None
+			receipt_date = None
+		else:
+			receipt_number = self.tds_receipt_number
+			receipt_date = self.tds_receipt_date
+		
+		updates = []
+		for emp in self.get("employees"):
+			if emp.salary_slip:
+				updates.append({
+					"name": emp.salary_slip,
+					"tds_receipt_number": receipt_number,
+					"tds_receipt_date": receipt_date,
+				})
+		
+		if updates:
+			try:
+				for update in updates:
+					frappe.db.set_value(
+						"Salary Slip",
+						update["name"],
+						{
+							"tds_receipt_number": update["tds_receipt_number"],
+							"tds_receipt_date": update["tds_receipt_date"],
+						},
+					)
+				frappe.msgprint("TDS receipt numbers have been successfully updated.", alert=True)
+			except Exception as e:
+				frappe.log_error(
+					title="Error Updating TDS Receipt Numbers",
+					message=f"An error occurred while updating TDS receipt numbers: {str(e)}"
+				)
+				frappe.throw("An error occurred while updating TDS receipt numbers. Please check the error log.")
+		else:
+			frappe.throw("No valid Salary Slips found to update.")		
 
 	def check_duplicate_entries(self):
 		if self.purpose in ["Employee Salary","PBVA","Bonus"]:
@@ -131,6 +226,56 @@ class TDSReceiptUpdate(Document):
 				frappe.throw("<b>Month</b> is mandatory")
 
 	@frappe.whitelist()
+	def fill_employee_details(self):
+		filters = self.make_filters()
+		employees = get_employee_list(filters=filters, as_dict=True)
+		self.set("employees", [])
+
+		if not employees:
+			error_msg = _(
+				"No employees found for the mentioned criteria:<br>Company: {0}"
+			).format(
+				frappe.bold(self.company),
+			)
+			if self.fiscal_year:
+				error_msg += "<br>" + _("Fiscal Year: {0}").format(frappe.bold(self.fiscal_year))
+			if self.month:
+				error_msg += "<br>" + _("Month: {0}").format(frappe.bold(self.month))
+			frappe.throw(error_msg, title=_("No employees found"))
+
+		self.set("employees", employees)
+		self.number_of_employees = len(self.employees)	
+
+	def update_bulk_leave_encashment(self, cancel):
+		if not self.bulk_leave_encashment:
+			frappe.throw("No Bulk Leave Encashment document selected.")
+
+		if cancel:
+			receipt_number = None or ""
+			receipt_date = None or ""
+		else:
+			receipt_number = self.tds_receipt_number
+			receipt_date = self.tds_receipt_date
+
+		try:
+			doc = frappe.get_doc("Bulk Leave Encashment", self.bulk_leave_encashment)
+			doc.tds_receipt_number = receipt_number
+			doc.tds_receipt_date = receipt_date  # Corrected assignment here
+			doc.save(ignore_permissions=True)
+			frappe.msgprint(
+				f"TDS receipt details updated for Bulk Leave Encashment: {doc.name}",
+				alert=True
+			)
+		except frappe.DoesNotExistError:
+			frappe.throw(f"Bulk Leave Encashment document {self.bulk_leave_encashment} does not exist.")
+		except Exception as e:
+			frappe.log_error(
+				title="Error Updating Bulk Leave Encashment",
+				message=f"Error updating TDS receipt details for Bulk Leave Encashment {self.bulk_leave_encashment}: {str(e)}"
+			)
+			frappe.throw("An error occurred while updating the Bulk Leave Encashment. Please check the error log.")				
+
+	@frappe.whitelist()
 	def get_invoices(self):
 		cond = accounts_cond = "" 
 		total_bill_amount = total_tds_amount = 0
@@ -194,7 +339,7 @@ class TDSReceiptUpdate(Document):
 				if not self.branch:
 					frappe.throw("Branch is required")
 				entries = frappe.db.sql("""SELECT posting_date, party_type, party, invoice_type, invoice_no, bill_amount, 
-						tax_account, tds_amount, party_name, tpn, cost_center, business_activity, parent as tds_remittance
+						tax_account, tds_amount, party_name, tpn, cost_center, parent as tds_remittance
 					FROM `tabTDS Remittance Item` t1
 					WHERE t1.posting_date BETWEEN '{from_date}' AND '{to_date}'
 					AND t1.docstatus = 1
@@ -241,6 +386,34 @@ def apply_pbva_filter(doctype, txt, searchfield, start, page_len, filters):
 		'txt': '%' + txt + '%',
 		'start': start, 'page_len': page_len
 	})
+
+def get_employee_list(
+	filters,
+	as_dict=True,
+) -> list:
+	SalarySlip = frappe.qb.DocType("Salary Slip")
+	Employee = frappe.qb.DocType("Employee")
+	query = (
+		frappe.qb.from_(Employee)
+		.join(SalarySlip)
+		.on(Employee.name == SalarySlip.employee)
+		.where(
+			(SalarySlip.docstatus == 1)
+			& (SalarySlip.company == filters.company)
+			& (SalarySlip.fiscal_year == filters.fiscal_year)
+			& (SalarySlip.month == filters.month)
+			& ((SalarySlip.tds_receipt_number == None) | (SalarySlip.tds_receipt_number.isnull()))
+		)
+		.select(
+			Employee.name.as_("employee"),
+			Employee.employee_name,
+			SalarySlip.designation,
+			SalarySlip.branch,
+			SalarySlip.name.as_("salary_slip")
+		)
+	)
+	# frappe.throw(str(query))
+	return query.run(as_dict=as_dict)	
 
 def get_permission_query_conditions(user):
 	if not user: user = frappe.session.user

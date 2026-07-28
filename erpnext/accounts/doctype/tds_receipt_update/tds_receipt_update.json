@@ -28,6 +28,14 @@
   "cheque_no",
   "21",
   "cheque_date",
+  "section_break_hosc",
+  "employees",
+  "section_break_bnsk",
+  "total_gross_salary",
+  "column_break_zabz",
+  "total_salary_tax",
+  "column_break_eckz",
+  "total_health_contribution",
   "sb_invoice_details",
   "items",
   "sb_totals",
@@ -88,7 +96,7 @@
    "fieldtype": "Select",
    "label": "Month",
    "mandatory_depends_on": "eval:doc.purpose == \"Employee Salary\"",
-   "options": "\n01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12"
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
   },
   {
    "depends_on": "eval:in_list([\"PBVA\"], doc.purpose)",
@@ -161,6 +169,7 @@
    "label": "Invoice Details"
   },
   {
+   "depends_on": "eval:doc.purpose===\"Other Invoice\"",
    "fieldname": "items",
    "fieldtype": "Table",
    "options": "TDS Remittance Item"
@@ -205,12 +214,53 @@
    "label": "Company",
    "options": "Company",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_break_hosc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.purpose===\"Employee Salary\"",
+   "fieldname": "employees",
+   "fieldtype": "Table",
+   "label": "Employee Details",
+   "options": "Employee TDS Item"
+  },
+  {
+   "fieldname": "section_break_bnsk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_gross_salary",
+   "fieldtype": "Currency",
+   "label": "Total Gross Salary",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_zabz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_salary_tax",
+   "fieldtype": "Currency",
+   "label": "Total Tax Salary",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_eckz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_health_contribution",
+   "fieldtype": "Currency",
+   "label": "Total Health Contribution",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-10 14:12:16.111653",
+ "modified": "2026-07-28 22:09:29.751815",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "TDS Receipt Update",
