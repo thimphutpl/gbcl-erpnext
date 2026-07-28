@@ -1117,7 +1117,7 @@ class CustomWorkflow:
 		self.field_list		= ["user_id", "employee_name", "designation", "name"]
 
 		### =============== *** =============== *** === NYUTHYUE === *** =============== *** =============== ###
-		if self.doc.doctype in ("Travel Authorization", "Travel Advance", "Travel Adjustment", "Travel Claim", "Employee Advance", "Leave Encashment"):
+		if self.doc.doctype in ("Travel Authorization", "Travel Advance", "Travel Adjustment", "Travel Claim", "Employee Advance", "Leave Encashment","Review","Leave Application"):
 			self.employee		= frappe.db.get_value("Employee", self.doc.employee, self.field_list)
 			self.reports_to 	= frappe.db.get_value("Employee", {"name":frappe.db.get_value("Employee", self.doc.employee, "reports_to")}, self.field_list)
 			if not self.reports_to:
@@ -1311,6 +1311,7 @@ class CustomWorkflow:
 			frappe.throw(_("Workflow not defined for {}").format(self.doc.doctype))
 
 	def set_approver(self, approver_type):
+		
 		if approver_type == "Supervisor":
 			if not self.reports_to:
 				frappe.throw("Reports To not set for Employee {}".format(self.doc.employee if self.doc.employee else frappe.db.get_value("Employee", {"user_id",self.doc.owner}, "name")))
@@ -1538,16 +1539,19 @@ class CustomWorkflow:
 		if self.new_state.lower() in ("Draft".lower()):
 			if frappe.session.user != self.doc.owner:
 				frappe.throw("Only {} can apply this leave".format(self.doc.owner))
-			# self.set_approver("Supervisor")	
+			
+			
 
 		elif self.new_state.lower() == ("Waiting Supervisor Approval".lower()):
+			if frappe.session.user != self.doc.owner:
+				frappe.throw("Only {} can apply this leave".format(self.doc.owner))
 			
 			self.set_approver("Supervisor")
 
 		elif self.new_state.lower() == ("Approved".lower()):
-			pass
-			# if frappe.session.user != self.doc.leave_approver:
-			# 	frappe.throw(f"Only {self.doc.leave_approver} can Approved this Leave Application.")
+			
+			if frappe.session.user != self.doc.leave_approver:
+				frappe.throw(f"Only {self.doc.leave_approver} can Approved this Leave Application.")
 			
 		elif self.new_state.lower() == ("Rejected".lower()):
 			if frappe.session.user != self.doc.leave_approver:
@@ -1743,15 +1747,13 @@ class CustomWorkflow:
 			if frappe.session.user != self.doc.owner:
 				frappe.throw("Only {} can apply this Material Request".format(self.doc.owner))
 		
-		elif self.new_state.lower() == ("Waiting For Verification".lower()):
-			self.set_approver("User Supervisor")
-		# elif self.new_state.lower() == ("Waiting For Approval".lower()):
-		# 	if self.doc.material_request_type =="Purchase":
-		# 		frappe.throw("Contact Admin with this regards")
-		elif self.new_state.lower() == ("Waiting MR Verification".lower()):
-			if frappe.session.user != self.doc.approver:
-				frappe.throw("Only {} can forward this document".format(self.doc.approver))
-			self.set_approver("None")
+		elif self.new_state.lower() == ("Waiting Supervisor Approval".lower()):
+			if "Approver" not in frappe.get_roles(frappe.session.user):
+				frappe.throw("Only users with Approver role can forward this Request.")	
+
+		elif self.new_state.lower() == ("Waiting for Verification".lower()):
+			if "Purchase Manager" not in frappe.get_roles(frappe.session.user):
+				frappe.throw("Only users with Purchase Manager role can forward this Request.")	
 		elif self.new_state.lower() == ("Approved".lower()):
 			# if self.doc.material_request_type =="Purchase" and frappe.session.user != self.doc.approver:
 			# 	frappe.throw(f"Only {self.doc.approver} can Approved this Material Request")
@@ -1805,7 +1807,7 @@ class NotifyCustomWorkflow:
 		args = parent_doc.as_dict()
 
 		if self.doc.doctype == "Leave Application":
-			template = frappe.db.get_single_value('HR Settings', 'leave_application_status_notification_template')
+			template = frappe.db.get_single_value('HR Settings', 'leave_status_notification_template')
 			if not template:
 				frappe.msgprint(_("Please set default template for Leave Status Notification in HR Settings."))
 				return
@@ -1910,7 +1912,7 @@ class NotifyCustomWorkflow:
 			parent_doc = frappe.get_doc(self.doc.doctype, self.doc.name)
 			args = parent_doc.as_dict()
 			if self.doc.doctype == "Leave Application":
-				template = frappe.db.get_single_value('HR Settings', 'leave_application_approval_notification_template')
+				template = frappe.db.get_single_value('HR Settings', 'leave_approval_notification_template')
 				if not template:
 					frappe.msgprint(_("Please set default template for Leave Approval Notification in HR Settings."))
 					return
@@ -2003,6 +2005,11 @@ class NotifyCustomWorkflow:
 				if not template:
 					frappe.msgprint(_("Please set default template for Asset Approval Notification in Asset Settings."))
 					return
+			elif self.doc.doctype == "Material Request":
+				template = frappe.db.get_single_value('HR Settings', 'material_request_approval_notification_template')
+				if not template:
+					frappe.msgprint(_("Please set default template for Material Request Approval Notification in HR Settings."))
+					return
 			else:
 				template = ""
 
@@ -2018,8 +2025,81 @@ class NotifyCustomWorkflow:
 				# for email
 				"subject": email_template.subject
 			})
+	
 			
+	def notify_user_role(self, wf_state):
+		
+		try:
+			recipients = []
 
+			# Map workflow state to role(s)
+			role_map = {
+				"Waiting Supervisor Approval": "Approver",
+				"Waiting for Verification":"Purchase Manager",
+				"Waiting Approval": "CFO",
+			}
+
+			role = role_map.get(wf_state)
+
+			# Get emails for the role(s)
+			if role:
+				if isinstance(role, list):
+					# Multiple roles -> use "in" operator
+					users_with_role = frappe.get_all(
+						"Has Role",
+						filters={"role": ["in", role]},
+						pluck="parent"
+					)
+				else:
+					# Single role
+					users_with_role = frappe.get_all(
+						"Has Role",
+						filters={"role": role},
+						pluck="parent"
+					)
+
+				for user in users_with_role:
+					email = frappe.db.get_value("User", user, "email")
+					if email:
+						recipients.append(email)		
+			else:
+				# Final states: notify employee
+				if hasattr(self.doc, "employee") and self.doc.employee:
+					email = frappe.db.get_value("Employee", self.doc.employee, "user_id")
+					if email:
+						recipients.append(email)
+
+			if not recipients:
+				frappe.msgprint(_("No valid recipients found for workflow state: {0}").format(wf_state))
+				return
+
+			# Get email template based on DocType
+			if self.doc.doctype == "Material Request":
+				template_name = frappe.db.get_single_value("HR Settings", "material_request_approval_notification_template")
+			else:
+				frappe.msgprint(_("No email template configured for this document type"))
+				return
+
+			if not template_name:
+				frappe.msgprint(_("Please set the default template for {0} notifications in HR Settings.").format(self.doc.doctype))
+				return
+
+			email_template = frappe.get_doc("Email Template", template_name)
+
+			# Render message
+			args = self.doc.as_dict()
+			message = frappe.render_template(email_template.response, args)
+
+			# Send notification
+			self.notify({
+				"message": message,
+				"message_to": 'pemanorbu132@gmail.com',
+				"subject": email_template.subject,
+			})
+
+		except Exception as e:
+			frappe.log_error(frappe.get_traceback(), f"{self.doc.doctype}.notify_user_role Error")
+			frappe.throw(_("Notification sending failed: {0}").format(str(e)))				
 	def notify_hr_users(self):
 		receipients = []
 		email_group = frappe.db.get_single_value("HR Settings","email_group")
@@ -2133,8 +2213,17 @@ class NotifyCustomWorkflow:
 	def send_notification(self):
 		if (self.doc.doctype not in self.field_map) or not frappe.db.exists("Workflow", {"document_type": self.doc.doctype, "is_active": 1}):
 			return
+		if self.doc.doctype == "Material Request":
+			wf_state = self.new_state
+			if wf_state == "Draft":
+				return
+			elif wf_state =="Waiting Supervisor Approval":
+				self.notify_user_role(wf_state)
+				return
+	
 		if self.new_state == "Draft":
 			return
+		
 		elif self.new_state in ("Approved", "Rejected", "Cancelled", "Claimed", "Submitted"):
 			if self.doc.doctype == "Material Request" and self.doc.owner != "Administrator":
 				self.notify_employee()
