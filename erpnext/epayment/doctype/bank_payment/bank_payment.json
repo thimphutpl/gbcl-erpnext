@@ -142,8 +142,7 @@
    "fieldname": "paid_from",
    "fieldtype": "Link",
    "label": "Paid From Account",
-   "options": "Account",
-   "reqd": 1
+   "options": "Account"
   },
   {
    "fieldname": "bank_name",
@@ -323,7 +322,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-03 17:05:57.132875",
+ "modified": "2026-06-16 19:48:03.335708",
  "modified_by": "Administrator",
  "module": "ePayment",
  "name": "Bank Payment",

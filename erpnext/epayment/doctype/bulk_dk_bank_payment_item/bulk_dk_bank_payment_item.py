@@ -26,6 +26,8 @@ class BulkDKBankPaymentItem(Document):
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
+		remark: DF.SmallText | None
+		status: DF.Literal["", "Pending", "Completed", "Failed"]
 		supplier: DF.Link | None
 	# end: auto-generated types
 	pass
