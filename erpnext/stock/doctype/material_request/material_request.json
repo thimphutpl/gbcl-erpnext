@@ -80,8 +80,9 @@
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Title",
+   "label": "Material Request For",
    "no_copy": 1,
+   "placeholder": "e.g., Laptop Requisition",
    "print_hide": 1
   },
   {
@@ -434,7 +435,7 @@
  "idx": 70,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-12 14:22:26.433573",
+ "modified": "2026-08-14 17:36:42.054580",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request",
