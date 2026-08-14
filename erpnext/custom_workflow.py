@@ -1743,17 +1743,22 @@ class CustomWorkflow:
 			frappe.throw(_("Invalid Workflow State {}").format(self.doc.workflow_state))
 
 	def material_request(self):
+		
 		if self.new_state.lower() in ("Draft".lower()):
+		
 			if frappe.session.user != self.doc.owner:
 				frappe.throw("Only {} can apply this Material Request".format(self.doc.owner))
 		
 		elif self.new_state.lower() == ("Waiting Supervisor Approval".lower()):
-			if "Approver" not in frappe.get_roles(frappe.session.user):
-				frappe.throw("Only users with Approver role can forward this Request.")	
+			
+			if frappe.session.user != self.doc.owner:
+				frappe.throw("Only {} can apply this Material Request".format(self.doc.owner))	
+			
 
 		elif self.new_state.lower() == ("Waiting for Verification".lower()):
-			if "Purchase Manager" not in frappe.get_roles(frappe.session.user):
-				frappe.throw("Only users with Purchase Manager role can forward this Request.")	
+			
+			if frappe.session.user != self.doc.approver:
+				frappe.throw("Only {} can forward this Material Request".format(self.doc.approver))	
 		elif self.new_state.lower() == ("Approved".lower()):
 			# if self.doc.material_request_type =="Purchase" and frappe.session.user != self.doc.approver:
 			# 	frappe.throw(f"Only {self.doc.approver} can Approved this Material Request")
@@ -1897,15 +1902,13 @@ class NotifyCustomWorkflow:
 			return
 		email_template = frappe.get_doc("Email Template", template)
 		message = frappe.render_template(email_template.response, args)
-		# if employee :
-		# 	self.notify({
-		# 		# for post in messages
-		# 		"message": message,
-		# 		"message_to": employee.user_id,
-		# 		# for email
-		# 		"subject": email_template.subject,
-		# 		"notify": "employee"
-		# 	})
+		if employee and employee.user_id:
+			self.notify({
+				"message": message,
+				"message_to": employee.user_id,
+				"subject": email_template.subject,
+				"notify": "employee"
+			})
 
 	def notify_approver(self):
 		if self.doc.get(self.doc_approver[0]):
@@ -2034,13 +2037,13 @@ class NotifyCustomWorkflow:
 
 			# Map workflow state to role(s)
 			role_map = {
-				"Waiting Supervisor Approval": "Approver",
+				# "Waiting Supervisor Approval": "Approver",
 				"Waiting for Verification":"Purchase Manager",
 				"Waiting Approval": "CFO",
 			}
 
 			role = role_map.get(wf_state)
-
+			# frappe.throw(str(self.doc.approver))
 			# Get emails for the role(s)
 			if role:
 				if isinstance(role, list):
@@ -2089,11 +2092,11 @@ class NotifyCustomWorkflow:
 			# Render message
 			args = self.doc.as_dict()
 			message = frappe.render_template(email_template.response, args)
-
+			#approver=self.doc.approver
 			# Send notification
 			self.notify({
 				"message": message,
-				"message_to": 'pemanorbu132@gmail.com',
+				"message_to":recipients,
 				"subject": email_template.subject,
 			})
 
@@ -2210,32 +2213,107 @@ class NotifyCustomWorkflow:
 		except frappe.OutgoingEmailError:
 			pass
 
+	# def send_notification(self):
+	# 	if (self.doc.doctype not in self.field_map) or not frappe.db.exists("Workflow", {"document_type": self.doc.doctype, "is_active": 1}):
+	# 		return
+	# 	if self.new_state == "Draft":
+	# 		return
+		
+	# 	elif self.new_state in ("Approved", "Rejected", "Cancelled", "Claimed", "Submitted"):
+	# 		if self.doc.doctype == "Material Request" and self.doc.owner != "Administrator":
+	# 			self.notify_employee()
+	# 		else:
+	# 			self.notify_employee()
+	# 	elif self.new_state.startswith("Waiting") and self.old_state != self.new_state and self.doc.doctype not in ("Asset Issue Details","Project Capitalization"):
+	# 		self.notify_approver()
+	# 	elif self.new_state.startswith("Verified") and self.old_state != self.new_state:
+	# 		self.notify_approver()
+	# 	else:
+	# 		frappe.msgprint(_("Email notifications not configured for workflow state {}").format(self.new_state))
 	def send_notification(self):
-		if (self.doc.doctype not in self.field_map) or not frappe.db.exists("Workflow", {"document_type": self.doc.doctype, "is_active": 1}):
+		if (
+			self.doc.doctype not in self.field_map
+			or not frappe.db.exists(
+				"Workflow",
+				{
+					"document_type": self.doc.doctype,
+					"is_active": 1
+				}
+			)
+		):
 			return
-		if self.doc.doctype == "Material Request":
-			wf_state = self.new_state
-			if wf_state == "Draft":
-				return
-			elif wf_state =="Waiting Supervisor Approval":
-				self.notify_user_role(wf_state)
-				return
-	
+
 		if self.new_state == "Draft":
 			return
-		
-		elif self.new_state in ("Approved", "Rejected", "Cancelled", "Claimed", "Submitted"):
-			if self.doc.doctype == "Material Request" and self.doc.owner != "Administrator":
-				self.notify_employee()
-			else:
-				self.notify_employee()
-		elif self.new_state.startswith("Waiting") and self.old_state != self.new_state and self.doc.doctype not in ("Asset Issue Details","Project Capitalization"):
-			self.notify_approver()
-		elif self.new_state.startswith("Verified") and self.old_state != self.new_state:
-			self.notify_approver()
-		else:
-			frappe.msgprint(_("Email notifications not configured for workflow state {}").format(self.new_state))
 
+		if self.doc.doctype == "Material Request":
+
+			# 1. Employee applied -> Email Supervisor
+			if (
+				self.new_state == "Waiting Supervisor Approval"
+				and self.old_state != self.new_state
+			):
+				self.notify_approver()
+				return
+
+			# 2. Supervisor forwarded -> Email Purchase Manager
+			elif (
+				self.new_state == "Waiting for Verification"
+				and self.old_state != self.new_state
+			):
+				self.notify_user_role("Waiting for Verification")
+				return
+
+			# 3. Purchase Manager forwarded -> Email CFO
+			elif (
+				self.new_state == "Waiting Approval"
+				and self.old_state != self.new_state
+			):
+				self.notify_user_role("Waiting Approval")
+				return
+
+			# 4. Final state -> Email Employee
+			elif self.new_state in (
+				"Approved",
+				"Rejected",
+				"Cancelled",
+				"Claimed",
+				"Submitted",
+			):
+				self.notify_employee()
+				return
+
+		if self.new_state in (
+			"Approved",
+			"Rejected",
+			"Cancelled",
+			"Claimed",
+			"Submitted",
+		):
+			self.notify_employee()
+
+		elif (
+			self.new_state.startswith("Waiting")
+			and self.old_state != self.new_state
+			and self.doc.doctype not in (
+				"Asset Issue Details",
+				"Project Capitalization",
+			)
+		):
+			self.notify_approver()
+
+		elif (
+			self.new_state.startswith("Verified")
+			and self.old_state != self.new_state
+		):
+			self.notify_approver()
+
+		else:
+			frappe.msgprint(
+				_("Email notifications not configured for workflow state {}").format(
+					self.new_state
+				)
+			)
 def get_field_map():
 	return {
 		"Leave Application": ["leave_approver", "leave_approver_name", "leave_approver_designation"],
