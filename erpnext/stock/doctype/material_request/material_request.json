@@ -8,12 +8,15 @@
  "engine": "InnoDB",
  "field_order": [
   "type_section",
+  "company",
   "naming_series",
   "branch",
+  "cost_center",
   "title",
   "material_request_type",
   "customer",
-  "company",
+  "employee",
+  "employee_name",
   "column_break_2",
   "transaction_date",
   "schedule_date",
@@ -394,6 +397,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "fetch_from": "approver.full_name",
    "fieldname": "approver_name",
    "fieldtype": "Data",
    "label": "Approver Name",
@@ -404,13 +408,33 @@
    "fieldtype": "Data",
    "label": "Approver Designation",
    "read_only": 1
+  },
+  {
+   "fetch_from": "branch.cost_center",
+   "fieldname": "cost_center",
+   "fieldtype": "Data",
+   "label": "Cost Center",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name"
   }
  ],
  "icon": "fa fa-ticket",
  "idx": 70,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-25 11:28:24.473585",
+ "modified": "2026-08-12 14:22:26.433573",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request",
@@ -471,6 +495,19 @@
    "read": 1,
    "report": 1,
    "role": "Purchase User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Employee",
+   "select": 1,
    "share": 1,
    "submit": 1,
    "write": 1

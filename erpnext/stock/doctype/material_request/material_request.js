@@ -15,6 +15,7 @@ frappe.ui.form.on("Material Request", {
 			"Supplier Quotation": "Supplier Quotation",
 			"Work Order": "Work Order",
 			"Purchase Receipt": "Purchase Receipt",
+			
 		};
 
 		// formatter for material request item
@@ -42,6 +43,7 @@ frappe.ui.form.on("Material Request", {
 				},
 			};
 		});
+		frm.set_query("employee", erpnext.queries.employee);
 	},
 
 	onload: function (frm) {
@@ -83,7 +85,26 @@ frappe.ui.form.on("Material Request", {
 			}
 		})
 	},
-
+	branch: function (frm) {
+		
+		
+		frm.trigger("set_approver");
+	},
+	set_approver: function (frm) {
+		if (frm.doc.branch) {
+			return frappe.call({
+				method: "erpnext.stock.doctype.material_request.material_request.get_approver",
+				args: {
+					branch: frm.doc.branch,
+				},
+				callback: function (r) {
+					if (r && r.message) {
+						frm.set_value("approver", r.message);
+					}
+				},
+			});
+		}
+	},
 	onload_post_render: function (frm) {
 		frm.get_field("items").grid.set_multiple_add("item_code", "qty");
 	},
@@ -91,6 +112,17 @@ frappe.ui.form.on("Material Request", {
 	refresh: function (frm) {
 		frm.events.make_custom_buttons(frm);
 		frm.toggle_reqd("customer", frm.doc.material_request_type == "Customer Provided");
+		frm.trigger("set_employee");
+	},
+	async set_employee(frm) {
+		// Don't overwrite if Employee is already selected
+		if (frm.doc.employee) return;
+	
+		const employee = await hrms.get_current_employee(frm);
+	
+		if (employee) {
+			frm.set_value("employee", employee);
+		}
 	},
 
 	set_from_warehouse: function (frm) {

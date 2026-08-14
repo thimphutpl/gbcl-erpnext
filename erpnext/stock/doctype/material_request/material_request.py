@@ -39,7 +39,10 @@ class MaterialRequest(BuyingController):
 		approver_name: DF.Data | None
 		branch: DF.Link
 		company: DF.Link
+		cost_center: DF.Data | None
 		customer: DF.Link | None
+		employee: DF.Link | None
+		employee_name: DF.Data | None
 		items: DF.Table[MaterialRequestItem]
 		job_card: DF.Link | None
 		letter_head: DF.Link | None
@@ -102,7 +105,7 @@ class MaterialRequest(BuyingController):
 					)
 
 	def validate(self):
-		# validate_workflow_states(self)
+		validate_workflow_states(self)
 		# super().validate()
 
 		self.validate_schedule_date()
@@ -140,6 +143,9 @@ class MaterialRequest(BuyingController):
 
 		self.reset_default_field_value("set_warehouse", "items", "warehouse")
 		self.reset_default_field_value("set_from_warehouse", "items", "from_warehouse")
+		if self.workflow_state != "Approved":
+			
+			notify_workflow_states(self)
 
 	def before_update_after_submit(self):
 		self.validate_schedule_date()
@@ -829,37 +835,90 @@ def make_in_transit_stock_entry(source_name, in_transit_warehouse):
 
 	return ste_doc
 
+@frappe.whitelist()
+def get_approver(branch):
+	branch_approver=frappe.db.sql(f""" select ab.employee from `tabBranch Item` bi inner join `tabAssign Branch` ab On bi.parent=ab.name where bi.branch=%s limit 1""",branch,as_dict=1)
+	if not branch_approver:
+		#frappe.throw(str(frappe.session.user))
+		reports_to=frappe.db.get_value("Employee",{"user_id":frappe.session.user},"reports_to")
+		if not reports_to:
+			frappe.throw("set report to")
+		#frappe.throw(str(reports_to))
+		approver=frappe.get_doc("Employee",reports_to)
+		return approver.user_id
 
-def get_permission_query_conditions(user):
-    if not user:
-        user = frappe.session.user
 
-    user_roles = frappe.get_roles(user)
+		#frappe.throw("Please set employee in assign branch")
+	emp=branch_approver[0]['employee']
+	approver=frappe.get_doc("Employee",emp)
+	#frappe.throw(str(approver.user_id))
+	return approver.user_id
 
-    # Admins get full access
-    if "System Manager" in user_roles or "Administrator" in user_roles:
-        return ""
 
-    conditions = []
+# def get_permission_query_conditions(user):
+#     if not user:
+#         user = frappe.session.user
 
-    # 🔴 Role-based override (NO branch restriction)
-    if "Purchase Manager" in user_roles:
-        conditions.append("`tabMaterial Request`.workflow_state = 'Waiting for Verification'")
-        return " AND ".join(conditions)
+#     user_roles = frappe.get_roles(user)
 
-    if "CFO" in user_roles:
-        conditions.append("`tabMaterial Request`.workflow_state = 'Waiting Approval'")
-        return " AND ".join(conditions)
+#     # Admins get full access
+#     if "System Manager" in user_roles or "Administrator" in user_roles:
+#         return ""
 
-    # 🟢 Default users: branch restriction only
-    employee = frappe.db.get_value("Employee", {"user_id": user}, "name")
-    if not employee:
-        return "1=0"
+#     conditions = []
 
-    branch = frappe.db.get_value("Employee", employee, "branch")
-    if not branch:
-        return "1=0"
+#     # 🔴 Role-based override (NO branch restriction)
+#     if "Purchase Manager" in user_roles:
+#         conditions.append("`tabMaterial Request`.workflow_state = 'Waiting for Verification'")
+#         return " AND ".join(conditions)
 
-    conditions.append(f"`tabMaterial Request`.branch = '{branch}'")
+#     if "CFO" in user_roles:
+#         conditions.append("`tabMaterial Request`.workflow_state = 'Waiting Approval'")
+#         return " AND ".join(conditions)
 
-    return " AND ".join(conditions)
+#     # 🟢 Default users: branch restriction only
+#     employee = frappe.db.get_value("Employee", {"user_id": user}, "name")
+#     if not employee:
+#         return "1=0"
+
+#     branch = frappe.db.get_value("Employee", employee, "branch")
+#     if not branch:
+#         return "1=0"
+
+#     conditions.append(f"`tabMaterial Request`.branch = '{branch}'")
+
+#     return " AND ".join(conditions)
+
+def get_permission_query_conditions(user, doctype=None):
+
+	user = user or frappe.session.user
+	roles = frappe.get_roles(user)
+
+	if "Administrator" in roles or "System Manager" in roles:
+		return ""
+
+	conditions = []
+
+	if "Purchase Manager" in roles:
+		conditions.append(
+			"`tabMaterial Request`.workflow_state = 'Waiting for Verification'"
+		)
+
+	if "CFO" in roles:
+		conditions.append(
+			"`tabMaterial Request`.workflow_state IN ('Waiting Approval', 'Approved','Received')"
+		)
+
+	if "Approver" in roles:
+		return f"""
+			`tabMaterial Request`.approver = '{user}'
+			or `tabMaterial Request`.branch IN (
+				SELECT bi.branch 
+				FROM `tabBranch Item` bi
+				INNER JOIN `tabAssign Branch` ab ON bi.parent = ab.name
+			)
+		"""
+
+
+
+	#return " AND ".join(conditions)
