@@ -911,7 +911,7 @@ def get_permission_query_conditions(user, doctype=None):
 
 	if "Approver" in roles:
 		return f"""
-			`tabMaterial Request`.approver = '{user}'
+			`tabMaterial Request`.approver = '{user}' or `tabMaterial Request`.owner = '{user}'
 			or `tabMaterial Request`.branch IN (
 				SELECT bi.branch 
 				FROM `tabBranch Item` bi
