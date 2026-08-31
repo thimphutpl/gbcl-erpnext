@@ -889,36 +889,100 @@ def get_approver(branch):
 
 #     return " AND ".join(conditions)
 
-def get_permission_query_conditions(user, doctype=None):
+# def get_permission_query_conditions(user, doctype=None):
+
+# 	user = user or frappe.session.user
+# 	roles = frappe.get_roles(user)
+	
+# 	if "Administrator" in roles or "System Manager" in roles:
+# 		return ""
+
+# 	conditions = []
+
+# 	if "Purchase Manager" in roles:
+# 		conditions.append(
+# 			"`tabMaterial Request`.workflow_state = 'Waiting for Verification'"
+# 		)
+
+# 	if "CFO" in roles:
+# 		conditions.append(
+# 			"`tabMaterial Request`.workflow_state IN ('Waiting Approval', 'Approved','Received')"
+# 		)
+
+# 	if "Approver" in roles:
+# 		return f"""
+# 			`tabMaterial Request`.approver = '{user}' or `tabMaterial Request`.owner = '{user}'
+# 			or `tabMaterial Request`.branch IN (
+# 				SELECT bi.branch 
+# 				FROM `tabBranch Item` bi
+# 				INNER JOIN `tabAssign Branch` ab ON bi.parent = ab.name
+# 			)
+# 		"""
+
+def get_permission_query_conditions(user=None, doctype=None):
 
 	user = user or frappe.session.user
 	roles = frappe.get_roles(user)
 
-	if "Administrator" in roles or "System Manager" in roles:
+	# 1. Administrator / System Manager can see everything
+	if user == "Administrator" or "System Manager" in roles:
 		return ""
 
-	conditions = []
+	user_sql = frappe.db.escape(user)
 
+	# 2. EVERY user can see documents created by themselves
+	conditions = [
+		f"`tabMaterial Request`.`owner` = {user_sql}"
+	]
+
+	# 3. Purchase Manager can additionally see
+	#    documents waiting for verification
 	if "Purchase Manager" in roles:
 		conditions.append(
-			"`tabMaterial Request`.workflow_state = 'Waiting for Verification'"
+			"`tabMaterial Request`.`workflow_state` = 'Waiting for Verification'"
 		)
 
+	# 4. CFO can additionally see documents
+	#    at CFO stages
 	if "CFO" in roles:
 		conditions.append(
-			"`tabMaterial Request`.workflow_state IN ('Waiting Approval', 'Approved','Received')"
+			"`tabMaterial Request`.`workflow_state` IN "
+			"('Waiting Approval', 'Approved', 'Received')"
 		)
 
+	# 5. Approver can additionally see documents
+	#    specifically assigned to them
 	if "Approver" in roles:
-		return f"""
-			`tabMaterial Request`.approver = '{user}' or `tabMaterial Request`.owner = '{user}'
-			or `tabMaterial Request`.branch IN (
-				SELECT bi.branch 
-				FROM `tabBranch Item` bi
-				INNER JOIN `tabAssign Branch` ab ON bi.parent = ab.name
-			)
-		"""
+		conditions.append(
+			f"`tabMaterial Request`.`approver` = {user_sql}"
+		)
 
+		# Get Employee connected with logged-in user
+		employee = frappe.db.get_value(
+			"Employee",
+			{"user_id": user},
+			"name"
+		)
+
+		# Approver can also see Material Requests
+		# from branches specifically assigned to that employee
+		if employee:
+			employee_sql = frappe.db.escape(employee)
+
+			conditions.append(
+				f"""
+				`tabMaterial Request`.`branch` IN (
+					SELECT bi.branch
+					FROM `tabBranch Item` bi
+					INNER JOIN `tabAssign Branch` ab
+						ON bi.parent = ab.name
+					WHERE ab.employee = {employee_sql}
+				)
+				"""
+			)
+
+	# User can see document when ANY allowed condition matches
+	return "(" + " OR ".join(conditions) + ")"
 
 
 	#return " AND ".join(conditions)
