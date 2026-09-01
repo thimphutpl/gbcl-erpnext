@@ -935,12 +935,16 @@ def get_permission_query_conditions(user=None, doctype=None):
 		f"`tabMaterial Request`.`owner` = {user_sql}"
 	]
 
-	# 3. Purchase Manager can additionally see
-	#    documents waiting for verification
+	# Purchase Manager can SEE ALL Material Requests
 	if "Purchase Manager" in roles:
-		conditions.append(
-			"`tabMaterial Request`.`workflow_state` = 'Waiting for Verification'"
-		)
+		return ""
+
+	user_sql = frappe.db.escape(user)
+
+	# Normal users see their own documents
+	conditions = [
+		f"`tabMaterial Request`.`owner` = {user_sql}"
+	]
 
 	# 4. CFO can additionally see documents
 	#    at CFO stages
