@@ -30,6 +30,7 @@ class AssetFinanceBook(Document):
 		shift_based: DF.Check
 		total_number_of_booked_depreciations: DF.Int
 		total_number_of_depreciations: DF.Int
+		use_straight_formula: DF.Check
 		value_after_depreciation: DF.Currency
 	# end: auto-generated types
 

@@ -11,6 +11,7 @@
   "total_number_of_depreciations",
   "total_number_of_booked_depreciations",
   "daily_prorata_based",
+  "use_straight_formula",
   "shift_based",
   "income_depreciation_percent",
   "column_break_5",
@@ -103,6 +104,15 @@
    "label": "Depreciate based on daily pro-rata"
   },
   {
+   "allow_on_submit": 1,
+   "default": "0",
+   "depends_on": "eval:doc.depreciation_method == \"Straight Line\" || doc.depreciation_method == \"Manual\"",
+   "description": "Bypasses the default Straight Line calculation. Formula: ((Gross Purchase Amount / Total Number of Depreciations) * 12 / 365) * No. of Days in the Period. Ignores Opening Number of Booked Depreciations.",
+   "fieldname": "use_straight_formula",
+   "fieldtype": "Check",
+   "label": "Use Straight Formula (Bypass Default Calculation)"
+  },
+  {
    "default": "0",
    "depends_on": "eval:doc.depreciation_method == \"Straight Line\"",
    "fieldname": "shift_based",
@@ -133,7 +143,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-11-20 23:28:36.851528",
+ "modified": "2026-09-15 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Asset Finance Book",

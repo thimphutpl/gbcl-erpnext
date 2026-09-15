@@ -802,14 +802,22 @@ def get_depreciation_amount(
 	has_pro_rata
 ):
 	if row.depreciation_method in ("Straight Line", "Manual"):
-		days_in_year = date_diff(get_year_ending(getdate(schedule_date)),get_year_start(getdate(schedule_date))) + 1
-		if has_pro_rata == 1:
-			depreciation_amount = (flt(row.value_after_depreciation) - flt(row.expected_value_after_useful_life)) / (flt(row.total_number_of_depreciations-asset.opening_number_of_booked_depreciations)/12)
-			# frappe.throw(str(depreciation_amount)+" "+str(schedule_date))
+		if row.get("use_straight_formula"):
+			# Client-specific formula, opt-in via "Use Straight Formula" checkbox on the
+			# Asset Finance Book row. Bypasses expected_value_after_useful_life and
+			# opening_number_of_booked_depreciations entirely.
+			depreciation_amount = (
+				(flt(asset.gross_purchase_amount) / flt(row.total_number_of_depreciations)) * 12 / 365
+			) * flt(no_of_days_in_a_schedule)
 		else:
-			depreciation_amount = (	flt(asset.gross_purchase_amount) - flt(row.expected_value_after_useful_life)) / (flt(row.total_number_of_depreciations)/12)
-		depreciation_amount = flt(depreciation_amount)* (flt(no_of_days_in_a_schedule)/flt(days_in_year))
-		
+			days_in_year = date_diff(get_year_ending(getdate(schedule_date)),get_year_start(getdate(schedule_date))) + 1
+			if has_pro_rata == 1:
+				depreciation_amount = (flt(row.value_after_depreciation) - flt(row.expected_value_after_useful_life)) / (flt(row.total_number_of_depreciations-asset.opening_number_of_booked_depreciations)/12)
+				# frappe.throw(str(depreciation_amount)+" "+str(schedule_date))
+			else:
+				depreciation_amount = (	flt(asset.gross_purchase_amount) - flt(row.expected_value_after_useful_life)) / (flt(row.total_number_of_depreciations)/12)
+			depreciation_amount = flt(depreciation_amount)* (flt(no_of_days_in_a_schedule)/flt(days_in_year))
+
 	else:
 		depreciation_amount = flt(depreciable_value * (flt(row.rate_of_depreciation) / 100))
 	return depreciation_amount

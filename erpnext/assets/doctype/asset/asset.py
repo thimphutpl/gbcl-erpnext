@@ -1555,6 +1555,7 @@ from erpnext.assets.doctype.asset_depreciation_schedule.asset_depreciation_sched
 	get_depr_schedule,
 	make_draft_asset_depr_schedules,
 	make_draft_asset_depr_schedules_if_not_present,
+	make_new_active_asset_depr_schedules_and_cancel_current_ones,
 	update_draft_asset_depr_schedules,
 )
 from erpnext.controllers.accounts_controller import AccountsController
@@ -1687,6 +1688,41 @@ class Asset(AccountsController):
 			self.make_gl_entries()
 		if self.calculate_depreciation and not self.split_from:
 			convert_draft_asset_depr_schedules_into_active(self)
+
+	def on_update_after_submit(self):
+		self.regenerate_depr_schedule_if_straight_formula_toggled()
+
+	def regenerate_depr_schedule_if_straight_formula_toggled(self):
+		if not self.calculate_depreciation or self.split_from:
+			return
+
+		old_doc = self.get_doc_before_save()
+		if not old_doc:
+			return
+
+		old_use_straight_formula_by_idx = {
+			row.idx: cint(row.use_straight_formula) for row in old_doc.get("finance_books")
+		}
+
+		use_straight_formula_toggled = any(
+			cint(row.use_straight_formula) != old_use_straight_formula_by_idx.get(row.idx, 0)
+			for row in self.get("finance_books")
+		)
+
+		if not use_straight_formula_toggled:
+			return
+
+		notes = _(
+			"This schedule was updated after changing the 'Use Straight Formula' setting on Asset {0}."
+		).format(get_link_to_form(self.doctype, self.name))
+
+		self.flags.ignore_validate_update_after_submit = True
+		make_new_active_asset_depr_schedules_and_cancel_current_ones(self, notes)
+
+		add_asset_activity(
+			self.name,
+			_("Depreciation Schedule regenerated after changing 'Use Straight Formula' setting"),
+		)
 		self.set_status()
 		add_asset_activity(self.name, _("Asset submitted"))
 		# self.calculate_depreciation()
