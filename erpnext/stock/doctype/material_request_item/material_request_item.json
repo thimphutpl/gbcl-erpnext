@@ -191,7 +191,6 @@
    "oldfieldname": "schedule_date",
    "oldfieldtype": "Date",
    "print_width": "100px",
-   "reqd": 1,
    "width": "100px"
   },
   {
@@ -491,7 +490,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-02-26 18:30:03.684872",
+ "modified": "2026-06-25 12:11:38.561530",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request Item",
