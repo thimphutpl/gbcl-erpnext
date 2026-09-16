@@ -57,7 +57,7 @@ class JournalEntry(AccountsController):
 		bank_payment: DF.Link | None
 		bill_date: DF.Date | None
 		bill_no: DF.Data | None
-		branch: DF.Link
+		branch: DF.Link | None
 		cheque_date: DF.Date | None
 		cheque_no: DF.Data | None
 		clearance_date: DF.Date | None
@@ -897,6 +897,10 @@ class JournalEntry(AccountsController):
 				d.against_account = frappe.db.get_value(d.reference_type, d.reference_name, field)
 		else:
 			for d in self.get("accounts"):
+				if not d.account:
+					frappe.throw(
+                    f"Row {d.idx}: Account missing for {d.get('salary_component') or 'entry'}"
+                )
 				if flt(d.debit) > 0:
 					accounts_debited.append(d.party or d.account)
 					# frappe.msgprint(frappe.as_json(d))
@@ -932,6 +936,7 @@ class JournalEntry(AccountsController):
 			tax_amount, tax_dr, tax_cr = 0, 0, 0
 			if d.debit and d.credit:
 				frappe.throw(_("You cannot credit and debit same account at the same time"))
+				
 
 			# self.total_debit = flt(self.total_debit) + flt(d.debit, d.precision("debit"))
 			# self.total_credit = flt(self.total_credit) + flt(d.credit, d.precision("credit"))
