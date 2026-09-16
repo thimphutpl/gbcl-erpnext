@@ -39,6 +39,7 @@ class DKBankPayment(Document):
 		remarks: DF.SmallText | None
 		response_details: DF.Data | None
 		table_eqqy: DF.Table[DKBankPaymentInvoices]
+		total_amount: DF.Currency
 		transaction: DF.Table[DKBankPaymentItems]
 		transaction_code: DF.Link
 		transaction_id: DF.Data | None
@@ -55,9 +56,17 @@ class DKBankPayment(Document):
 	def validate(self):
 		self.check_duplicate()
 		self.send_notification()
-		self.check_invoice_no()
+		if self.workflow_state == "Draft" :
+			self.check_invoice_no()
 		self.set_currency()
+		self.set_total_amount()
 		self.validate_account()
+	
+	def set_total_amount(self):
+		self.total_amount = sum(
+			flt(row.amount, 2)
+			for row in (self.transaction or [])
+		)
 
 	def set_currency(self):
 		for i in self.transaction:
@@ -65,6 +74,8 @@ class DKBankPayment(Document):
 				i.currency_code ="USD"
 			else:
 				i.currency_code ="BTN"
+
+				
 				
 	def check_invoice_no(self):
 		# ==========================================================
@@ -248,6 +259,17 @@ class DKBankPayment(Document):
 
 		trans_code = result[0][0] if result else None
 
+		for row in self.transaction:
+			if not row.bank_name:
+				frappe.throw(
+					f"Bank name is required for {row.beneficiary_name}."
+				)
+
+			if not row.fx_rate:
+				frappe.throw(
+					f"FX rate is required for {row.beneficiary_name}. Please click Get Transactions."
+				)
+
 		if trans_code != "3110R":
 			return
 
@@ -316,6 +338,7 @@ class DKBankPayment(Document):
 		
 
 		elif int(response['response_code']) == 4310:
+			self.db_set("workflow_state", 'Failed')
 			frappe.throw(response)
 		
 		# else:
@@ -383,7 +406,7 @@ class DKBankPayment(Document):
 		return 1
 
 	def load_items(self):
-		total_amount = 0
+		
 		self.set("transaction", [])
 
 		if not self.transaction_code:
@@ -440,7 +463,7 @@ class DKBankPayment(Document):
 			
 			row.update(i)
 			# total_amount += flt(i.amount, 2)
-
+		self.set_total_amount()
 	def get_transactions(self):
 		data = []
 		if self.transaction_type == "Salary":

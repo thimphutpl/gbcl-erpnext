@@ -108,11 +108,37 @@ class Employee(NestedSet):
 			self.update_user_permissions()
 		self.reset_employee_emails_cache()
 		self.update_salary_structure()
+		self.update_target_set_up()
 	def update_salary_structure(self):
 		ss = frappe.db.get_value("Salary Structure", {"employee": self.name, "is_active": "Yes"}, "name")
 		if ss:
 			doc = frappe.get_doc("Salary Structure", ss)
 			doc.flags.ignore_permissions = 1
+			doc.save()
+	def update_target_set_up(self):
+		target = frappe.db.get_value(
+			"Target Set Up",
+			{"employee": self.name},
+			"name"
+		)
+
+		if target:
+			doc = frappe.get_doc("Target Set Up", target)
+
+			if self.reports_to:
+				manager = frappe.db.get_value(
+					"Employee",
+					self.reports_to,
+					["user_id", "employee_name", "designation"],
+					as_dict=True
+				)
+
+				if manager:
+					doc.approver = manager.user_id
+					doc.approver_name = manager.employee_name
+					doc.approver_designation = manager.designation
+
+			doc.flags.ignore_permissions = True
 			doc.save()
 	def sync_user_status(self):
 		if self.user_id and frappe.db.exists("User", self.user_id):
@@ -327,10 +353,10 @@ def get_holiday_list_for_employee(employee, raise_exception=True):
 def is_holiday(employee, date=None, raise_exception=True, only_non_weekly=False, with_description=False):
 	"""
 	Returns True if given Employee has an holiday on the given date
-	        :param employee: Employee `name`
-	        :param date: Date to check. Will check for today if None
-	        :param raise_exception: Raise an exception if no holiday list found, default is True
-	        :param only_non_weekly: Check only non-weekly holidays, default is False
+			:param employee: Employee `name`
+			:param date: Date to check. Will check for today if None
+			:param raise_exception: Raise an exception if no holiday list found, default is True
+			:param only_non_weekly: Check only non-weekly holidays, default is False
 	"""
 
 	holiday_list = get_holiday_list_for_employee(employee, raise_exception)

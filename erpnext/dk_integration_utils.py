@@ -188,12 +188,12 @@ def generate_dk_signature_transaction(private_key,doc):
     beneficiary_name = i.beneficiary_name
     currency_code = i.currency_code
     amount = i.amount
-    description = i.description
+    description = doc.remarks
     beneficiary_bank = i.bank_name
     currency = i.currency_code
     fx_rate = i.fx_rate
 
-    # frappe.throw(str(currency))
+    # frappe.throw(str(description))
         
     # if doc.salary:
     #     trans_code = dk_integration_setting.strans_code
@@ -235,7 +235,7 @@ def generate_dk_signature_transaction(private_key,doc):
         "txn_description": description,
         "txn_purpose": "",
         "source": {
-            "amount": amount,
+            "amount": flt(amount,2),
             "currency": currency,
             "fx_rate_to_base": flt(fx_rate,2),
             "base_currency": "BTN",
@@ -243,7 +243,7 @@ def generate_dk_signature_transaction(private_key,doc):
         },
             "target": {
             "fx_rate":1,
-            "amount": amount,
+            "amount": flt(amount,2),
             "currency": currency,
             "fx_rate_to_base": flt(fx_rate,2),
             "base_currency": "BTN",
@@ -675,7 +675,8 @@ def fetch_gl_turn_over(date):
 
             # frappe.throw(str(dk_time_stamp))
             if signature_data:
-                url = 'https://internal.digitalkidu.bt:8082/api/cbs/connect/v1/gl/turnover'
+                # url = 'https://internal.digitalkidu.bt:8082/api/cbs/connect/v1/gl/turnover'
+                url ='https://dk-payment-switch.uat.digitalkidu.bt:3003/api/v1/inquiry/gl/balance'
                 headers = {
                     'Content-Type': 'application/json',
                     'X-gravitee-api-key': dk_integration_setting.x_gravitee_api_key,  # Optional
@@ -701,7 +702,7 @@ def fetch_gl_turn_over(date):
                     # frappe.throw((inquiry_response.json()))
                 inquiry_detail = inquiry_response.json()
                 # return inquiry_detail
-                # frappe.throw(frappe.as_json(inquiry_detail))
+                frappe.throw(frappe.as_json(inquiry_detail))
                 print('Success:', inquiry_response.json())
                 # return token_response
                 return inquiry_response

@@ -231,6 +231,7 @@ class TargetSetUp(Document):
  
 @frappe.whitelist()
 def create_review(source_name, target_doc=None):
+   
 	if frappe.db.exists('Review',
 		{'target':source_name,
 		'docstatus':('!=',2)
@@ -238,11 +239,33 @@ def create_review(source_name, target_doc=None):
 		frappe.throw(
 			title='Error',
 			msg="You have already created Review for this Target")
+	target = frappe.get_doc("Target Set Up", source_name)
+
+	# Get latest approver from Employee
+	reports_to = frappe.db.get_value(
+		"Employee",
+		target.employee,
+		"reports_to"
+	)
+
+	current_approver = None
+	approver_name = None
+	approver_designation = None
+
+	if reports_to:
+		employee = frappe.get_doc("Employee", reports_to)
+
+		current_approver = employee.user_id
+		approver_name = employee.employee_name
+		approver_designation = employee.designation
 	doclist = get_mapped_doc("Target Set Up", source_name, {
 		"Target Set Up": {
 			"doctype": "Review",
 			"field_map":{
-					"target":"name"
+					"target":"name",
+					"approver":"approver",
+					"approver_designation":"approver_designation",
+					"approver_name":"approver_name"
 				},
 			},
 		"Common Target Item":{
@@ -255,7 +278,13 @@ def create_review(source_name, target_doc=None):
 			"doctype":"Negative Target Review"
 			},
 	}, target_doc)
+	if current_approver != target.approver:
 
+		doclist.approver = current_approver
+		doclist.approver_name = approver_name
+		doclist.approver_designation = approver_designation
+	else:
+		doclist.approver = target.approver
 	return doclist
 
 @frappe.whitelist()
