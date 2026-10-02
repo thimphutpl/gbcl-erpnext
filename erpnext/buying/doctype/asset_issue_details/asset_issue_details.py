@@ -84,15 +84,22 @@ class AssetIssueDetails(Document):
         # frappe.throw(str(total_qty2))
         total_qty = flt(total_qty1)+flt(total_qty2)
         
-        issued_qty = frappe.db.sql("""select sum(ifnull(qty,0)) issued_qty
-                                   from `tabAsset Issue Details` 
-                                   where item_code ='{}'
-                                   and branch = '{}'
-                                   and purchase_receipt = '{}'
-                                   and docstatus = 1 
-                                   and name != '{}'
-                                   and company="{}"
-                        """.format(self.item_code, self.branch, self.purchase_receipt, self.name,self.company))[0][0]
+        issued_qty = frappe.db.sql("""
+            select sum(ifnull(qty,0)) issued_qty
+            from `tabAsset Issue Details`
+            where item_code = %(item_code)s
+            and branch = %(branch)s
+            and purchase_receipt = %(purchase_receipt)s
+            and docstatus = 1
+            and name != %(name)s
+            and company = %(company)s
+        """, {
+            "item_code": self.item_code,
+            "branch": self.branch,
+            "purchase_receipt": self.purchase_receipt,
+            "name": self.name,
+            "company": self.company
+        })[0][0]
         
         balance_qty = flt(total_qty) - flt(issued_qty)
         if flt(self.qty) > flt(balance_qty):
