@@ -67,7 +67,74 @@ class BulkDKBankPayment(Document):
 
 	@frappe.whitelist()
 	def get_entries(self):
-		# frappe.throw("hi my friends, she ill ")
+
+	# Validate Journal Entry for the Payroll Entry	
+		journal_entry = frappe.db.sql("""
+			SELECT DISTINCT je.name
+			FROM `tabJournal Entry` je
+			INNER JOIN `tabJournal Entry Account` jea
+				ON jea.parent = je.name
+			WHERE jea.reference_type = 'Payroll Entry'
+			AND jea.reference_name = %s
+			LIMIT 1
+		""", (self.transaction_no,), as_dict=True)
+
+		if not journal_entry:
+
+			payroll_url = frappe.utils.get_url_to_form(
+				"Payroll Entry",
+				self.transaction_no
+			)
+
+			frappe.throw(
+				f"""
+				A Journal Entry has not been created for Payroll Entry
+				<b>{self.transaction_no}</b>.
+
+				<br><br>
+
+				<a href="{payroll_url}" target="_blank">
+					Open Payroll Entry and Make Bank Entry
+				</a>
+				""",
+				title="Journal Entry Required"
+			)
+
+
+		# Check whether the "To Bank" Journal Entry is submitted
+		to_bank_entry = frappe.db.sql("""
+			SELECT DISTINCT je.name, je.docstatus
+			FROM `tabJournal Entry` je
+			INNER JOIN `tabJournal Entry Account` jea
+				ON jea.parent = je.name
+			WHERE jea.reference_type = 'Payroll Entry'
+			AND jea.reference_name = %s
+			AND je.voucher_type = 'Bank Entry'
+			AND INSTR(je.title, 'To Bank') > 0
+			LIMIT 1
+		""", (self.transaction_no,), as_dict=True)
+
+		to_bank_name = to_bank_entry[0].name
+		to_bank_docstatus = to_bank_entry[0].docstatus
+
+		if to_bank_docstatus != 1:
+
+			to_bank_url = frappe.utils.get_url_to_form(
+				"Journal Entry",
+				to_bank_name
+			)
+
+			frappe.throw(
+				f"""
+				The <b>To Bank</b> Journal Entry
+				<a href="{to_bank_url}" target="_blank">
+					<b>{to_bank_name}</b>
+				</a>
+				must be submitted before fetching transactions.
+				""",
+				title="To Bank Journal Entry Not Submitted"
+			)
+
 		data1= frappe.db.sql("""
 			select employee, gross_pay, net_pay,currency from `tabSalary Slip` 
 			where payroll_entry='{}';
