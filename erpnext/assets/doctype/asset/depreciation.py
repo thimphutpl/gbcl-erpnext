@@ -1188,18 +1188,15 @@ def get_depreciation_accounts(asset_category, company):
 		depreciation_expense_account = accounts.depreciation_expense_account
 
 	if not accumulated_depreciation_account or not depreciation_expense_account:
-		accounts = frappe.get_cached_value(
-			"Company", company, ["accumulated_depreciation_account", "depreciation_expense_account"]
+		frappe.throw(
+			_("Please set Depreciation related Accounts in Asset Category {0} for Company {1}").format(
+				asset_category, company
+			)
 		)
 
-		if not accumulated_depreciation_account:
-			accumulated_depreciation_account = accounts[0]
-		if not depreciation_expense_account:
-			depreciation_expense_account = accounts[1]
-
-	if not fixed_asset_account or not accumulated_depreciation_account or not depreciation_expense_account:
+	if not fixed_asset_account:
 		frappe.throw(
-			_("Please set Depreciation related Accounts in Asset Category {0} or Company {1}").format(
+			_("Please set Fixed Asset Account in Asset Category {0} for Company {1}").format(
 				asset_category, company
 			)
 		)
