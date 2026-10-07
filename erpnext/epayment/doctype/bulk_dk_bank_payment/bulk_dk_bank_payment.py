@@ -67,7 +67,74 @@ class BulkDKBankPayment(Document):
 
 	@frappe.whitelist()
 	def get_entries(self):
-		# frappe.throw("hi my friends, she ill ")
+
+	# Validate Journal Entry for the Payroll Entry	
+		journal_entry = frappe.db.sql("""
+			SELECT DISTINCT je.name
+			FROM `tabJournal Entry` je
+			INNER JOIN `tabJournal Entry Account` jea
+				ON jea.parent = je.name
+			WHERE jea.reference_type = 'Payroll Entry'
+			AND jea.reference_name = %s
+			LIMIT 1
+		""", (self.transaction_no,), as_dict=True)
+
+		if not journal_entry:
+
+			payroll_url = frappe.utils.get_url_to_form(
+				"Payroll Entry",
+				self.transaction_no
+			)
+
+			frappe.throw(
+				f"""
+				A Journal Entry has not been created for Payroll Entry
+				<b>{self.transaction_no}</b>.
+
+				<br><br>
+
+				<a href="{payroll_url}" target="_blank">
+					Open Payroll Entry and Make Bank Entry
+				</a>
+				""",
+				title="Journal Entry Required"
+			)
+
+
+		# Check whether the "To Bank" Journal Entry is submitted
+		to_bank_entry = frappe.db.sql("""
+			SELECT DISTINCT je.name, je.docstatus
+			FROM `tabJournal Entry` je
+			INNER JOIN `tabJournal Entry Account` jea
+				ON jea.parent = je.name
+			WHERE jea.reference_type = 'Payroll Entry'
+			AND jea.reference_name = %s
+			AND je.voucher_type = 'Bank Entry'
+			AND INSTR(je.title, 'To Bank') > 0
+			LIMIT 1
+		""", (self.transaction_no,), as_dict=True)
+
+		to_bank_name = to_bank_entry[0].name
+		to_bank_docstatus = to_bank_entry[0].docstatus
+
+		if to_bank_docstatus != 1:
+
+			to_bank_url = frappe.utils.get_url_to_form(
+				"Journal Entry",
+				to_bank_name
+			)
+
+			frappe.throw(
+				f"""
+				The <b>To Bank</b> Journal Entry
+				<a href="{to_bank_url}" target="_blank">
+					<b>{to_bank_name}</b>
+				</a>
+				must be submitted before fetching transactions.
+				""",
+				title="To Bank Journal Entry Not Submitted"
+			)
+
 		data1= frappe.db.sql("""
 			select employee, gross_pay, net_pay,currency from `tabSalary Slip` 
 			where payroll_entry='{}';
@@ -122,8 +189,8 @@ class BulkDKBankPayment(Document):
 						"For USD-USD transactions (3110R), only accounts starting with '1201' are allowed."
 					)
 			
-			if bank_name == "DK":
-				account_inquiry(bank_ac_no)
+			# if bank_name == "DK":
+			# 	account_inquiry(bank_ac_no)
 			
 
 			row["bank_ac_no"] = bank_ac_no
@@ -136,9 +203,61 @@ class BulkDKBankPayment(Document):
 		# frappe.throw(frappe.as_json(data1))
 
 
+# def create_bank_payments(bulk_doc_name):
+# 	# frappe.throw(str(bulk_doc_name))
+# 	bulk_doc = frappe.get_doc("Bulk DK Bank Payment", bulk_doc_name)
+# 	created_payments = []
+
+# 	for i in bulk_doc.transaction:
+
+# 		# Prevent duplicate creation
+# 		if i.dk_bank_payment:
+# 			continue
+
+# 		try:
+# 			doc = frappe.new_doc("DK Bank Payment")
+# 			doc.company = bulk_doc.company
+# 			# doc.transaction_code = "Intrabank transfer"
+# 			doc.transaction_code = bulk_doc.transaction_code
+# 			doc.transaction_type = "Bulk DK Bank Payment"
+# 			doc.paid_from = bulk_doc.paid_from
+# 			doc.bank_balance_usd = bulk_doc.bank_balance_usd
+# 			doc.bank_balance = bulk_doc.bank_balance
+# 			doc.bank_account_no = bulk_doc.bank_account_no
+# 			doc.transaction_no = bulk_doc.name
+	
+
+# 			doc.append("transaction", {
+# 				"beneficiary_account_no": i.beneficiary_account_no,
+# 				"beneficiary_name": i.beneficiary_name,
+# 				"amount": i.amount,
+# 				"bank_name": i.bank_name,
+# 				"fx_rate": i.fx_rate,
+# 			})
+			
+
+# 			# doc.account_enquire()
+# 			doc.insert(ignore_permissions=True)
+# 			doc.on_submit()
+# 			frappe.db.commit()
+
+# 			# Link created payment back to child row
+# 			i.db_set("dk_bank_payment", doc.name)
+
+# 			created_payments.append(doc.name)
+
+# 		except Exception as e:
+# 			frappe.log_error(
+# 				title="Bulk DK Bank Payment Error",
+# 				message=f"Row: {i.name}\nError: {str(e)}"
+# 			)
+# 			raise
+
+# 	return created_payments
 def create_bank_payments(bulk_doc_name):
-	# frappe.throw(str(bulk_doc_name))
+
 	bulk_doc = frappe.get_doc("Bulk DK Bank Payment", bulk_doc_name)
+
 	created_payments = []
 
 	for i in bulk_doc.transaction:
@@ -147,10 +266,12 @@ def create_bank_payments(bulk_doc_name):
 		if i.dk_bank_payment:
 			continue
 
+		doc = None
+
 		try:
 			doc = frappe.new_doc("DK Bank Payment")
+
 			doc.company = bulk_doc.company
-			# doc.transaction_code = "Intrabank transfer"
 			doc.transaction_code = bulk_doc.transaction_code
 			doc.transaction_type = "Bulk DK Bank Payment"
 			doc.paid_from = bulk_doc.paid_from
@@ -158,7 +279,6 @@ def create_bank_payments(bulk_doc_name):
 			doc.bank_balance = bulk_doc.bank_balance
 			doc.bank_account_no = bulk_doc.bank_account_no
 			doc.transaction_no = bulk_doc.name
-	
 
 			doc.append("transaction", {
 				"beneficiary_account_no": i.beneficiary_account_no,
@@ -167,26 +287,77 @@ def create_bank_payments(bulk_doc_name):
 				"bank_name": i.bank_name,
 				"fx_rate": i.fx_rate,
 			})
-			
 
-			# doc.account_enquire()
 			doc.insert(ignore_permissions=True)
-			doc.on_submit()
-			frappe.db.commit()
+			doc.submit()
+			doc.reload()
 
-			# Link created payment back to child row
 			i.db_set("dk_bank_payment", doc.name)
+
+			# frappe.log_error(str(doc.txn_status_code))
+			if int(doc.txn_status_code) != 0:
+				i.db_set("status", "Failed")
+				i.db_set("remark", doc.txn_status_description)
+				doc.db_set(
+					"workflow_state",
+					"Failed"
+				)
+			else:
+
+				i.db_set("status", "Completed")
+				i.db_set("remark", doc.txn_status_description)
 
 			created_payments.append(doc.name)
 
+			frappe.db.commit()
+
 		except Exception as e:
+
+			error_message = str(e)
+
 			frappe.log_error(
 				title="Bulk DK Bank Payment Error",
-				message=f"Row: {i.name}\nError: {str(e)}"
+				message=f"""
+				Row: {i.name}
+
+				Payment:
+				{doc.name if doc else ''}
+
+				Error:
+				{error_message}
+
+				Traceback:
+				{frappe.get_traceback()}
+				"""
 			)
-			raise
+
+			if doc:
+				doc.reload()
+
+				i.db_set("dk_bank_payment", doc.name)
+
+				i.db_set(
+					"remark",
+					doc.txn_status_description
+				)
+				i.db_set(
+					"status",
+					"Failed"
+				)
+				doc.db_set(
+					"workflow_state",
+					"Failed"
+				)
+
+
+			else:
+				i.db_set("remark", error_message)
+				i.db_set(
+					"status",
+					"Failed"
+				)
+			frappe.db.commit()
+
+			continue
 
 	return created_payments
-
-			
-

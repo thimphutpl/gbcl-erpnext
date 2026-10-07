@@ -16,7 +16,9 @@
   "amount",
   "bank_name",
   "dk_bank_payment",
-  "fx_rate"
+  "status",
+  "fx_rate",
+  "remark"
  ],
  "fields": [
   {
@@ -96,12 +98,28 @@
    "label": "FX Rate",
    "precision": "2",
    "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "\nPending\nCompleted\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Remark",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-07-02 11:10:59.170340",
+ "modified": "2026-07-29 20:11:01.424651",
  "modified_by": "Administrator",
  "module": "ePayment",
  "name": "Bulk DK Bank Payment Item",

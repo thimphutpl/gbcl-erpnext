@@ -30,13 +30,14 @@ class SWIFTPaymentInstruction(Document):
 		beneficiary_bank_swift_code: DF.Data | None
 		beneficiary_name: DF.Data | None
 		btfn_application_reference_number: DF.Data | None
-		charges_currency: DF.Literal["USD", "BTN", "SDG"]
+		charges_currency: DF.Literal["USD", "BTN", "SDG", "INR"]
 		charges_to_debited_from: DF.Literal["Our", "Beneficiary", "Share"]
 		commission_debit_account_number: DF.Data | None
 		company: DF.Data | None
 		customer_declaration_number: DF.Data | None
 		email: DF.Data | None
 		form_data: DF.Data | None
+		iban: DF.Data | None
 		intermediary_bank_address: DF.Data | None
 		intermediary_bank_name: DF.Data | None
 		intermediary_bank_swift_code: DF.Data | None
@@ -46,6 +47,7 @@ class SWIFTPaymentInstruction(Document):
 		phone_number: DF.Data | None
 		posting_date: DF.Date | None
 		present_address: DF.Data | None
+		purpose: DF.SmallText | None
 		reason: DF.Data | None
 		transaction_id: DF.DynamicLink | None
 		transaction_type: DF.Literal["", "Journal Entry", "Payment Entry"]
