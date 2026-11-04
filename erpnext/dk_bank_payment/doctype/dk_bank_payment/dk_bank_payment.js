@@ -5,7 +5,7 @@ frappe.ui.form.on("DK Bank Payment", {
 
 
     refresh: function (frm) {
-        if (frm.doc.docstatus === 1 && frm.doc.workflow_state == 'Completed') { // 1 = Submitted
+        if (frm.doc.docstatus === 1 && ['Submitted', 'Completed', 'Failed'].includes(frm.doc.workflow_state)) { // 1 = Submitted; Submitted = still waiting for DK
             frm.add_custom_button(__('Check Transaction Status'), function () {
 
                 frappe.call({
@@ -19,8 +19,8 @@ frappe.ui.form.on("DK Bank Payment", {
                         frappe.dom.unfreeze();
 
                         if (r.message) {
-                            console.log("hi");
                             frappe.msgprint(__("Transaction status fetched successfully."));
+                            frm.reload_doc();
 
                         } else {
                             frappe.throw(__("Unable to fetch Bank Balance"));
@@ -116,6 +116,9 @@ frappe.ui.form.on("DK Bank Payment", {
                     }
 
                 }
+            },
+            error: function () {
+                frappe.dom.unfreeze(); // never leave the screen frozen when DK refuses
             }
         });
     },

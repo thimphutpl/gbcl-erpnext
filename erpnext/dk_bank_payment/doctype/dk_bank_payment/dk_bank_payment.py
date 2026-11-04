@@ -5,6 +5,7 @@ import frappe
 import json
 from frappe.model.document import Document
 from erpnext.dk_integration_utils import intrabank_transfer,check_status_transaction,account_inquiry,fetch_exchange_rate
+from erpnext import dk_gb_adapter, dk_gb_client, dk_webhook
 from frappe.utils import (
 	flt,
 	
@@ -218,7 +219,7 @@ class DKBankPayment(Document):
 			if not send_to:
 				frappe.throw("Verifier email is not configured in Company Notification Settings")
 
-			frappe.sendmail(
+			self._send_mail(
 				recipients=[send_to],
 				subject="DK Bank Payment Verification Needed",
 				message=f"""
@@ -239,7 +240,7 @@ class DKBankPayment(Document):
 			if not send_to:
 				frappe.throw("Approver email is not configured in Company Notification Settings")
 
-			frappe.sendmail(
+			self._send_mail(
 				recipients=[send_to],
 				subject="DK Bank Payment Approval Needed",
 				message=f"""
@@ -249,6 +250,13 @@ class DKBankPayment(Document):
 					DK/GMC ERP System
 				""",
 			)
+
+	def _send_mail(self, **kwargs):
+		"""Notification emails are a courtesy: a mail problem must never block a payment."""
+		try:
+			frappe.sendmail(**kwargs)
+		except Exception:
+			frappe.log_error(title="DK Bank Payment notification email failed", message=frappe.get_traceback())
 
 	def validate_account(self):
 		result = frappe.db.sql(
@@ -270,7 +278,9 @@ class DKBankPayment(Document):
 					f"FX rate is required for {row.beneficiary_name}. Please click Get Transactions."
 				)
 
-		if trans_code != "3110R":
+		if trans_code != "3110R" or dk_gb_client.is_new_api_enabled():
+			# The '1201' USD account prefix belongs to the legacy gateway. In the DK Banking API one
+			# account number holds every currency, and the currency is sent with the payment.
 			return
 
 		# Validate payer account
@@ -288,7 +298,7 @@ class DKBankPayment(Document):
 
 	def account_enquire(self):
 		result = account_inquiry(self.bank_account_no)
-		if self.transaction_code == "3110R":
+		if self.transaction_code == "3110R" and not dk_gb_client.is_new_api_enabled():
 			account_no = result.get("response_data", {}).get("account_info", {}).get("account_no", "")
 
 			if not account_no.startswith("1201"):
@@ -317,6 +327,8 @@ class DKBankPayment(Document):
 		# frappe.db.commit()
 
 	def process_transaction(self):
+		if dk_gb_client.is_new_api_enabled():
+			return self.process_transaction_gb()
 		response = intrabank_transfer(self)
 		# response_code = response.get("response_code")
 		# frappe.throw(frappe.as_json(response))
@@ -399,6 +411,22 @@ class DKBankPayment(Document):
 	# 	self.db_set("transaction_status_request_id", meta_info.get("txn_status_req_id"))
 	# 	self.db_set("response_details", response.get("response_detail"))
 
+	def process_transaction_gb(self):
+		"""Pay through the DK Banking API (v1).
+
+		DK answers 202 ACKNOWLEDGED; the final SETTLED / REJECTED arrives by webhook (or by
+		"Check Status"), so the payment stays Submitted until then.
+		"""
+		transaction = dk_gb_adapter.send_payment(self)
+		created_by = frappe.db.get_value("User", frappe.session.user, "full_name")
+		# Same bookkeeping as the webhook, so both paths end in the same state.
+		dk_webhook.apply_transaction(transaction, source="submit")
+		description = frappe.db.get_value("DK Bank Payment", self.name, "txn_status_description")
+		self.db_set(
+			"txn_status_description",
+			f"{description or transaction.get('status')} | Created by: {created_by}"[:140],
+		)
+
 	@frappe.whitelist()
 	def get_entries(self):
 		self.load_items()
@@ -416,7 +444,9 @@ class DKBankPayment(Document):
 				SELECT currency 
 				FROM `tabTransaction Code` 
 				WHERE name= %s""",(self.transaction_code), as_dict=True)[0].currency
-		if currency and currency.upper() != "BTN":
+		if dk_gb_client.is_new_api_enabled():
+			fx_rate = dk_gb_adapter.get_fx_rate(currency)  # DK's indicative rate, for information
+		elif currency and currency.upper() != "BTN":
 			result=fetch_exchange_rate(self.transaction_code)
 			
 			data = result.json()
@@ -446,7 +476,12 @@ class DKBankPayment(Document):
 			if not i.beneficiary_name:
 				frappe.throw("Please update beneficiary name in the supplier or employee")
 			import re
-			if i.bank_name == "DK":
+			if dk_gb_client.is_new_api_enabled():
+				# A DK account must exist. Another bank's system being down only warns.
+				dk_gb_adapter.check_beneficiary(
+					i.beneficiary_account_no, i.bank_name, tolerant=i.bank_name != "DK"
+				)
+			elif i.bank_name == "DK":
 				account_inquiry(i.beneficiary_account_no)
 				
 
@@ -691,6 +726,19 @@ def check_transaction_status(doc):
 	# frappe.throw(str(data['name']))
 	# Fetch the document using the correct doctype name
 	dk_doc = frappe.get_doc("DK Bank Payment", str(data['name']))
+
+	if dk_gb_client.is_new_api_enabled():
+		try:
+			transaction = dk_gb_client.lookup_transaction(
+				payment_number=dk_doc.txn_id, sender_reference=dk_doc.name
+			)
+		except dk_gb_client.DKAPIError as e:
+			frappe.throw(f"DK status check failed: {e}")
+		if not transaction:
+			frappe.throw("DK has no transaction for this payment.")
+		dk_webhook.apply_transaction(transaction, source="status check")
+		frappe.db.commit()
+		return transaction.get("status")
 
 	# Call your function to get transaction status
 	response = check_status_transaction(doc)
