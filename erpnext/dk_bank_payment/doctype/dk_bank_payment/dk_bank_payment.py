@@ -39,6 +39,7 @@ class DKBankPayment(Document):
 		posting_status_code: DF.Data | None
 		remarks: DF.SmallText | None
 		response_details: DF.Data | None
+		sender_reference: DF.Data | None
 		table_eqqy: DF.Table[DKBankPaymentInvoices]
 		total_amount: DF.Currency
 		transaction: DF.Table[DKBankPaymentItems]
@@ -54,6 +55,17 @@ class DKBankPayment(Document):
 		txn_status_description: DF.Data | None
 	# end: auto-generated types
 
+	def verify_with_dk(self):
+		"""New API: when a payment is handed on for verification or approval, check everything that can be
+		checked before money moves (accounts, bank code, balance, holder name, and whether DK already has it).
+		Raises, and so stops the step, if something is wrong."""
+		if (
+			dk_gb_client.is_new_api_enabled()
+			and self.docstatus == 0
+			and self.workflow_state in ("Waiting for Verification", "Waiting Approval", "Approved")
+		):
+			dk_gb_adapter.verify_payment(self, check_duplicate=True)
+
 	def validate(self):
 		self.check_duplicate()
 		self.send_notification()
@@ -62,8 +74,14 @@ class DKBankPayment(Document):
 		self.set_currency()
 		self.set_total_amount()
 		self.validate_account()
-	
+		self.verify_with_dk()
+
+	def on_cancel(self):
+		self.db_set("workflow_state", "Cancelled")
+		frappe.db.commit()
+
 	def set_total_amount(self):
+		
 		self.total_amount = sum(
 			flt(row.amount, 2)
 			for row in (self.transaction or [])
@@ -417,15 +435,39 @@ class DKBankPayment(Document):
 		DK answers 202 ACKNOWLEDGED; the final SETTLED / REJECTED arrives by webhook (or by
 		"Check Status"), so the payment stays Submitted until then.
 		"""
-		transaction = dk_gb_adapter.send_payment(self)
-		created_by = frappe.db.get_value("User", frappe.session.user, "full_name")
-		# Same bookkeeping as the webhook, so both paths end in the same state.
-		dk_webhook.apply_transaction(transaction, source="submit")
-		description = frappe.db.get_value("DK Bank Payment", self.name, "txn_status_description")
-		self.db_set(
-			"txn_status_description",
-			f"{description or transaction.get('status')} | Created by: {created_by}"[:140],
-		)
+		transaction = dk_gb_adapter.send_payment(self)  # raises, and nothing was sent, if a check fails
+		# From here DK HAS the payment. Nothing below may undo that in the ERP: an error here used to roll the
+		# whole step back, so the ERP forgot a payment DK had made, and the next Apply paid it again.
+		try:
+			created_by = frappe.db.get_value("User", frappe.session.user, "full_name")
+			# Same bookkeeping as the webhook, so both paths end in the same state.
+			dk_webhook.apply_transaction(transaction, source="submit")
+			description = frappe.db.get_value("DK Bank Payment", self.name, "txn_status_description")
+			self.db_set(
+				"txn_status_description",
+				f"{description or transaction.get('status')} | Created by: {created_by}"[:140],
+			)
+		except Exception:
+			frappe.log_error(title="DK payment sent, but the ERP could not finish recording it", message=frappe.get_traceback())
+			dk_gb_adapter.audit("bookkeeping_failed", self, payment_number=transaction.get("paymentNumber"), status=transaction.get("status"))
+			try:  # keep the minimum that ties this document to DK's payment; Check Transaction Status or the webhook finishes it
+				frappe.db.set_value(
+					"DK Bank Payment", self.name,
+					{"txn_id": transaction.get("paymentNumber"), "transaction_id": transaction.get("paymentNumber"),
+					"txn_status_code": transaction.get("status")},
+					update_modified=False,
+				)
+			except Exception:
+				pass
+			frappe.msgprint(
+				f"DK has this payment ({transaction.get('paymentNumber')}), but the ERP could not record every detail. "
+				"It will NOT be sent again. Open the payment and use Check Transaction Status.",
+				indicator="orange",
+			)
+		try:  # make "DK has it" durable now, so no later failure in this request can roll it back
+			frappe.db.commit()
+		except Exception:
+			pass
 
 	@frappe.whitelist()
 	def get_entries(self):

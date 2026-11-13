@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "format:DKBP-{YY}-{MM}-{DD}-{###}",
- "creation": "2025-05-15 20:55:27.918324",
+ "creation": "2026-11-05 14:49:45.494985",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -40,6 +40,7 @@
   "in_queue",
   "posting_status_code",
   "txn_id",
+  "sender_reference",
   "txn_drn",
   "txn_status_description",
   "column_break_ujsk",
@@ -128,6 +129,7 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Amount",
+   "options": "Company:company:default_currency",
    "read_only": 1
   },
   {
@@ -303,12 +305,20 @@
    "fieldtype": "Data",
    "label": "txn id",
    "read_only": 1
+  },
+  {
+   "description": "The reference DK knows this payment by (for example BDKBP-26102300005-1). DK uses it to recognise a payment it already has.",
+   "fieldname": "sender_reference",
+   "fieldtype": "Data",
+   "label": "DK Reference",
+   "no_copy": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-25 11:56:21.682811",
+ "modified": "2026-11-13 14:32:40.339620",
  "modified_by": "Administrator",
  "module": "DK Bank Payment",
  "name": "DK Bank Payment",
