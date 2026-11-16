@@ -40,6 +40,7 @@ class Account(NestedSet):
 		bank_account_type: DF.Link | None
 		bank_branch: DF.Link | None
 		bank_name: DF.Link | None
+		beneficiary_name: DF.Data | None
 		budget_type: DF.Link | None
 		company: DF.Link
 		cost_center: DF.Link | None

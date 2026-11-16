@@ -31,6 +31,7 @@
   "section_break_tvam",
   "bank_name",
   "bank_branch",
+  "beneficiary_name",
   "column_break_cykx",
   "bank_account_type",
   "bank_ac_no",
@@ -263,13 +264,18 @@
    "fieldtype": "Link",
    "label": "Budget Type",
    "options": "Budget Type"
+  },
+  {
+   "fieldname": "beneficiary_name",
+   "fieldtype": "Data",
+   "label": "Beneficiary Name"
   }
  ],
  "icon": "fa fa-money",
  "idx": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2025-05-05 20:20:10.044084",
+ "modified": "2026-10-27 11:52:14.076068",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Account",
